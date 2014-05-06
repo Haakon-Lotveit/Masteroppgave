@@ -1,0 +1,300 @@
+\documentclass[11pt]{article}
+\usepackage{cite}
+\usepackage{hyperref}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+% GANT plott, fått fra KT-Nilsen.
+\usepackage{tikz}
+\usepackage{gantt}
+% /GANT
+\begin{document}
+
+\title{Litteraturgjennomgang}
+\author{Haakon Løtveit}
+\date{24. april 2014}
+\maketitle
+
+
+\section{Innledning og bakgrunn}
+I dag trenger man stadig oppdaterte data og rapporter, for eksempel i medisinen, og det inkluderer rapporter om trender og statistisk analyse av disse.
+Genereringen av disse rapportene tar per i dag lang tid og er et møysommelig arbeid, som gjør at rapporter blir utgitt sjeldnere grunnet kostnadene.
+For eksempel gir kreftregisteret ut en rapport hvert år med data om kreftsykdom i norge, med interessante data. Men disse dataene er per år, og oppdateres kun en gang i året.
+En vil også vegre seg for å gi ut data av personvernshensyn, og dermed sitter en med et snevert datagrunnlag.
+
+Hva om en kunne redusere kostnadene med å produsere disse rapportene, slik at en kunne lage flere? Hva om en kunne "trykke på knappen" og få en oppdatert rapport med nye data i seg?
+En kan opplagt nok ikke slavebinde tusenvis av statistikere og skribenter, men hva om istedenfor å lage rapporter, så lagde en rapportfabrikker som lagde en rapport basert på en mal?
+En slik mal må ha støtte for:
+\begin{itemize}
+\item Samarbeid med eksterne verktøy som statistikere bruker, slik at de kan benytte systemet uten å måtte lære alt på nytt.
+  Det finnes mange verktøy som statistikere og andre bruker hver dag, som enkelt kan støttes. \footnote{Vi kan nevne i fleng R, SPSS, Matlab, Julia, SciPy etc.}
+  Disse trenger et filformat som alle verktøyene kan forstå. CSV\cite{csv} er en god kandidat for et slikt format.
+  
+\item Støtte for rapportgenerering i relevante formater. PDF er et minstekrav, men andre formater kan tenkes\footnote{For eksempel kan det være ønskelig med RFC-822, også kjent som e-post, slik at en kan sende resultater som e-post til noen.}.
+  Derfor må rapportformatet enten kunne stilles inn, eller være en type som kan kompileres om til andre formater.
+  En mulighet her er DocBook XML eller et annet internt XML-format. Da har en en dokumentstruktur som kan manipuleres og omformes til andre former.
+
+  \item Det hadde også vært ønskelig om rapporten om ikke kunne generere korrekt godt norsk, i alle fall kom i gang med et forslag som kunne redigeres. For å få dette til må en ha en viss semantisk forståelse av teksten, som en har td. i den semantiske veven, med RDF\cite{rdf11primer} + ontologier\cite{damloil}\cite{owlref}. Det finnes systemer fra før av som kan generere tekst og denne typen systemer hadde kunne passet godt inn her.
+
+\item Innstillinger for hvilke grafer, mm. som skulle lages, og hvordan.
+  For eksempel, hvilket datagrunnlag en vil bruke (fra 2008-2012? Hva med 2004-2008?), rekkefølge på ting i rapporten, med mer.
+  
+\item Innstillinger for presentasjonen, på en lignende måte som CSS lar en pynte på nettsider, eller \LaTeX -stylesheets lar deg gjøre med .tex dokumenter.
+  Da skiller en informasjonen fra presentasjonen, som gjør det billigere i termer av tid og krefter å eksperimentere med presentasjon mm. av disse rapportene.
+\end{itemize} 
+På denne måten kunne vi laget et system som ikke bare generte rapporter, men genererte nyttige rapporter, når en ville det over det en ville.
+Istedenfor å stipulere over data i et helt år før en gir ut en ny rapport kunne en generert rapporten på nytt med oppdaterte verdier. Hvis nye data ble gjort tilgjengelige kan en oppdatere rapporten med et tastetrykk.
+
+Et slikt system vil kunne gjøre rapporter og statistikker lettere å generere, og dermed gjøre prosessen rundt dette raskere og billigere.
+I tillegg kan en bruke datagrunnlaget som legges til grunn for slike rapporter til å generere forskjellige beslutnigsstøttesystemer. Dersom en vil gå den veien, trenger en muligens mindre generering av tekst, men en kan også la slike systemer generere data til rapportene som sådann. En kan tenke seg flere typer rapportgenerering, alt etter hva som er hensiktsmessig for et gitt tilfelle.
+
+Denne typen systemer er ikke begrenset til medisinen, men også i andre tilfeller. Det finnes for eksempel systemer for automatisk rapportgenerering av enhetstester\footnote{TODO: Finn siteringen} slik at en kan kjøre enhetstester på td. en server og få tilsendt rapporter over e-post.
+
+\section{Innsamling av data}
+Antagelsen er at data som skal brukes er lagret i heterogene systemer.
+Det vil si at dataene ligger i forskjellige steder, lagret i forskjellige formater, fra flat-struktur (CSV, XLS, ODT osv.) til relasjonelle data, dokumentdatabaser, RDF-tripler, med mer.
+For at systemer enkelt skal kunne bruke mange forskjellige datakilder må en enten la hver enkelt reasoner selv snakke til alle kildene, konvertere data til egnede formater, osv. eller legge et system i mellom reasonerene og datakildene som tar seg av snakkingen for dem. Et slikt system må selv snakke med de forskjellige kildene og holde et mellomformat klart, og så deretter tilby et spørringspunkt som for eksempel SPARQL\footnote{SPARQL Protocol and RDF Query Language} som kan returnere data i egnede formater\footnote{Blant annet XML, JSON og CSV. For detaljer, se: \url{http://jena.apache.org/documentation/}}
+Et poeng her blir å nevne at det ikke er generatoren som sådann som skal samle inn data, den jobben blir gjort av enten reasoneren i seg selv, eller av støtteprogrammer. Dette er for å holde kompleksiteten lav, og dermed muligheten til å utvide og rette på programmet så åpen som mulig.
+
+\subsection{Kanonisering av data som RDF-tripler (Løfting)}
+Etter at en har skaffet til veie data, må disse gjøres om til et felles format. Å tilegne data semantisk innhold kalles for \emph{løfting}, og vil la oss bruke semantiske teknologier til å gjøre ting som å generere en begynnelse på tekst.\cite{repgenmiakt} Videre finnes det allerede medisinske ontologier\cite{medont} til bruk for å beskrive medisinske tilstander som kan brukes.
+Løftere har blitt skrevet til flere formater, som for eksempel csv\cite{tarql}, og kan dermed gjøre programmatisk, gitt at en kan beskrive formatet på filen.
+
+Selv om den mekaniske biten kan gjøres automatisk av datamaskiner i dag, må en fortsatt manuelt sette opp hva de forskjellige dataene betyr semantisk i en ontologi. Måten dette gjøres på er ofte forskjellig fra verktøy til verktøy, men felles er at en må gi en mapping fra et datum til et sett RDF-tripler.
+
+\subsection{Nedkonvertering av data til flate journaler (Senking)}
+Siden ikke alle programmeringsspråk per i dag har gode biblioteker tilgjengelig for bruk av rdf, blir det vanskelig å bruke datagrunnlaget uten hjelp.
+I den sammenheng blir det nødvendig å kunne senke dataene fra RDF til andre formater, som XML, JSON eller CSV, avhengig av hva som blir støttet av verktøyene. Fuseki støtter heldigvis direkte disse med fler formater.
+
+\section{Reasonere, hva menes?}
+Det finnes mange typer reasonere som arbeider over medisinske data, som for eksempel case-based reasonere\cite{hybrid-case-based}, fuzzy reasonere \cite{fuzzy-approach} \cite{fuzzycogmap} mm.
+Disse går gjennom medisinske data for å hjelpe leger med beslutningsstøtte. Det vil si at de hjelper leger og annet medisinsk personnell med å ta beslutninger. Denne type reasonere kan benytte systemet som en kilde til data, men kan også benytte seg av rapportsystemet til å rapportere tilbake til brukerene med funnene sine.
+Det finnes reasonere per i dag som er laget for å bruke semantiske data\cite{ application-ontological-reasoning} som kan dra nytte av at data i andre systemer blir tilgjengeliggjort for bruk som semantiske lenkede data.
+
+Det finnes også en annen klasse rapporter som må nevnes, som er hintet til tidligere i oversikten.
+Kreftregistret gir hvert år ut en rapport om kreft i Norge\cite{kreftregistret2011}, og som blir kompilert ned hvert år til en ny rapport.\footnote{Du finner publikasjonene deres her: \url{http://kreftregisteret.no/no/Generelt/Publikasjoner/Cancer-in-Norway/}}
+En slik rapport er et resultat av innsamling av data, bearbeiding av dem vha. statistiske verktøy, generering av grafer og tabeller før en setter seg ned for å skrive.
+Automatisering av deler av dette arbeidet kunne gjort arbeidet deres enklere og raskere.
+En automatisering av rapportskriving på denne måten ville som tidligere nevnt også gjort denne type arbeid billigere, og en kunne dermed hatt bedre rapportert på samme budsjett.
+
+Automatisk generering av rapporter blir også gjort utenfor medisinen for eksempel for å rapportere testing av vevstjenester\cite{ webrepgen}, og hos NASA\cite{modbasedrepgen} sin rakettavdeling til å bruke systemer som DocBook\footnote{\url{http://www.docbook.org/}} til å automatisk generere dokumenter basert på data som produseres av diverse systemer har de satt opp automatisk generering av høykvalitets dokumentasjon.
+
+Denne typen generatorer kan bruke resultater som blir generert og publisert av andre reasonere til å produsere rapporterer til generelt konsum, og vil automatisk kunne oppdateres ved feilretting og lignende.
+
+\section{Rapport-generering}
+Så hvordan genererer en slike rapporter?
+NASA har som tidligere nevnt et slikt system i produksjon per i dag\cite{modbasedrepgen}, og en kan utvide denne typen generering med semantiske teknologier som MIAKT\cite{repgenmiakt} til å produsere mer utførlige rapporter.
+En kan også publisere produserte data vha. Dublin Core\footnote{\url{http://dublincore.org/}} til bruk i rapporter senere, slik at en kan bruke produserte rapporter av reasonere på et senere tidspunkt.
+
+I tillegg til DocBook kan en også bruke andre systemer som \LaTeX, HTML ressurser til publisering på web-servere, eller annet ved en senere anledning.
+
+En kan se for seg ikke bare en rekke forskjellige reasonere som produserer materiale til rapporter, men også en rekke forskjellige rapportgeneratorer som bruker de forskjellige produserte dataene til forskjellig bruk, avhengig av hva brukerene har behov for på et gitt tidspunkt.
+
+Et betimelig spørsmål da blir hvordan en skal generere disse forskjellige formatene.
+En mulighet er å stjele en ide fra GNUs kompilatorsamling: Siden GNUs kompilatorsamling skal kompileres til mange forskjelige arkitekturer\footnote{SPARC, Power/PowerPC, x86/AMD64, ARM etc.} genrerer ikke GCC maskinkode direkte. Istedenfor å gjøre C om til ASM som deretter blir kompilert, er GCC delt inn i 2 biter:
+Front-ends, som kompilerer kode ned til et mellomformat, og back-ends som kompilerer mellomformatet ned til maskinkode.
+På den måten kan en enkelt utvide GCC til nye arkitekturer: En skriver en back-end som kompilerer ned mellomformatet til maskinkode, og så kan du kompilere alle språkene GCC støtter med en gang.
+Og skal du støtte et nytt språk, skriver du en front-end som kompilerer ned språket til mellomformatet, og alle arkitekturene blir da automatisk støttet.
+En lignende løsning virker forlokkende på et slikt system.\footnote{For mer om hvordan GCC kompilerer ned, se dokumentasjonen for GCC interne virkemåter: \url{http://gcc.gnu.org/onlinedocs/gccint/index.html}}
+I tillegg til å se på GCC kan en også se på GNU Make\footnote{TODO: cite GNU Make manual} sin måte å jobbe på. Selv om syntaksen er relativt gammeldags, er ideen bak fortsatt god, i at en spesifiserer hva som skal gjøres og hvilke handlinger som avhenger av hvilke andre.
+
+\section{Brukergrensesnittet}
+Hvem blir da brukeren av slike systemer?
+Systemet er ikke ment til å brukes av sluttbrukere direkte, da det er meningen at reasonere skal produsere matematiske resultater eller typografisk gode rapporter. Disse krever kompetanse av brukerene: Vekting av data til statistisk bruk krever en bakgrunnskunnskap i statistikk, og en kommer ikke utenom dette.
+
+Problemstillingen for brukergrensesnittet blir da å lage et system som er enkelt og fornuftig for alle fra de som produserer statistiske resultater is Matlab, SPSS, R og lignende til de som produserer større fuzzy-logic baserte reasonere i store rammeverk. I tillegg må det altså være greit for de som skal produsere rapportene etterpå å få fatt i dataene og produsere gode rapporter med dem basert på verktøyene de selv bruker, det være seg \LaTeX, Adobe Publisher, DocBook eller noe helt annet.
+
+En legger opp til en spesifikk arbeidsflyt der en kan skrive programmer som produserer dataene en trenger, og programmer som tar data og produserer ting utav dem. Disse kan en skrive paralellt, og en kan oppdatere data ved å kjøre prosessen på nytt, og få nye data ut.
+
+\section{Problemstilling}
+Så hva er problemstillingen til slutt?
+Målet blir, ambisiøst nok, å produsere et system som støtter forskjellige reasonere som kan hente ut data og deretter publisere sine funn vha. bl.a. semantisk teknologi. Deretter skal systemet støtte forskjellige rapportgeneratorer som henter ut slike funn og produserer rapporter i forskjellige formater basert på hva de finner.
+Dette stiller flere krav:
+\begin{itemize}
+\item For det første må et slikt system ta hånd om mange forskjellige dataformater, fra RDBMSer til eksporterte Excel-dokumenter til RDF-tripler.
+  Robust håndtering av disse formatene betyr ikke bare at en kan snakke med forskjellige kilder, men at en kan løfte dem opp til et semantisk nivå slik at de kan benyttes på nye måter av reasonere. Denne løftingen baseres på publiserte ontologier, og må mappes manuelt. Å gjøre den manuelle biten så enkel og smertefri som mulig blir dermed viktig.
+\item For det andre må dette systemet støtte reasonere skrevet i mange forskjellige språk med forskjellige egenskaper og forskjellige muligheter for å lese datatyper. Noen kan kanskje konsumere XML, mens andre klarer kun CSV, og noen må kanskje ha andre formater. Noen kan kanskje bruke HTTP POST/GET Request kall, mens andre kan kalle på systemressurser indirekte, og andre igjen må kanskje kjøres i hjelpeprogrammer som mater dem med informasjonen de trenger. Denne variansen gjør at en må støtte alt fra det enkleste shellscript som kaller på hjelpeprogrammer til store Java EE systemer.
+\item Når en da har et system som lar reasonere hente ned informasjon, ressonnere over dataene og produsere nye data, må disse da kunne publiseres. Denne publiseringen bruker da Dublin Core og andre evt. passende ontologier\footnote{For eksempel en ontologi for å håndtere matematikk, eller bildemateriale}, til å tilegne sine funn mening, så de større rapportsystemene kan finne igjen resultatene senere. En kan også ha andre behov til arbeidsflyt, og det er her viktig at vi er påpasselige med å gjøre ting korrekt.
+\item Videre må rapportene ha klare APIer og lignende de kan bruke slik at de kan gjøre jobben sin så enkelt som mulig. Jo enklere det er å produsere gode rapporter, jo bedre. Disse programmene må ha tilgang til produserte data via SPARQL, så de kan hente ut relevante data. Jo mer rapportgeneratorene kan benytte seg av semantikk til å finne data de trenger jo bedre.
+\item I tillegg til å ha muligheter til å gjøre alt dette trenger en også eksempler på bruk av systemet, både på reasonersiden og rapportgenereringssiden, for å vise hvordan systemet er ment til å fungere. En trenger også eksempler på løfting av data slik at en har eksempler på hvordan dette bør gjøres.
+\end{itemize}
+
+Et annet spørsmål blir hvordan et slikt system bør designes, og hvilke teknologier som bør brukes. En kan se på flere bøker om hvordan en designer større systemer, som The Art Of Unix Programming\cite{taoup}, og andre bøker om bruk av UML\cite{umlpatterns},sikker koding\cite{certguide}, og mange fler for hvordan en bør gå fram her. Et poeng her blir likevel at programmet må være modulært og laget slik at en enkelt kan plugge inn nye biter, det være seg datakilder, reasonere eller rapportgeneratorer. Merk at jeg ikke har nevnt noe om sluttbrukerene og deres grensesnitt, det er rett og slett ikke ment som et system for sluttbrukere, men som et system for andre til å lage noe til sluttbrukerene med. Derfor er ikke de nevnt som en av de store utfordringene, men ting som API-design og lignende er en utfordring, \emph{fordi folk som utvider systemet er brukerene som systemet er ment for.} Det er derfor fortsatt viktig med god design og hensyn til brukeren, men hensynene må tas på en annen måte med et annet utgangspunkt.
+
+\section{Metodevalg}
+Jeg har valgt Design og produksjon som min metode i prosjektet, med de krav det stilller.
+Jeg skal som nevnt produsere et programvaresystem, og må derfor gjøre analyse av krav, valg av programmeringsspråk, paradigmer, plattformer som det skal kjøres på, standarder som skal støttes og mer.
+I tillegg til dette må det velges en utviklingsmetodologi, basert på mine behov som utvikler. Valget av disse er viktige, da de vil forme prosjektet og programmets virkemåte. For å kunne ta disse valgene må jeg først se hvilke krav som skal gjelde, deriblant de nevnt i problemstillingen, men også se på målene som jeg ønsker å oppnå.
+Siden det ikke er mulig å vite hvor lang tid ting vil ta før en har gjort det, er det vanskelig å si hvor mye som blir ferdig, men jeg vil fortsatt produsere en oversikt over planlagt bruk av tid.
+
+
+\subsection{Design og produksjon}
+\cite[p.111]{Oates2006} hevder at design og produksjonsmetodologien\footnote{``Design and Creation'' methodology} kan brukes ved siden av andre forskningsstrategier. I mitt tilfelle brukes den mer eller mindre alene.
+Resultatet av utviklingsfasen er ikke nødvendigvis et produkt i seg selv, men en protoype som utvider tidligere arbeid i domenet av rapportgenerering. Resultatet blir dermed et system som skal gjøre det enkelt å generere rapporter basert på inndata.
+Det er et krav om bruk av utviklingsmetodologi, som jeg vil snakke om i et eget avsnitt. Målet med arbeidet er altså å arbeide med generering av rapporter, og forenkling av arbeidet til reasonere.
+
+\subsection{Utviklingsmetodologi}
+Det er mange utviklingsmetodologier i bruk i dag, og det er vanlig å skille mellom smidige og ikke-smidige metodologier. Jeg har valgt å bruke en iterativ metodologi som heter spiralmodellen.\footnote{cite: http://dl.acm.org/citation.cfm?doid=12944.12948}.
+Grunnen til at jeg ønsker å bruke spiralmodellen er fordi den er lettforståelig, lar en bruke smidige metoder under utvikling, men behandler ikke problemstillinger om kommunikasjon, som passer utmerket for meg som arbeider alene.
+I motsetning til spiralmodellen krever for eksempel XP parprogrammering, og SCRUM krever stand-ups. Disse blir vanskelige å følge når en bare er en.
+
+En utfordring med å ha en smidig metodologi er at en må infinne seg med at en ikke har det endelige designet gitt på forhånd. Ikke bare må en innrømme at implementasjonskravene kan endre seg, en må omfavne disse endringene og bruke dem til å levere bedre programvare. I mitt tilfelle vil det si at jeg kan oppdage at en del av prosjektet mitt er allerede gjort av andre, og må dermed fokusere på andre ting istedenfor for å gjøre sluttproduktet så bra som mulig.
+
+For eksempel kan det godt hende at det finnes gode programmer som dumper SQL-spørringer ned til CSV-filer, selv om jeg ikke har funnet dem. Hvis jeg kommer over et slikt program, burde jeg da skrive en erstatning eller burde jeg heller innlemme et slikt program i systemet slik det er?
+
+Det er mange fler utviklingsmetodologier, men et valg måtte altså gjøres, og valget falt på spiralmodellen.
+
+\subsection{Plattform}
+Når en skal skrive programvare må programvaren kjøre på en datamaskin. Typen av datamaskin programmet kan kjøre på kalles for en plattform, og vi kan nevne i fleng .Net, JVM, Microsoft Windows, POSIX, GNU/Linux, og mange fler.
+.Net og JVM er interessante fordi de er abstrakte plattformer, de kjører altså på toppen av andre plattformer, for eksempel har en Mono om en ønsker å kjøre .Net kode på GNU/Linux, og Oracle JVM for både Windows, Solaris, GNU/Linux med fler.
+Dersom en skriver programvaren til en av disse plattformene kan de altså kjøre på alle plattformer som har en implementasjon. En skriver java-kode og kan dermed kjøre den både på POSIX-systemer og Microsoft Windows-systemer.
+En annen mulighet er å forholde seg til Microsoft Windows, da denne plattformen er den desidert mest brukte til kontormaskiner og lignende, og har sterk støtte i industrien.
+En tredje mulighet er å knytte seg til POSIX, dvs. Unix\footnote{Derunder Mac OSX, GNU/Linux, BSD-operativsystemene, samt de større industrielle operativsystemene som AIX, Solaris mm.} som er den soleklart foretrukne plattformen for servere og større arbeidsmaskiner.
+
+Siden forskjellige plattformer har forskjellige kulturer knyttet til seg, og har utviklingsverktøy som er tilpasset sine egne behov (Windowsutviklere har hatt MSVS lenge, Code::Blocks til Unix er mye nyere. På den annen side, grep, sed, awk, etc. er standard på alle Unixmaskiner, men ikke på MS Windows.) vil valg av plattform også til en viss grad binde en til en kulturell oppfatning av programmering.
+
+Jeg ønsker å utvikle programvaren min for *nix, dvs. ``Unix''\footnote{Unix er et varemerke og refererer til noe spesifikt, mens *nix referer til systemer unixlignende systemer som har vokst opp rundt Unix. Eksempler er BSD, Solaris, GNU, m.fl.}, fordi dens filosofi gjør den egnet til denne typen oppgaver.\footnote{TODO: siter TAOUP av ESR der han går igjennom tradisjonene.}
+Unix er spesiell i at det er en del muntlige tradisjoner og prinsipper som beskriver kulturen rundt Unix. 
+For å sitere Eric Smith Raymond, en autoritet på Unix og forfatter av boken The Art of Unix Programming, kan en oppsummere tradisjonene slik:
+\begin{description}
+\item [Klarhetsprinsippet] Klarhet er bedre en kløkt.
+\item [Komposisjonsprinsippet] Design programmer til å kunne kobles sammen med andre programmer.
+\item [Separasjonsprinsippet] Adskill politikk fra mekanisme, og adskill kontrakter fra motorer.
+\item [Enkelhetsprinsippet] Design for enkelhet, legg kompleksitet til bare der du må.
+\item [Gnierprinsippet] Skriv et stort program bare når det er demonstrativt klart at intet annet vil hjelpe.
+\item [Gjennomsiktighetssprinsippet] Design for synlighet, for å gjøre inspeksjon og debugging enklere.
+\item [Robusthetsprinsippet] Robusthet er et barn av gjennomsiktighet og enkelhet.
+\item [Representasjonsprinsippet] Bak kunnskap inn i data, så programmets logikk kan være dum\footnote{Altså ukomplisert, se enkelhetsprinsippet og gnierprinsippet.} og robust.
+\item [Overraskelsesprinsippet] Når en designer en kontrakt, gjør alltid det som er minst overraskende.
+\item [Stillhetsprinsippet] Når et program ikke har noe overraskende å si, bør det ikke si noenting.
+\item [Reparassjonsprinsippet] Når du må feile, feil så støyende og så snart som mulig.
+\item [Økonomiprinsippet] Programmerere er dyre, datamaskiner er billige. Konserver derfor programmerere til fordel for datamaskiner.
+\item [Skapelsesprinsippet] Unngå små håndlagde hacker\footnote{Hack i den akademiske betydningen er en artig/kløktig/morsom liten løsning på et problem, og en Hacker er en som produserer denne typen løsninger.}. Skriv programmer til å skrive programmer når du kan.
+\item [Optimaliseringsprinsippet] Prototyping skjer før polering. Det skal virke før det skal optmialiseres.
+\item [Flerkultursprinsippet] Ikke stol på noen utsagn om ``den ene sanne vei''.
+\item [Utvidbarhetsprinsippet] Design for framtiden, for den vil være her før du aner det.
+\item [Modularitetsprinsippet] Skriv enkle programmer som er koblet sammen av enkle kontrakter.
+\end{description}
+
+Dermed bør programvaren være enkel, utvidbar, lettforståelig, og bestå av mange små deler som arbeider sammen.
+Effektivitet er et mindre hensyn, fordi datamaskiner er billige, og tiden min ikke er det.
+De bør også snakke sammen via tekst, fordi det er lettere å se hva som skjer hvis noe går galt, og alle kan forstå tekst.
+
+Alt i alt legger Unix-filosofien en del føringer på deg som utvikler, men du får også en del fordeler tilbake. Du får for eksempel en del programmer du kan bruke, og det er lett å finne ut hvordan de brukes.
+Skripting er også ansett som en god ting, og støtten på *nix systemer er jevnt over veldig sterk, med alt fra GNU BASH og Z-shell til sed  og awk til perl og python.
+Siden programmene er enkle er det også lettere å legge til funksjonalitet. Hvis du vil sende en e-post kan du bruke Sendmail til det. Hvis du vil tilby et program over internett kan du bruke CGI og Apache til å tilby det direkte med veldig lite arbeid fra din side.
+
+\subsection{Språkvalg}
+Siden språket skal kjøre på *nix plattformer, bør språkvalg falle på språk som passer til den filosofien.
+Til dømes er skripting ansett som en viktig måte å koble sammen funksjonalitet på, og en bør dermed kunne gjøre dette.
+Derfor bør en velge språk som lar en skrive små imperative programmer, som Python eller Perl.
+
+Selv om objektorientering er en stor trend, er det ikke slik at en nødvendigvis bør bruke, per flerkulturprinsippet.
+Gnierprinsippet tilsier også at en ikke bør skrive større programmer enn nødvendig.
+En stor del av nytteverdien til OOP er gjenbruksfaktoren, at kode skal være lettere å bruke på nytt. På samme måte vil disse filterprogrammene kunne brukes av hverandre, da de er enkle å forstå, inndata og utdata er klart definert, og kan dermed enkelt brukes av andre programmer, også de skrevet i andre programmeringsspråk. Siden vi sikter på mange små programmer er også OOPs fordeler av organisering av større kodebaser minimert.
+Derfor er ikke OOP et kriterie for språkvalg.
+
+På den annen side er gode kontrollstrukturer, og evne til feilsøking, lesbarhet av kode og lignende desto viktigere. Hvor fort koden kjører er ikke så viktig.
+
+Derfor er språk som Python, BASH, Perl og lignende svært relevante, og større språk som Java og C\# mindre interessante for vår bruk.
+Det betyr ikke at for eksempel Java er et dårlig valg, det betyr bare at årsakene til å bruke Java ikke er fasilitetene for å skrive store programmer, men støtten for små.
+
+Siden spiralmetoden er valgt, betyr det at vi ikke på nåværende tidspunkt kan si noe om hvilke språk vi er garanterte å bruke, men en god gjetning inkluderer Python og Bashskript.
+
+\subsection{Paradigmevalg}
+Som nevnt er vi ikke festet til OOP, men ønsker å holde oss til små programmer, og dermed funksjonelle og imperative programmer.
+!
+Den imperative stilen er godt egnet for små programmer, da det er lett å skrive, og veldig lett å forstå for andre programmerere.
+Siden vi skal sende utdata videre til nye programmer som argumenter, er en pseudofunksjonell stil antatt fra grunnen av. Hvert program kan ses på som en boks som tar inn data, og gir ut nye data basert på de gamle.
+Selv om programmene internt kan være svært destruktive, og endre state svært mye, har det ikke noe å si fra et høyere perspektiv.
+Vi kan derfor skrive mange små imperative programmer som er lette å lese og skrive, og putte dem inn i et system som er designet rundt funksjonelle prinsipper,
+Dette gir oss det beste av to verdener: Vi kan designe funksjonelt, resonnere over struktur og tolkning av data på et høyere nivå som gir oss mer tillit til hvordan systemet skal ende opp til slutt,
+og vi kan skrive programmene mer eller mindre slik vi vil.
+Nytteverdien av å kunne benytte matematiske definisjoner og matematisk rigør på designet betyr at vi kan si ting som at dersom delkomponentene i en komponent fungere, vil komponenten fungere.
+Vi kan også skrive enkel og naiv kode som er lett å tyde for andre for å implementere designet. Siden koden kan defineres som en mapping fra inndata til utdata blir også enhetstesting enkel å utføre.
+
+Derfor vil jeg altså holde meg til funksjonell design med komponenter som knyttes sammen, der disse komponenentene kan implementeres slik det gir mest mening, for å gjøre koden lettforståelig og robust.
+
+\section{Framdriftsplan}
+\label{sec:framdrifstplan}
+ \begin{figure}[ht]
+
+\noindent\makebox[\textwidth]{
+
+\begin{gantt}{20}{12}
+\begin{ganttitle}
+      \numtitle{2014}{1}{2015}{6}
+    \end{ganttitle}
+    \begin{ganttitle}
+      \titleelement{Aug}{1}
+      \titleelement{Sep}{1}
+      \titleelement{Oct}{1}
+      \titleelement{Nov}{1}
+      \titleelement{Dec}{1}
+      \titleelement{Jan}{1}
+      \titleelement{Feb}{1}
+      \titleelement{Mar}{1}
+      \titleelement{Apr}{1}
+      \titleelement{May}{1}
+      \titleelement{Jun}{1}
+      \titleelement{Jul}{1}
+    \end{ganttitle}
+    \ganttbar{Første enkle utgave av rapportgenerator}{0}{1}
+    \ganttbar{Undersøke kode til lignende prosjekter}{0}{1}
+
+    \ganttgroup{Første sprint}{1}{3}
+    \ganttbar[color=green]{Spesifisere generisk språk for mellomformat}{1}{2}
+    \ganttbar[color=green]{Spesifisere kompilering ned til \LaTeX}{1}{2}
+    \ganttbar[color=green]{Enkle rapporter som skal genereres for testing.}{2}{1}
+    \ganttbar[color=green]{Testing og fiksing}{2}{2}
+
+    \ganttgroup{Andre sprint}{4}{3}
+    \ganttbar[color=green]{Utvidelse av språk}{4}{1}
+    \ganttbar[color=green]{Kompilering til HTML}{5}{2}
+
+
+    \ganttgroup{Tredje sprint}{7}{3}
+    \ganttbar[color=green]{Hjelpeprogrammer for reasonere}{7}{1}
+    \ganttbar[color=green]{Utvidelse av dokumentasjon med demonstrasjoner, mm.}{8}{1}
+    \ganttbar[color=green]{Produksjon av masteroppgave i rapportsystemet}{9}{1}
+    \ganttbar[color=gray]{Tekstproduksjon}{0}{9}
+    \ganttbarcon[color=red]{Revisjon}{9}{1}
+    \ganttmilestone[color=cyan]{Siste innlevering}{10}
+  \end{gantt}
+  
+%  \end{center}
+}
+  \caption{GANNT of project}
+  \label{fig:gannt}
+\end{figure}
+\newpage
+Som dere sikkert kan se er den initielle prosjektplanen relativt spartansk, fordi å sette opp mer nøyaktige planer går imot spiralmodellen. Derfor må en reevaluere underveis i prosjektet.
+Planen inneholder derimot en substansiell porsjon tid til å lese gjennom andres kode som har gjort lignende prosjekter tidligere, som forhåpentligvis gir meg mer domenekunnskap som forhåpentligvis blir relevant for senere anstrengelser.
+Jeg mener det er en god ide å begynne med å sette seg inn i ting som er gjort tidligere, slik at jeg kan unngå feil andre har gjort, og plukke opp gode ideer.
+Siden systemet er funksjonelt og dermed utsøkt modulært er det veldig lett å bytte ut deler av det med nye underveis. Derfor kan jeg prøve ut teknologier enkelt, og bytte dem ut dersom de ikke passer.
+Videre gjør det funksjonelle designet det veldig lett å enhetsteste forskjellige deler av systemet underveis for å sikre oss korrekthet og robusthet.
+Selv om enhetstestingen ikke er strengt nødvendig for mine resultater, vil jeg fortsatt skrive testene tidlig og underveis, for å forsikre meg om at hver enkelt del er korrekt.
+
+Etter det følger tre sprinter, der jeg utvikler i tre distinkte faser.
+Den første fasen er enkelt og greit definisjoner av språk og enkle implementeringer. Denne utforskende fasen blir viktig, fordi den vil legge føringer for alt videre arbeid.
+
+Etter det følger den andre sprinten, der språket blir utvidet til å takle mer kompliserte konstruksjoner enn det som ble tid til i første.
+Jeg regner altså ikke med å være ferdig med språket til første sprint. Etter det vil jeg bygge en kompilasjonsmodul for å kunne kompilere ned, ikke bare til \LaTeX, men også til HTML, for å demonstrere at en kan gjøre det på forskjellige måter.
+
+På tredje sprinten vil hjelepeprogrammer for reasonere, utvidelse av dokumentasjonen andre auksilliære artefakter lages. Målet er til slutt å kunne produsere hele masteroppgaven (denne) i systemet, for å kunne demonstrere nytteverdien av et slikt system.
+En slik produksjon må da bruke hjelepeprogrammer, resultater fra egenstående programmer, hente ut informasjon fra en database, med mer.
+
+Teksten til masteroppgaven vil skrives fortløpende under hele prosessen, helt til mai, der den vil revideres, og bygges med prosjektet, og leveres inn i mai måned.
+
+Det er viktig å merke seg at dette er bare en tentativ plan som kan og sannsynligvis må endres underveis.
+
+
+\section{Oppsummering}
+Det er verdt å merke seg at selv om mye av rapportgenerering er gjort før, har det alltid vært gjort under spesifikke domener. Dette prosjektet vil produsere en prototype for å generere rapporter for alle domener, vha. et generisk språk som skal være lett å skrive.
+Det vil ikke kunne erstatte systemer som \LaTeX eller andre dokumentgenerasjonssystemer, men stå som et tynt lag på toppen av dem, mellom andre programmer og dokumentgenereringen i seg selv.
+
+Jeg tror at et slikt system kan være umåtelig nyttig, og hjelpe mange mennesker med å få mer gjort, billigere både i termer av penger og arbeid.
+
+\bibliography{referanser}{}    
+\bibliographystyle{plain}
+\end{document}
