@@ -134,6 +134,8 @@ Resultatet av utviklingsfasen er ikke nødvendigvis et produkt i seg selv, men e
 Det er et krav om bruk av utviklingsmetodologi, som jeg vil snakke om i et eget avsnitt. Målet med arbeidet er altså å arbeide med generering av rapporter, og forenkling av arbeidet til reasonere.
 
 \subsection{Utviklingsmetodologi}
+%% OBS! Jeg vurderer her å droppe Spiral til fordel for Rational Unified Process som er en
+%% iterativ metodologi som innlemmer ting fra smidige metodologier.
 Det er mange utviklingsmetodologier i bruk i dag, og det er vanlig å skille mellom smidige og ikke-smidige metodologier. Jeg har valgt å bruke en iterativ metodologi som heter spiralmodellen.\footnote{cite: http://dl.acm.org/citation.cfm?doid=12944.12948}.
 Grunnen til at jeg ønsker å bruke spiralmodellen er fordi den er lettforståelig, lar en bruke smidige metoder under utvikling, men behandler ikke problemstillinger om kommunikasjon, som passer utmerket for meg som arbeider alene.
 I motsetning til spiralmodellen krever for eksempel XP parprogrammering, og SCRUM krever stand-ups. Disse blir vanskelige å følge når en bare er en.
@@ -289,9 +291,167 @@ Teksten til masteroppgaven vil skrives fortløpende under hele prosessen, helt t
 Det er viktig å merke seg at dette er bare en tentativ plan som kan og sannsynligvis må endres underveis.
 
 
+\section{Resultater}
+\label{sec:resultater}
+
+Når prosjektet er over skal det leveres et system for generering av rapporter, som kan ta mange former.
+Dette systemet er en ny måte å generere rapporter på, selv om ideene bak ikke nødvendigvis er nye.
+Ideen med skjeletter som fylles ut med resultater av å kalle på kode er ikke ny,
+men hentet fra PHPs standard måte å fungere på.
+Ideen bak å kompilere ned til et mellomformat som deretter blir kompilert ut til ønsket endelig form
+er fra GCC sin oppbygning, og dens mulighet til å krysskompilere til mange forskjellige arkitekturer.
+Videre er Make et gammelt system for å bygge systemer vha. en avhengighetsgraf,
+som automatiserer bygging av programmer.
+
+Disse tre tenkemåtene er ikke nye, men gamle velprøvde metoder for å få ting gjort på.
+De har overlevd tidens tann og er ansett som gammeldagse\footnote{PHP har fått konkurranse av nyere måter å generere sider på. En lager fortsatt skjeletter som fylles ut, men en gjør det ikke lenger på samme måte som PHP i sin tid innførte.},
+men som solide teoretisk velfunderte metoder for å generering av artefakter.
+Det som ikke har blitt gjort før er å kombinere disse til et system for å generere rapporter av ulike slag.
+
+Hvis prosjektet skal skryte over all forventning representerer det en \emph{evolusjon} over tidligere
+metoder, og står som et uavhengig verktøy som kan brukes på tvers av datalagringsløsninger.
+
+Denne uavhengigheten er også uvanlig.
+Det finnes rapportsystemer for  proprietære systemer som lar deg formattere rapporter for deres ting,
+men dette medfører at administratorer og brukere må lære seg nye systemer per system.
+I motsetning til disse systemene tilbyr altså dette systemet en effektiv måte å generere rapporter fra
+alle systemer som tillater tredjeparts tilgang til data, \emph{på tvers av} disse systemene.
+
+Denne fordelen gir mange heldige bivirkninger:
+\begin{description}
+\item [Opplæring]
+  Siden systemet kan ta hånd om rapportgenerering på tvers av systemer må en i stedenfor å lære seg
+  rapportgenerering fra forskjellige systemer, samt finne løsninger på å sy sammen data,
+  heller lære seg et system en gang.
+  En må lære rapportsystemet å snakke til datasystemet, men dette er en engangsutgift av tid og innsats,
+  som kan gjøres av andre enn sluttbrukerene av rapportsystemet.
+\item [Interoptabilitet]
+  Å gå på tvers av systemer lar en enkelt kombinere mange heterogene datakilder til et rapportgrunnlag.
+  Dermed kan en kombinere data fra mange kilder, kjøre dem gjennom flere programmer,
+  og til slutt sy sammen data til en profesjonelt-utseende rapport.
+\item [Fleksibilitet]
+  Det er dermed ikke sagt at systemet bare brukes til rapportgenerering fra store systemer med mange
+  databaser,
+  det kan like godt brukes til mindre kompliserte oppgaver som skriving av mastergrader, slik som denne.
+  Andre muligheter er resultater av bygging og integrasjonstesting av systemer,
+  der en kan be en server om å bygge et prosjekt, kjøre testene, lagre alle tilbakemeldinger,
+  og sende dem til rapportgenerering som deretter kan generere en pdf-rapport om resultatet,
+  eller sende e-poster til alle utviklerene om resultatet mm.
+\item [Fokus]
+  Dersom slike rapportprodukter blir populære i framtiden, vil det si at utviklere som leverer
+  programvareprodukter som CRM-løsninger og lignende ikke lenger trenger å tilby store avanserte
+  løsninger for rapportgenerering men kan i stedenfor nøye seg med å tilby godt definerte databaser
+  som brukere kan kjøre spørringer mot for å generere rapporter istedenfor.
+  Dette lar utviklerene konsentrere seg om hovedproduktet og ikke sekundære men livsviktige funksjoner.
+  I lengden blir dette bedre for alle:
+  Produktene kan forenkles, og ha mindre linjer med kode, som gir færre programfeil,
+  mens kundene kan velge hvordan de vil generere rapporter med flere muligheter og reell valgfrihet.
+\end{description}
+
+\section{Kravspesifikasjon}
+\label{sec:kravspesifikasjon}
+
+Målet med systemet er å la brukeren enkelt bygge rapporter fra mange kilder ned til en rapport med en enkel kommando.
+
+Systemet er delt opp i to deler, som igjen er delt opp i mindre deler.
+Som tidligere nevnt bygger prosjektet på UNIX-filosofien om mange små verktøy som samarbeider.
+Evalueringen skal derimot skje mot systemet som en helhet.
+
+For å kunne evaluere et system må en ha krav som en kan evaluere opp mot.
+Siden dette prosjektet baserer seg på spiralmodellen inspirert av smidige metoder,
+benyttes brukerhistorier for å spesifisere funksjonelle krav.
+Selv om evalueringen skal ta for seg hele systemet,
+er det fornuftig å anse en brukerhistorie som å tilhøre en spesiell del av systemet.
+Siden prosjektet ikke er ferdig enda vil en evaluering av måloppnåelse være litt søkt,
+men en grunnleggende gjennomgang av initielle krav til løsningen er likevel på sin plass.
+I følge Grady\cite{Grady1992} vil RUP\footnote{Rational Unified Process, en iterativ utviklingsmetodologi} delt opp etter FURPS+ modellen, der FURPS er en huskeregel for: \\ % Skal jeg sitere Grady eller Larman her?
+\begin{description}
+\item [Functional (funksjonell)]
+  - funksjoner, egenskaper, sikkerhet
+\item [Usability (brukervennlighet)]
+  - menneskelige faktorer, hjelp, dokumentasjon
+\item [Reliability (pålitelighet)]
+  - hvor ofte ting går galt, mulighet for gjenoppretting, forutsigbarhet
+\item [Performance (ytelse)]
+  - responstid, gjennomstrømming, nøyaktighet, tilgjengelighet, ressursbruk
+\item [Supportability (støttbarhet)]
+  - tilpasningsdyktighet, vedlikeholdbarhet, internasjonalisering, innstillingsmuligheter
+\end{description}
++ i FURPS+ er for hjelpe og underkrav som:
+\begin{description}
+\item [Implementasjon]
+  - ressursbegrensninger, utviklingsspråk og verktøy, maskinvare
+\item [Grensesnitt]
+  - begrensninger påtvunget fra bruk av eksterne systemer.
+\item [Drift]
+  - drifting av systemet i sitt operasjonelle miljø
+\item [Pakking]
+  - for eksempel en fysisk boks
+\item [Juridisk]
+  - lisensiering av andres verker og så videre
+\end{description}
+
+Larman hevder at en vanligvis deler opp systemkrav i \emph{funksjonelle} og \emph{ikke-funksjonelle} krav\cite{Larman2005}[p.57] når en i industrien beskriver systemkrav.
+
+Funksjonelle krav er krav som spesifiserer oppførsel av systemet.
+I tråd med RUP \cite{Larman2005} , har jeg valgt å beskrive de første funksjonelle kravene som \emph{Use-Case Modeller}, som er startpunktet for kravspesifikasjon under RUP.\footnote{siden prosjektet ikke er startet enda kan jeg ikke gå videre til de mer detaljerte kravspesifikasjonene}
+
+\subsection{Brukeren skal kunne:}
+\label{subsec:eval-brukerhistorier}
+\begin{description}
+\item [Skrive skjeletter og invarianter for rapportene]
+  Ikke bare skal brukeren skulle kunne skrive rapportskjeletter,
+  formater som Markdown skal også støttes.
+  Dvs. at brukeren enkelt kan inkludere skjeletter og invarianter\footnote{som framside, bakside, mm.}
+  av rapporten som kompilatorene selv fyller inn med informasjon
+\item [Bruke filer og programmer som kilder]
+  Det er ikke nok at brukeren skal kunne inkludere en CSV-fil som data i en rapport.
+  Brukeren skal også kunne be kompilatoren kjøre programmet og dermed produsere data som brukes.
+  Dermed kan brukeren be om en rapport som har oppdatert informasjon fra databaser, verdensveven mm.
+  Dette skal i størst mulig grad gjøres via allerede-eksisterende verktøy.
+\item [Kombinere invarianter og skjeletter sammen til en flott rapport]
+  Forskjellige deler av rapporten kan være uavhengig av hverandre.
+  Et firma kan til dømes ha en standard forside til alle rapporter den utgir.
+  Dette tas hensyn til, og la en bruke forsider på nytt igjen uten å måtte klippe og lime koden for dem.
+\item [Kompilere ned en rapport med en kommando]
+  På samme måte som GNU Make\cite{GNU-MAKE} lar en spesifisere mange kompliserte regler
+  for bygging av programmer skal dette programmet la brukerene spesifisere kompliserte rapporter.
+  Men på samme måte som GNU Make har en kommando for å bygge alt,
+  skal dette programmet også tillate å bygge rapporten med en enkel kommando.
+\item [Benytte semantiske data, enten som filer eller vevtjenester]
+  Bruk av semantisk informasjon er på rask frammarsj,
+  og prosjektet vil derfor legge til rette for bruk av informasjon fra semantiske datalager.
+  Umiddelbare bruksområder er ting som referanser, forfatternavn og lignende til skjeletter som kan føres inn automatisk, men også som generiske datakilder skal kunne støttes.
+  I all hovedsak vil dette gjøres vha. bruk av allerede eksisterende programmer
+  som kan kalles ut fra byggeprosessen.
+\end{description}
+
+\emph{Ikke-funksjonelle krav} er i følge Larman \cite{Larman2005}[p.57] alt som ikke er definert vha. oppførsel.
+
+\subsection{Ikke-funksjonelle krav}
+\label{subsec:ikke-funksjonelle-krav}
+\begin{description}
+\item [Benytte seg av verktøy tilgjengelig på et POSIX-system]
+  I følge openBSD talsmann Bob Beck,
+  gjør man portabilitet ved å begynne med å anta at en er på et ``fornuftig'' operativsystem,
+  og koder til dets standarder.
+  Så bygger man og vedlikeholder til disse standardene.
+  En gir så portabilitetskode til de operativsystemene som trenger det og bare dem. \cite{openbsd-bsdcan2014-libressl}[slide 11]
+  Beck snakker om en kodebase skrevet i C, der standardbibliotekene kan variere fra plattform til plattform, men den samme tankegangen går igjen her.
+\item [Holde seg til fri programvare]
+  Fri programvare er enklere å forholde seg til, fordi den kommer med kildekode, og uten restriksjoner på bruk og videre distribuering.\cite{GNU-MANIFESTO}
+  Derfor kommer prosjektet for å holde avhengighetene enkle å overholde for evt. brukere kun benytte seg av programvare som overholder de fire frihetene, som definert av FSF.
+\item [Parallellisere automatisk der dette gir mening]
+  Vha. en avhengighetsgraf\footnote{en rettet asyklisk graf som viser avhengigheter} kan en kompilere deler uavhengig.
+  Selv med bare en topologisk ordning av avhengigheter kan en parallellisere ut bygging av subsett,
+  og dermed spare brukeren tid og krefter.
+  For frontenden er dette relativt greit å oppnå, mens det for back-enden kan være verre,
+  siden prosjektet bruker allerede-eksisterende verktøy.
+\end{description}
+
 \section{Oppsummering}
 Det er verdt å merke seg at selv om mye av rapportgenerering er gjort før, har det alltid vært gjort under spesifikke domener. Dette prosjektet vil produsere en prototype for å generere rapporter for alle domener, vha. et generisk språk som skal være lett å skrive.
-Det vil ikke kunne erstatte systemer som \LaTeX eller andre dokumentgenerasjonssystemer, men stå som et tynt lag på toppen av dem, mellom andre programmer og dokumentgenereringen i seg selv.
+Det vil ikke kunne erstatte systemer som \LaTeX  eller andre dokumentgenerasjonssystemer, men stå som et tynt lag på toppen av dem, mellom andre programmer og dokumentgenereringen i seg selv.
 
 Jeg tror at et slikt system kan være umåtelig nyttig, og hjelpe mange mennesker med å få mer gjort, billigere både i termer av penger og arbeid.
 

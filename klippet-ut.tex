@@ -1,0 +1,127 @@
+
+
+Følgende ting blir dermed viktig å behandle:
+\subsection{Datakilder}
+\label{subsec:evaluering-datakilder}
+Det er mange dataformater som skal kunne brukes.
+Jeg vil her beskrive 3 typer, hvilke formater som planlegges å støttes, hvordan dette skal skje, og hvordan en skal teste for dette:
+
+\subsubsection{Tekstuelle kilder}
+\label{subsec:evaluering-tekst}
+En tekstuell kilde er en kilde som er skrevet i ren tekst. CSV, JSON og XML er klassiske eksempler på datakilder som kan beskrive kompleks informasjon, og som gjør det i et rent tekstformat.
+Fordelene med disse formatene\footnote{cite esrs taoup her} er at mennesker kan åpne dem og lese dem, og forstå innholdet.
+
+Ren tekst faller under her, og også Markdown, XML-formater\footnote{I alle fall de som brukes til tekst som DocBook og HTML} og \LaTeX.
+Det er ikke sannsynlig at komplette grammatikker støttes, så et subsett blir definert og implementert.
+
+Prosjektet skiller mellom fire typer datakilder (med eksempler): \\
+
+\begin{tabular}{ r | c | c}
+            & Tekstkilder & Datakilder \\
+  \hline
+  Genererte & Journald      & SQL-spørringer \\
+  Statiske  & Markdown-file & CSV-filer \\
+\end{tabular}
+
+Tekstkilder som planlegges å støttes er:
+\begin{description}
+\item [Markdown]
+  Markdown er et lite og enkelt format for formattering av vevsider, inspirert av rentekst-epost, og Usenet poster.
+  Prosjektet bør støtte Markdown fordi det er et enkelt å forstå formateringssystem som alle kan bruke og forstå.
+  Siden språket er så lite er det mulig å støtte hele språket.
+\item [HTML]
+  HTML er et språk for å merke opp tekst som hva den er, uten å si noe særlig om representasjonen.
+  For å gjøre teksten mer presentabel bruker en deretter CSS for å spesifisere presentasjonsdetaljer som font-face, bakgrunn, mm.
+  Det er neppe tid til å støtte hele HTML-standarden, og noen tagger må kanskje eksplisitt misrepresenteres, slik som <video>,
+  men et subsett av HTML bør støttes.
+\item [XML-tre]
+  En kan også ønske å la andre programmet parse generiske tekstfiler og produsere parsetrær av disse.
+  Om en for eksempel ønsker utdata fra journald, kan det være ønskelig å formatere disse dataene programmatisk.
+  Prosjektet skal legge til rette for slike bruksmønster ved å mellomformatet være en gyldig inndata, for å gi mer kontroll over tolkningen av data.
+\item [Ren tekst]
+  Noen ganger ønsker en også å sette inn tekst som den er uten at den skal røres av noen andre systemer.
+  Som et tankeeksperiment, kan vi tenke oss at vi ønsker å kompilere ned til \LaTeX,
+  og en ønsker å bruke noen avanserte kommandoer som ikke systemet støtter som det er.
+  Så lenge en kan beskrive \LaTeX kommandoene i en tekstfil som de er,
+  kan en få dem ut igjen på den andre siden av kompileringsprosessen og på den måten bruke konstruksjoner som ikke er støttet.
+\end{description}
+
+Datakilder som ønskes å støttest er:
+\begin{description}
+\item [CSV]
+  CSV er et tabulært format brukt for datautveksling. Grammatikken er relativt enkel, og en kan skrive og lese det for hånd.
+  Det er brukt til blant annet R, MatLab og SQL-databaser.
+\item [SQL]
+  SQL er et spørrespråk som brukes til å spørre relasjonelle databaser om data.
+  Prosjektet skal støtte å sende spørringer til databaser,
+  via ODBC eller andre åpent tilgjengelige standarder.
+\item [XML]
+  XML er et språk brukt til datautveksling på stor skala, og har skjemadefinisjoner mm. for å forsikre om innholdets gyldighet.
+  Spørring av XML via XQuery, XSLT og Xpath er ønskelig, men vil i prosjektet blir implementert ved å kalle ut til eksterne programmer som gjennomfører spørringene.
+\item [JSON]
+  JSON \footnote{JavaScript Object Notation} er et nyere format som har blitt veldig populært på veven, siden det kan enkelt tolkes av JavaScript, og den semantiske modellen er lett for JavaScript-utviklere å forstå, siden det er JavaScript objekter.
+  Som i XML vil behandling av JavaScript bli håndtert av tredjeparts programmer som kan hente ut informasjon fra disse objektene.
+\end{description}
+
+Fra disse kan vi stille akseptansekrav\footnote{Acceptance Criteria} om hva som skal støttes, og til hvilken grad, og vi kan generere disse kravene som brukerhistorier som følger:\\
+En bruker \textbf{skal} kunne:
+\begin{itemize}
+\item Skrive rapportskjeletter i markdown og ren tekst
+\item Kunne fylle dem inn med data generert fra SQL, CSV og andre flate/tabulære formater\footnote{TSV td.}
+\item Kunne fylle dem inn med data fra spørringer kjørt mot XML og JSON dokumenter
+\item Kjøre spørringer mot datakilder for å hente ut dokumentene som en del av rapportgenereringsprosessen.
+\item Kunne generere parsetrær etc. programmatisk/manuelt dersom jeg ønsker det.
+\end{itemize}
+
+\subsection{Statiske vs Genererte kilder}
+\label{subsec:evaluering-statisk-vs-generert}
+
+En statisk kilde er som tidligere nevnt en kilde som ikke endres ved kompilering. En fil, eller en ressurs beskrevet vha. en URI er eksempler på slike kilder.
+En fil kan selvsagt endre seg, men slike kilder blir likevel ansett som statiske, fordi en kan sjekke om de har endret seg, vha. til dømes tidsstemplinger, eierskap av filer, sjekksummer, mm.
+
+De er også ansett som statiske fordi en ikke trenger å tildele dem CPU-ressurser for å få fatt på dem. En trenger ikke mer enn å åpne en strøm mot dem, og så kan en begynne å bruke dataene.
+
+Genererte kilder derimot blir laget av andre programmer ved kompilering.
+Til dømes, kan en spesifisere at en skal kjøre en SQL spørring.
+En mulig syntaks kan være: \\
+\texttt{sql-query --file ``~/queries/our-query.sql'' --configuration-file ``~/queries/mysql/alpha/db.conf''} \\
+En kan altså ikke se på filen og se hva dataene kommer til å bli.
+Derfor må en kjøre hele spørringen på nytt hver gang en kompilerer.
+
+\subsection{Parsetreet}
+\label{subsec:evaluering-parsetreet}
+
+Kompileringen av de forskjellige kildene produserer et parsetre.
+Parsetreet vil deretter bli gitt videre til spesifiserte bakdelene av kompilatoren,
+som produserer et dokument av et slikt parsetre.
+Kompleksiteten som støttes av parsetreet kan derfor sees på som et mål for hvor avansert framdelen av
+kompilatoren faktisk er.
+Kompleksisteten av prosjektet som en helhet vil øke som en sammenheng mellom framdelen og bakdelene som per $m \times n$, der $m$ er framparten og $n$ er bakdelene.
+Hver bakdel vil nødvendiggjøring av en mengde $m$ funksjonalitet, mens en hver økning av det mulighe parsetreet som kan produseres av framdelen vil øke kompleksiteten med $m$.
+
+Evalueringen av prosjekets framdeler kan derfor gjøres i to deler: En evaluering av de definerte semantiske enheter i \emph{parsetreet} og en evaluering av \emph{frontkompilatorene}
+
+Parsetreet er vanskelig å evaluere uten noen mål om hvor langt en skal gå\footnote{Ankica, har du noen tilbakemeldinger på hva som er ønsket her, eller skal jeg bygge videre på det andre systemer tilbyr?}.
+Det er likevel noen objektive kriterier som kan måles her:
+\begin{enumerate}
+\item Er treet beskrevet på en måte som lar en avgjøre velformethet og lignende automatisk?
+  % Ja, vi kommer nok til å ende opp med et RelaxNG skjema som beskriver XML.
+\item Implementerer treet et tilstrekkelig uttrykksfullt språk til å skrive reelle rapporter i?
+  % Ja, masteroppgaven kommer til å bli skrevet i systemet.
+\item Er semantikken som er implementert parsbar av andre systemer?
+  % Dvs. kan vi kompilere noe ned fra dette?
+\item Kan skjemaet for treet utvides videre?
+  % Oh yeah.
+\end{enumerate}
+
+For front-end kompilatorene er evalueringskriteriene mer rett fram, og enklere å snakke om:
+\begin{enumerate}
+\item Hvor stor grad av parsetreet kan genereres i språket?
+\item Gjøres dette alltid komplett?
+\item Utnytter systemet muligheter for parallellisering\footnote{Via t.d. xargs, tråding eller annet. Ideen om effektivitet er i aller høyeste grad levende, se til dømes TechRepublics råd om systemevaluering for kjøp \cite{TechRepublic-SupportabilityChecklist}}, vha. avhengighetsgrafer?\cite{Fowler2010}[505]
+\item Vil feilmeldinger under kompilering konsekvent peke til den skyldige filen/prosessen med linjenummer/feilmelding?
+\end{enumerate}
+
+Dette blir selvsagt en egen vurdering for hver back-end.
+\subsection{Bakdelene}
+\label{subsec:evaluering-bakdelene}
