@@ -119,32 +119,49 @@ Dette stiller flere krav:
 \item I tillegg til å ha muligheter til å gjøre alt dette trenger en også eksempler på bruk av systemet, både på reasonersiden og rapportgenereringssiden, for å vise hvordan systemet er ment til å fungere. En trenger også eksempler på løfting av data slik at en har eksempler på hvordan dette bør gjøres.
 \end{itemize}
 
-Et annet spørsmål blir hvordan et slikt system bør designes, og hvilke teknologier som bør brukes. En kan se på flere bøker om hvordan en designer større systemer, som The Art Of Unix Programming\cite{taoup}, og andre bøker om bruk av UML\cite{umlpatterns},sikker koding\cite{certguide}, og mange fler for hvordan en bør gå fram her. Et poeng her blir likevel at programmet må være modulært og laget slik at en enkelt kan plugge inn nye biter, det være seg datakilder, reasonere eller rapportgeneratorer. Merk at jeg ikke har nevnt noe om sluttbrukerene og deres grensesnitt, det er rett og slett ikke ment som et system for sluttbrukere, men som et system for andre til å lage noe til sluttbrukerene med. Derfor er ikke de nevnt som en av de store utfordringene, men ting som API-design og lignende er en utfordring, \emph{fordi folk som utvider systemet er brukerene som systemet er ment for.} Det er derfor fortsatt viktig med god design og hensyn til brukeren, men hensynene må tas på en annen måte med et annet utgangspunkt.
+Et annet spørsmål blir hvordan et slikt system bør designes, og hvilke teknologier som bør brukes. En kan se på flere bøker om hvordan en designer større systemer, som The Art Of Unix Programming\cite{taoup}, og andre bøker om bruk av UML\cite{Larman2005},sikker koding\cite{certguide}, og mange fler for hvordan en bør gå fram her. Et poeng her blir likevel at programmet må være modulært og laget slik at en enkelt kan plugge inn nye biter, det være seg datakilder, reasonere eller rapportgeneratorer. Merk at det ikke snakkes om gernsesnittet mot slutbbrukere, da det ikke ment som et system for sluttbrukere, men som et system for andre til å lage noe til sluttbrukerene med. Derfor er ikke de nevnt som en av de store utfordringene, men ting som API-design og lignende er en utfordring, \emph{fordi folk som utvider systemet er brukerene som systemet er ment for.} Det er derfor fortsatt viktig med god design og hensyn til brukeren, men hensynene må tas på en annen måte med et annet utgangspunkt.
 
 \section{Metodevalg}
-Jeg har valgt Design og produksjon som min metode i prosjektet, med de krav det stilller.
-Jeg skal som nevnt produsere et programvaresystem, og må derfor gjøre analyse av krav, valg av programmeringsspråk, paradigmer, plattformer som det skal kjøres på, standarder som skal støttes og mer.
-I tillegg til dette må det velges en utviklingsmetodologi, basert på mine behov som utvikler. Valget av disse er viktige, da de vil forme prosjektet og programmets virkemåte. For å kunne ta disse valgene må jeg først se hvilke krav som skal gjelde, deriblant de nevnt i problemstillingen, men også se på målene som jeg ønsker å oppnå.
-Siden det ikke er mulig å vite hvor lang tid ting vil ta før en har gjort det, er det vanskelig å si hvor mye som blir ferdig, men jeg vil fortsatt produsere en oversikt over planlagt bruk av tid.
-
+Prosjektet bruke Design og Produksjon som metode.
+Sluttproduktet blir et programvaresystem, og derfor må det gjøres analyse av krav, valg av programmeringsspråk, paradigmer, plattformer som det skal kjøres på, standarder som skal støttes og mer.
+I tillegg til dette må det velges en utviklingsmetodologi, basert på behov og begrensninger til prosjektet.
+Valget av disse er viktige, da de vil forme prosjektet og programmets virkemåte.
+For å kunne ta slike valg må en se på krav, både dem som står i problemstillingene, og de som kommer i kravspesifikasjoner underveis.
+Mål som ønskes og oppnå må også vurderes, og disse skrives da om til brukerhistorier og brukstilfeller.
+Fordi en ikke kan anslå en nøyaktig tidsramme om hvor lang tid ting vil ta, er det ikke mulig å gi en nøyaktig oversikt over tidsbruk, men et anslag vil likevel bli produsert.
 
 \subsection{Design og produksjon}
-\cite[p.111]{Oates2006} hevder at design og produksjonsmetodologien\footnote{``Design and Creation'' methodology} kan brukes ved siden av andre forskningsstrategier. I mitt tilfelle brukes den mer eller mindre alene.
+\cite[p.111]{Oates2006} hevder at design og produksjonsmetodologien\footnote{``Design and Creation'' methodology} kan brukes ved siden av andre forskningsstrategier. I dette tilfellet brukes den mer eller mindre alene.
 Resultatet av utviklingsfasen er ikke nødvendigvis et produkt i seg selv, men en protoype som utvider tidligere arbeid i domenet av rapportgenerering. Resultatet blir dermed et system som skal gjøre det enkelt å generere rapporter basert på inndata.
-Det er et krav om bruk av utviklingsmetodologi, som jeg vil snakke om i et eget avsnitt. Målet med arbeidet er altså å arbeide med generering av rapporter, og forenkling av arbeidet til reasonere.
+Det er et krav om bruk av utviklingsmetodologi, som vil bli snakket om i et eget avsnitt.
+Målet med arbeidet er altså å arbeide med generering av rapporter, og forenkling av arbeidet til reasonere.
 
 \subsection{Utviklingsmetodologi}
-%% OBS! Jeg vurderer her å droppe Spiral til fordel for Rational Unified Process som er en
-%% iterativ metodologi som innlemmer ting fra smidige metodologier.
-Det er mange utviklingsmetodologier i bruk i dag, og det er vanlig å skille mellom smidige og ikke-smidige metodologier. Jeg har valgt å bruke en iterativ metodologi som heter spiralmodellen.\footnote{cite: http://dl.acm.org/citation.cfm?doid=12944.12948}.
-Grunnen til at jeg ønsker å bruke spiralmodellen er fordi den er lettforståelig, lar en bruke smidige metoder under utvikling, men behandler ikke problemstillinger om kommunikasjon, som passer utmerket for meg som arbeider alene.
-I motsetning til spiralmodellen krever for eksempel XP parprogrammering, og SCRUM krever stand-ups. Disse blir vanskelige å følge når en bare er en.
+Prosjektet kommer til å utvikles vha. Unified Process, eller UP.
+Larman beskriver UP som et system som ``(…) was meant to be adopted and applied in the spirit of adaptability and lightness - \emph{an agile UP.}'' (hans uthevning).\cite{Larman2005}[s.31]
 
-En utfordring med å ha en smidig metodologi er at en må infinne seg med at en ikke har det endelige designet gitt på forhånd. Ikke bare må en innrømme at implementasjonskravene kan endre seg, en må omfavne disse endringene og bruke dem til å levere bedre programvare. I mitt tilfelle vil det si at jeg kan oppdage at en del av prosjektet mitt er allerede gjort av andre, og må dermed fokusere på andre ting istedenfor for å gjøre sluttproduktet så bra som mulig.
+\subsubsection{UP Termer}
+\label{subsec:up-termer}
+Larman beskriver termer som brukes under UP slik:
+Arbeidsaktiviteter slik som å skrive en brukerhistorie organiseres innenfor forskjellige \emph{disipliner}.
+En disiplin er et sett med \emph{aktiviteter} og dets \emph{artefakter} innenfor et fagfelt, som f.eks. kravanalyse.
+Artefakter er UPs termer for alle arbeidsprodukter: kode, grafikk, databaseskjema, tekstdokumenter, diagrammer, modeller, og så videre.\cite{Larman2005}[s.34-38]
+Videre beskriver Larman 5 disipliner som står sentralt i UP:
+\begin{itemize}
+\item \emph{Business modelling} - Domenemodellartefakten, som visualiserer viktige konsepter i applikasjonsdomenet.
+\item \emph{Krav} - \emph{Bruksmønstre}, og \emph{Tilleggsspesifikasjoner} som fanger om funksjonelle og ikke-funksjonelle krav.
+\item \emph{Design} - Designmodellartefakten, som er for å formgi programvareobjekter.
+\item \emph{Implementasjon} - Programmering og bygging av systemet.
+\item \emph{Miljø} - Installasjon, oppsett og drift av systemet.
+\end{itemize}
 
-For eksempel kan det godt hende at det finnes gode programmer som dumper SQL-spørringer ned til CSV-filer, selv om jeg ikke har funnet dem. Hvis jeg kommer over et slikt program, burde jeg da skrive en erstatning eller burde jeg heller innlemme et slikt program i systemet slik det er?
+Larman fortsetter å notere her at selv om en iterasjon som regel innebærer arbeid på tvers av flere disipliner, vil den relative arbeidsmengden i disse iterasjonene ofte endre seg over tid. Deployering vil ofte vokse mot slutten, mens forretningsmodellering kan være størst i begynnelsen.
 
-Det er mange fler utviklingsmetodologier, men et valg måtte altså gjøres, og valget falt på spiralmodellen.
+Den siste viktige biten Larman påpeker med UP er at nesten alle artefakter er valgfri.
+Det er et stort poeng at en velger ut det subsettet av artefakter som passer til prosjektet, og ikke bruker alt og alle mulige artefakter.
+Dette er fordi forskjellige prosjekter har forskjellige behov. \footnote{Larman nevner integrasjonsprosjekter, lavstrømstyring av maskiner, og helt nye systemer som prosjekter som trenger forskellige arbeidsprodukter fra forskjellige disipliner}
+
+
 
 \subsection{Plattform}
 Når en skal skrive programvare må programvaren kjøre på en datamaskin. Typen av datamaskin programmet kan kjøre på kalles for en plattform, og vi kan nevne i fleng .Net, JVM, Microsoft Windows, POSIX, GNU/Linux, og mange fler.
@@ -155,7 +172,7 @@ En tredje mulighet er å knytte seg til POSIX, dvs. Unix\footnote{Derunder Mac O
 
 Siden forskjellige plattformer har forskjellige kulturer knyttet til seg, og har utviklingsverktøy som er tilpasset sine egne behov (Windowsutviklere har hatt MSVS lenge, Code::Blocks til Unix er mye nyere. På den annen side, grep, sed, awk, etc. er standard på alle Unixmaskiner, men ikke på MS Windows.) vil valg av plattform også til en viss grad binde en til en kulturell oppfatning av programmering.
 
-Jeg ønsker å utvikle programvaren min for *nix, dvs. ``Unix''\footnote{Unix er et varemerke og refererer til noe spesifikt, mens *nix referer til systemer unixlignende systemer som har vokst opp rundt Unix. Eksempler er BSD, Solaris, GNU, m.fl.}, fordi dens filosofi gjør den egnet til denne typen oppgaver.\footnote{TODO: siter TAOUP av ESR der han går igjennom tradisjonene.}
+Prosjektet skal utvikle programvaren for *nix, dvs. ``Unix''\footnote{Unix er et varemerke og refererer til noe spesifikt, mens *nix referer til systemer unixlignende systemer som har vokst opp rundt Unix. Eksempler er BSD, Solaris, GNU, m.fl.}, fordi dens filosofi gjør den egnet til denne typen oppgaver.\footnote{TODO: siter TAOUP av ESR der han går igjennom tradisjonene.}
 Unix er spesiell i at det er en del muntlige tradisjoner og prinsipper som beskriver kulturen rundt Unix. 
 For å sitere Eric Smith Raymond, en autoritet på Unix og forfatter av boken The Art of Unix Programming, kan en oppsummere tradisjonene slik:
 \begin{description}
@@ -215,7 +232,7 @@ og vi kan skrive programmene mer eller mindre slik vi vil.
 Nytteverdien av å kunne benytte matematiske definisjoner og matematisk rigør på designet betyr at vi kan si ting som at dersom delkomponentene i en komponent fungere, vil komponenten fungere.
 Vi kan også skrive enkel og naiv kode som er lett å tyde for andre for å implementere designet. Siden koden kan defineres som en mapping fra inndata til utdata blir også enhetstesting enkel å utføre.
 
-Derfor vil jeg altså holde meg til funksjonell design med komponenter som knyttes sammen, der disse komponenentene kan implementeres slik det gir mest mening, for å gjøre koden lettforståelig og robust.
+Derfor skal prosjektet benytte seg av funksjonell design med komponenter som knyttes sammen, der disse komponenentene kan implementeres slik det gir mest mening, for å gjøre koden lettforståelig og robust.
 
 \section{Framdriftsplan}
 \label{sec:framdrifstplan}
@@ -270,18 +287,20 @@ Derfor vil jeg altså holde meg til funksjonell design med komponenter som knytt
   \label{fig:gannt}
 \end{figure}
 \newpage
-Som dere sikkert kan se er den initielle prosjektplanen relativt spartansk, fordi å sette opp mer nøyaktige planer går imot spiralmodellen. Derfor må en reevaluere underveis i prosjektet.
-Planen inneholder derimot en substansiell porsjon tid til å lese gjennom andres kode som har gjort lignende prosjekter tidligere, som forhåpentligvis gir meg mer domenekunnskap som forhåpentligvis blir relevant for senere anstrengelser.
-Jeg mener det er en god ide å begynne med å sette seg inn i ting som er gjort tidligere, slik at jeg kan unngå feil andre har gjort, og plukke opp gode ideer.
-Siden systemet er funksjonelt og dermed utsøkt modulært er det veldig lett å bytte ut deler av det med nye underveis. Derfor kan jeg prøve ut teknologier enkelt, og bytte dem ut dersom de ikke passer.
-Videre gjør det funksjonelle designet det veldig lett å enhetsteste forskjellige deler av systemet underveis for å sikre oss korrekthet og robusthet.
-Selv om enhetstestingen ikke er strengt nødvendig for mine resultater, vil jeg fortsatt skrive testene tidlig og underveis, for å forsikre meg om at hver enkelt del er korrekt.
+Den initielle prosjektplanen er relativt spartansk, fordi å sette opp mer nøyaktige planer går imot
+smidig UP, derfor må en reevaluere underveis i prosjektet.
+Planen inneholder derimot en substansiell porsjon tid til å lese gjennom andres kode som har gjort lignende prosjekter tidligere, som forhåpentligvis gir mer domenekunnskap som blir relevant for senere anstrengelser.
+Baktanken er det er en god ide å begynne med å sette seg inn i ting som er gjort tidligere, slik at en kan unngå feil andre har gjort, og plukke opp gode ideer.
+Siden systemet er funksjonelt og dermed utsøkt modulært er det veldig lett å bytte ut deler av det med nye underveis. Derfor kan teknologier enkelt prøves ut, og bytte dem ut dersom de ikke passer.
+Videre gjør det funksjonelle designet det veldig lett å enhetsteste forskjellige deler av systemet underveis for å sikre korrekthet og robusthet.
+Selv om enhetstestingen ikke er strengt nødvendig for prosjektets resultater, skal testene forstsatt skrives tidlig og kontinuerlig, for å være sikker på at hver enkelt del er korrekt.
 
-Etter det følger tre sprinter, der jeg utvikler i tre distinkte faser.
-Den første fasen er enkelt og greit definisjoner av språk og enkle implementeringer. Denne utforskende fasen blir viktig, fordi den vil legge føringer for alt videre arbeid.
+Etter det følger tre sprinter, der utviklingen skjer i tre distinkte faser.
+Den første fasen er enkelt og greit definisjoner av språk og enkle implementeringer.
+Denne utforskende fasen blir viktig, fordi den vil legge føringer for alt videre arbeid.
 
 Etter det følger den andre sprinten, der språket blir utvidet til å takle mer kompliserte konstruksjoner enn det som ble tid til i første.
-Jeg regner altså ikke med å være ferdig med språket til første sprint. Etter det vil jeg bygge en kompilasjonsmodul for å kunne kompilere ned, ikke bare til \LaTeX, men også til HTML, for å demonstrere at en kan gjøre det på forskjellige måter.
+En skal altså ikke være ferdig med språket til første sprint. Etter det skal det bygges en kompilasjonsmodul for å kunne kompilere ned, ikke bare til \LaTeX, men også til HTML\footnote{eller et annet passende format}, for å demonstrere at en kan gjøre det på forskjellige måter.
 
 På tredje sprinten vil hjelepeprogrammer for reasonere, utvidelse av dokumentasjonen andre auksilliære artefakter lages. Målet er til slutt å kunne produsere hele masteroppgaven (denne) i systemet, for å kunne demonstrere nytteverdien av et slikt system.
 En slik produksjon må da bruke hjelepeprogrammer, resultater fra egenstående programmer, hente ut informasjon fra en database, med mer.
@@ -364,7 +383,7 @@ Selv om evalueringen skal ta for seg hele systemet,
 er det fornuftig å anse en brukerhistorie som å tilhøre en spesiell del av systemet.
 Siden prosjektet ikke er ferdig enda vil en evaluering av måloppnåelse være litt søkt,
 men en grunnleggende gjennomgang av initielle krav til løsningen er likevel på sin plass.
-I følge Grady\cite{Grady1992} vil RUP\footnote{Rational Unified Process, en iterativ utviklingsmetodologi} delt opp etter FURPS+ modellen, der FURPS er en huskeregel for: \\ % Skal jeg sitere Grady eller Larman her?
+I følge Grady\cite{Grady1992}\footnote{Jeg er usikker på hvem som skal siteres her. Sitatet er lest fra Larmans bok, men han siterer Grady direkte.} vil RUP delt opp etter FURPS+ modellen, der FURPS er en huskeregel for: \\ % Skal jeg sitere Grady eller Larman her?
 \begin{description}
 \item [Functional (funksjonell)]
   - funksjoner, egenskaper, sikkerhet
@@ -394,7 +413,7 @@ I følge Grady\cite{Grady1992} vil RUP\footnote{Rational Unified Process, en ite
 Larman hevder at en vanligvis deler opp systemkrav i \emph{funksjonelle} og \emph{ikke-funksjonelle} krav\cite{Larman2005}[p.57] når en i industrien beskriver systemkrav.
 
 Funksjonelle krav er krav som spesifiserer oppførsel av systemet.
-I tråd med RUP \cite{Larman2005} , har jeg valgt å beskrive de første funksjonelle kravene som \emph{Use-Case Modeller}, som er startpunktet for kravspesifikasjon under RUP.\footnote{siden prosjektet ikke er startet enda kan jeg ikke gå videre til de mer detaljerte kravspesifikasjonene}
+I tråd med UP \cite{Larman2005} , beskrives her de første funksjonelle kravene som \emph{Use-Case Modeller}, som er startpunktet for kravspesifikasjon under RUP.\footnote{siden prosjektet ikke er startet enda kan jeg ikke gå videre til de mer detaljerte kravspesifikasjonene}
 
 \subsection{Brukeren skal kunne:}
 \label{subsec:eval-brukerhistorier}
@@ -438,9 +457,10 @@ I tråd med RUP \cite{Larman2005} , har jeg valgt å beskrive de første funksjo
   Så bygger man og vedlikeholder til disse standardene.
   En gir så portabilitetskode til de operativsystemene som trenger det og bare dem. \cite{openbsd-bsdcan2014-libressl}[slide 11]
   Beck snakker om en kodebase skrevet i C, der standardbibliotekene kan variere fra plattform til plattform, men den samme tankegangen går igjen her.
-\item [Holde seg til fri programvare]
+\item [Holde seg til fri og åpen kildekode.]
   Fri programvare er enklere å forholde seg til, fordi den kommer med kildekode, og uten restriksjoner på bruk og videre distribuering.\cite{GNU-MANIFESTO}
   Derfor kommer prosjektet for å holde avhengighetene enkle å overholde for evt. brukere kun benytte seg av programvare som overholder de fire frihetene, som definert av FSF.
+  Dette gjør også ting som lisensiering og patentrettigheter mye enklere for prosjektet å holde orden på.
 \item [Parallellisere automatisk der dette gir mening]
   Vha. en avhengighetsgraf\footnote{en rettet asyklisk graf som viser avhengigheter} kan en kompilere deler uavhengig.
   Selv med bare en topologisk ordning av avhengigheter kan en parallellisere ut bygging av subsett,

@@ -1,0 +1,15 @@
+(definitions
+    ((front-page (include-doc "front-page.pt"))))
+(document
+ (front-page)
+ (header 1 (text :normal :font-size large :font :sans-serif
+		 "This is an example document"))
+ (paragraph (text :normal :font-size medium :font :serif
+		  "This parse-tree is intended as an eksample of how to do things."
+		  "The text field consists of definitions on top, and then n strings."
+		  "Text breaking and similar is left to the back-end compiler."
+		  "You can give commands such as asking for new-lines by embedding"
+		  " a newline by using the (newline) command or the (nl) shorthand."
+		  (newline)
+		  "This should be used only where it makes sense, as the backend compilers"
+		  " should be more than capable of dealing with this sort of thing.
