@@ -14,14 +14,13 @@
   (gethash char *escape-map*))
 
 (defvar *whitespace* '(#\Space #\Return #\Newline #\Tab #\No-Break_Space))
-(defvar *stop-symbols* '(#\.)))
+(defvar *stop-symbols* '(#\.))
 
 (defun tokenise (string)
   (let ((inside-literal nil)
 	(acc ())
 	(tegn #\Space)
-	(tokens ())
-	;; should be defined outside function so that they may be set from the outside (IOC, etc.)
+	(tokens ()))
     (flet ((empty-acc ()
 	     (when (not (equal () acc))
 	       (push (concatenate 'string (reverse acc)) tokens)

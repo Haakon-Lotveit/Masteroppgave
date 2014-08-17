@@ -1,2 +1,4 @@
 function = '(' function-name arguments ')' ;
-function-name = \\{p}, [:alphanum:]
+function-name = \\{p}, {not-space};
+not-space = * - ' ';
+

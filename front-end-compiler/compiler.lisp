@@ -11,6 +11,8 @@
 ;;; the users create their own rules that extend on the above four things.
 
 (quicklisp:quickload "cl-csv")
+(defun load-settings (settings-file)
+  
 
 (defun emit (item)
   (format 'T "~A" item))
@@ -100,7 +102,7 @@
 
 (defun add-item-no-escape-string (emit-function item &optional (key nil))
   (flet ((emit (item) (funcall emit-function item))
-	 (space () (funcall emit-function #\Space))
+	 (space () (funcall emit-function #\Space)))
     (space)
     (when key
       (emit key)
@@ -120,4 +122,5 @@
 
 (defun test-image ()
   (compile-image "exampledata/images/first-image.jpg" #'emit 1 2))
+
 
