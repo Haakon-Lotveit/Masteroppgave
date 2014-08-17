@@ -1,0 +1,4 @@
+function = '(' function-name arguments ')' ;
+function-name = \\{p}, {not-space};
+not-space = * - ' ';
+

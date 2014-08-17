@@ -1,0 +1,8 @@
+ ; Preprosessor-direktiver
+
+ ; Dokumentet
+Dokument navn="Eksempeldokument":
+  Bilde: fil="exampledata/images/first-image.jpg".
+  Bilde: fil="exampledata/images/second-image.jpg".
+  Table: fil="exampledata/small-table.csv".
+  

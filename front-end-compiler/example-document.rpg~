@@ -1,0 +1,7 @@
+<!-- option for running programs first are not implemented -->
+<document>
+  <text textsize="11pt" font="serif">
+    Overskrift
+  </text>
+  <table from="file" spec="exampledata/small-table.csv" /> 
+  <image from="file" spec="exampledata/images/first-image.jpg" />

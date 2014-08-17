@@ -1,0 +1,17 @@
+(defun skill-ut-strengliteral (string)
+  (flet ((is-whitespace (character)
+	   (or (equal #\Space character)
+	       (equal #\Tab character)
+	       (equal #\Newline character)
+	       (equal #\NO-BREAK-SPACE character))))
+
+  (print "Skulle sendt ut en strengliteral, ikke implementert")
+  (list "" string))
+
+(defun skill-ut-vanlig-token (string)
+  (print "skulle skilt ut en token, ikke implementert")
+  (list "" string))
+
+(defun divide-one-token (string)
+  (cond ((equal #\" (elt string 0)) (skill-ut-strengliteral string))
+	('DEFAULT (skill-ut-vanlig-token string))))
