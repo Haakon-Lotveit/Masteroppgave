@@ -12,57 +12,83 @@
 ;;; In addition to this, an abstraction facility must be made available to let
 ;;; the users create their own rules that extend on the above four things.
 
+(defvar *stack* nil)
+(defvar *gyldige-rapportbit-navn* (make-hash-table :test 'equal))
+
+(load "compilation-unit-classes.lisp")
+
+(defun reset-gyldige-rapportbit-navn-tabell (emit-function)
+  (let ((table (make-hash-table :test 'equal)))
+    (setf (gethash "Preludium:" table)
+	  (lambda ()
+	    (make-instance 'preludium-compilation-package
+			   :field-names 'nil
+			   :emit-function emit-function)))
+    (setf (gethash "Dokument:" table)
+	  (lambda ()
+	    (make-instance 'dokument-compilation-package
+			   :field-names 'nil
+			   :emit-function emit-function)))
+    (setf (gethash "Tabell:" table)
+	  (lambda ()
+	    (make-instance 'table-compilation-package
+			   :field-names '("fil" "første-linje-er-tabellnavn")
+			   :emit-function emit-function)))
+    (setf (gethash "Tekst:" table)
+	  (lambda ()
+	    (make-instance 'text-compilation-package
+			   :field-names 'nil
+			   :emit-function emit-function)))
+    (setf (gethash "Bilde:" table)
+	  (lambda ()
+	    (make-instance 'image-compilation-package
+			   :field-names '("fil" "location" "size")
+			   :emit-function emit-function)))
+    (setf *gyldige-rapportbit-navn* table)))
+    
+(reset-gyldige-rapportbit-navn-tabell #'std-emit)
+
+(defun er-ny-rapportbit-p (token)
+  (if (gethash token *gyldige-rapportbit-navn*)
+      T
+      NIL))
+
+(defun test-er-ny-rapportbit-p ()
+  (flet ((og (v h) (and v h)))
+    (and
+     (reduce #'og (mapcar #'er-ny-rapportbit-p
+			  '("Preludium:" "Dokument:" "Tabell:" "Tekst:" "Bilde:")))
+     (not
+      (reduce #'og (mapcar #'er-ny-rapportbit-p
+			   '("Finnes ikke" "Preludium")))))))
 (defun load-settings (settings-file)
   (null settings-file)
   (error "load-settings is not implemented"))
 
-;; Disse tre skal over til compilation-unit-classes, selv om de er en stygg hack.
-(defvar *indentation-level* 0)
-(defvar *spaces-per-indent* 4)
-  
-(defun indentation-spaces ()
-  (* *indentation-level* *spaces-per-indent*))
+(defvar *testing-tokenlist* '("Dokument:"
+			      "Tabell:"
+			      "fil=\"exampledata/small-table.csv\""
+			      "første-linje-er-tabellnavn=\"ja\""
+			      "."
+			      "Bilde:"
+			      "file=\"Mine Bilder/\\\"reapers\\\".png\""
+			      "."
+			      "."))
 
-;; skal beholdes som en standard-formatterer, evt. en lambda som produserer denne funksjonen.
-(defun std-emit (item)
-  (format 'T "~A" item))
+(defun lag-ny-rapportbit (token)
+  (on-creation (funcall (gethash token *gyldige-rapportbit-navn*))))
 
-;; TODO: Disse skal gjøres om til metoder
-;; (defun start-block (emit-function block-name)
-;;     (flet ((emit (item) (funcall emit-function item)))
-;;       (emit "(")
-;;       (emit block-name)))
 
-;; (defun end-block (emit-function)
-;;     (flet ((emit (item) (funcall emit-function item)))
-;;       (emit ")")))
+(defun behandle-token (token stack)
+  (behandle (car stack) token))
 
-(defun add-item-escape-string (emit-function item &optional (key nil))
-  (flet ((emit (item) (funcall emit-function item))
-    	 (space () (funcall emit-function #\Space)))
-    (space)
-    (when key
-      (emit key)
-      (space))
-    (emit (prin1-to-string item))))
-
-(defun add-item-no-escape-string (emit-function item &optional (key nil))
-  (flet ((emit (item) (funcall emit-function item))
-	 (space () (funcall emit-function #\Space)))
-    (space)
-    (when key
-      (emit key)
-      (space))
-    (emit item)))
-
-(defun add-item (&key emit-function item escape-string key)
-  (if escape-string
-      (if key
-	  (add-item-escape-string emit-function item key)
-	  (add-item-escape-string emit-function item))
-      (if key
-	  (add-item-no-escape-string emit-function item key)
-	  (add-item-no-escape-string emit-function item))))
-
+(defun compile-dokument (tokens)
+  (setf *stack* nil)
+  (setf *indentation-level* 0)
+  ;; TODO: stack bør være en let her, men er en glob for nå.
+  (loop for token in tokens do
+       (if (er-ny-rapportbit-p token)
+	   (push (lag-ny-rapportbit token) *stack*)
+	   (behandle-token token *stack*))))
 
 
