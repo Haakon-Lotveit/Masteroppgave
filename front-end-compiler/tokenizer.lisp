@@ -1,3 +1,12 @@
+;;; A basic tokeniser for my master's thesis
+;;; Known limitations:
+;;;  - whitespace and stop-symbols is just that, symbols only.
+;;;  - State is encapsulated in global state, instead of using a class and a generic method tokenise
+;;;
+;;; It does however, parse correctly and handle string-literals, stop symbols, and escaped characters inside string literals.
+;;; State may be encapsulated in an object at a later date, but I do not see any reason to let stop-symbols and whitespace
+;;; be more than one character long, since the language it is used for does not have stop-words and whitespace-words.
+
 (defvar *eksempelstring* "Bilder: file=\"Mine Bilder/\\\"reapers\\\".png\".")
 
 (defvar *escape-map* (produce-standard-escape-map))

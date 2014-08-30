@@ -30,8 +30,8 @@
 		     (format 't "\\usepackage[~A]{~A}~%"
 			     (caadr spec)
 			     (cadadr spec)))
-		    ('DEFAULT (print "Error, only 1 or 2 args allowed for usepackage"))))
-	     ('DEFAULT (print "Error, unknown token type")))))
+		    ('DEFAULT (error "Only 1 or 2 args allowed for usepackage"))))
+	     ('DEFAULT (error "Unknown token type")))))
 
 (defun print-latex ()
   (let ((dependency-list (latex-compute-dependencies *current-document*))

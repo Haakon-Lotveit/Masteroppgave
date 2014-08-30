@@ -40,6 +40,8 @@
 (defvar *small-doc* (with-open-file (f "smallest-tree.lisp" :direction :input)
 		      (read f)))
 
+Dette er en overskrift
+======================
 (loop for token in *small-doc* do
      (cond ((eq token 'document)
 	    ((
