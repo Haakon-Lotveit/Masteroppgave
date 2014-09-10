@@ -13,30 +13,11 @@
 ;;; the users create their own rules that extend on the above four things.
 
 (defun load-settings (settings-file)
-  (null settings-file)
+  (if (null settings-file)
+      (error "No settings file given"))
   (error "load-settings is not implemented"))
 
 ;; Disse tre skal over til compilation-unit-classes, selv om de er en stygg hack.
-(defvar *indentation-level* 0)
-(defvar *spaces-per-indent* 4)
-  
-(defun indentation-spaces ()
-  (* *indentation-level* *spaces-per-indent*))
-
-;; skal beholdes som en standard-formatterer, evt. en lambda som produserer denne funksjonen.
-(defun std-emit (item)
-  (format 'T "~A" item))
-
-;; TODO: Disse skal gjøres om til metoder
-;; (defun start-block (emit-function block-name)
-;;     (flet ((emit (item) (funcall emit-function item)))
-;;       (emit "(")
-;;       (emit block-name)))
-
-;; (defun end-block (emit-function)
-;;     (flet ((emit (item) (funcall emit-function item)))
-;;       (emit ")")))
-
 (defun add-item-escape-string (emit-function item &optional (key nil))
   (flet ((emit (item) (funcall emit-function item))
     	 (space () (funcall emit-function #\Space)))
