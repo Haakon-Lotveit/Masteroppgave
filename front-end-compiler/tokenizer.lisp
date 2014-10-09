@@ -9,7 +9,6 @@
 
 (defvar *eksempelstring* "Bilder: file=\"Mine Bilder/\\\"reapers\\\".png\".")
 
-(defvar *escape-map* (produce-standard-escape-map))
 (defun produce-standard-escape-map ()
   (let ((escape-map (make-hash-table :test 'equal)))
     (dolist (pair '((#\" #\")
@@ -18,12 +17,15 @@
 		    (#\r #\Return)))
       (setf (gethash (car pair) escape-map) (cadr pair)))
     escape-map))
+(defvar *escape-map* (produce-standard-escape-map))
 
 (defun get-escaped-char (char)
   (gethash char *escape-map*))
 
-(defvar *whitespace* '(#\Space #\Return #\Newline #\Tab #\No-Break_Space))
-(defvar *stop-symbols* '(#\.))
+(defvar *whitespace*
+  (list #\Space #\Return #\Newline #\Tab #\No-Break_Space))
+(defvar *stop-symbols*
+  (list #\.))
 
 (defun tokenise (string)
   (let ((inside-literal nil)
