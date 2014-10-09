@@ -9,7 +9,10 @@
  |
  |   - Dokument: Markerer begynnelsen på dokumentet i sin propre form.
  |   - Tekst: Markerer en tekstbolk som skal brukes.
- |     Lovlige argumenter og slikt er ikke enda definert.
+ |     Lovlige argumenter er:
+ |      × fil=[streng]
+ |      × sitat=[streng]
+ |      × type=[markdown|uformattert|direkte-innsatt]
  |
  |   - Bilde: Markerer et bilde som skal brukes.
  |     Lovlige argumenter er:
@@ -25,7 +28,8 @@
  |      × kolonnenavn=[string] (Ikke bestemt hvordan skal fungere. Vil kreve at første-linje-er-tabellnavn er satt til "nei").
  |      × tekst-stilling[string] (Ikke bestemt hvordan skal fungere. Antar LaTeX måte å gjøre det på med l c og r.)
  |
- |   - Programkall: Markerer en systemkommando som skal kjøres. Eneste argumentet er en streng som beskriver kommandoen.
+ |   - Programkall: Markerer en systemkommando som skal kjøres.
+ |      × kommando=[Streng]
  |
  | 3: Parseren tar ikke i Preludium på noen måter, men hopper over den.
  |    Preludium er kun for preprosessoren, og det kreves at preprosessoren fjerner den.
@@ -41,76 +45,92 @@
  | 6: Når parseren er ferdig, nullstiller den en evt. state i kompilatoren.
  |#
 
-(load "compiler.lisp") ;; TODO: Set up ASDF etc.
+(load "auxiliary-functions.lisp")
 (load "compilation-unit-classes.lisp")
-
 (defvar *test-tokens* '("Dokument:" "Bilde:" "fil=\"~/Bilder/bilde.png\"" "." "."))
 
-(defvar *parser-function-table* (make-hash-table))
-(defun set-parser-function-table (emit-function)
-  (setq *parser-function-table* (make-hash-table))
+(defun legg-til-par (par hash-table)
+  "et par er av typen [navn]=[streng], og skal puttes inn i et gitt hash-table med navn som nøkkel og streng som verdi"
+  (let*
+      ((pos (position #\= par))
+       (key (subseq par 0 pos))
+       (val (read-from-string (subseq par (1+ pos)))))
+    (setf (gethash key hash-table) val))
+  hash-table)
 
-  ;; Sets up functions wrapping over the emit-function, etc.
-  ;; This will be closed over by the function.
-  (flet ((start-block (block-name) (funcall #'start-block emit-function block-name))
-	 (end-block () (funcall #'end-block emit-function))
-	 (add-item (key item) (funcall #'add-item
-				       :emit-function emit-function
-				       :item item
-				       :escape-string T
-				       :key key))
-	 (newline () (funcall emit-function #\Newline))
-	 (space () (funcall emit-function #\Space))
-	 (increase-indentation () (incf *indentation-level*))
-	 (decrease-indentation () (decf *indentation-level*))
-	 (indent () (dotimes (i (indentation-spaces)) (funcall emit-function #\Space))))
+(defun collect-arguments (arglist)
+  (cond ((string= "." (car arglist))
+	 (list (make-hash-table :test 'equal) (cdr arglist)))
+	
+	('else
+	 (let* ((recursive-call (collect-arguments (cdr arglist)))
+		(map (first recursive-call)))
+	   (legg-til-par (car arglist) map) ;; Dette muterer state
+	   recursive-call))))
+;; unit test for collect-arguments
+(let* ((result (collect-arguments '("a=\"alfa\"" "b=\"bravo\"" "." "c=\"charlie\"")))
+       (map (first result))
+       (rest-list (second result))
+       (forventet-rest '("c=\"charlie\"")))
+  (test #'string= "alfa" (gethash "a" map))
+  (test #'string= "bravo" (gethash "b" map))
+  (test #'equal nil (gethash "c" map))
+  (test #'equal forventet-rest rest-list)
+  T)
+(defvar *parsing-functions*
+  (progn
+    (let ((funmap (make-hash-table :test 'equal)))
+      
+      (setf (gethash "Dokument:" funmap)
+	    (lambda (stream arglist)
+	      "Åpner et dokument. I framtiden burde den rekursivt parse resten, men akkurat nå er dette en kjapp hack. Krever manuell lukking."
+	      (compile-package (make-instance 'start-document
+					      :destination-stream stream))
+	      arglist))
+      
+      (setf (gethash "Bilde:" funmap)
+	    (lambda (stream arglist)
+	      (let* ((collection (collect-arguments arglist))
+		     (fields (first collection))
+		     (rest-list (second collection)))
+		(compile-package (make-instance 'image-compilation-package
+						:fields fields
+						:destination-stream stream))
+		rest-list)))
+      
+      (setf (gethash "." funmap)
+	    (lambda (stream arglist)
+	      "Sørger for manuell lukking av Dokument: tokener"
+	      (format stream ")")
+	      arglist))
+      
+      funmap)))
 
-    (setf (gethash "Dokument:" *parser-function-table*)
-	  (lambda (token-list )
-	    (start-block "document")
-	    (increase-indentation)))
+(defun parse-en-ting (parse-list stream)
+  (unless (gethash (car parse-list) *parsing-functions*)
+    (error (format 'nil "Kunne ikke parse token \"~A\"." (car parse-list))))
+  (let ((rest-list (funcall (gethash (car parse-list) *parsing-functions*)
+			    stream
+			    (cdr parse-list))))
+    rest-list))
 
-    ))
+(defun parse-help (parse-list stream)
+  (unless (null parse-list)
+    (parse-help (parse-en-ting parse-list stream) stream)))
 
-(defvar *tokens* (make-hash-table :test 'equal))
-(defun nullstill-lovlige-tokens ()
-  (setq *tokens*
-	(make-hash-table :test 'equal))
-  (setf (gethash "Bilde:" *tokens*)
-	'("fil" "etter-kall" "plassering" "skalering"))
-  (setf (gethash "Tabell:" *tokens*)
-	'(""))
-  (setf (gethash "Tekst:" *tokens*)
-	'(""))
-  (setf (gethash "Dokument:" *tokens*) T)
-  (setf (gethash "." *tokens*) nil)
-  *tokens*)
+(defun parse (tokenlist stream)
+  (let ((*indentation-level* 0))
+    (parse-help tokenlist stream)))
+;; enhetstest for funksjonen "parse".
+;; tester implisitt hjelpefunksjoner.
+(let* ((parse-output (make-growable-string))
+       (nl '(#\Newline)) ; TODO: Det må finnes en "join" funksjon i Common Lisp et sted?
+       (expected (concatenate 'string
+			      nl "(dokument" 
+			      nl "    (bilde"
+			      nl "        :fil ~/Bilder/bilde.png))")))
+  (with-output-to-string (string-stream parse-output)
+    (parse *test-tokens* string-stream))
+  (test #'string= expected parse-output "Test for function \"parse\""))
 
-(defun legal-entity-name (entity-name)
-  (gethash entity-name *tokens*))
-
-(defun legal-entity-value (entity-name value-name)
-  (member value-name
-	  (gethash entity-name *tokens*)
-	  :test #'string=))
-
-(defun legal-argument-string (argument)
-  (stringp argument))
-
-(defun legal-argument-ja/nei (argument)
-  (or (string= argument "ja")
-      (string= argument "nei")))
-
-(defun parse-help (tokenlist)
-  (print tokenlist)
-  (cond ((endp tokenlist) (format 'T "FERDIG!~%"))
-	((legal-entity-name (car tokenlist))
-	 (parse-help (funcall (gethash (car tokenlist) *parser-function-table*) tokenlist)))
-	('ELSE (error (format 'nil "Couldn't figure out how to parse \"~A\" properly." (car tokenlist))))))
-
-
-(defun parse (tokenlist)
-  (unless (string= "Dokument:" (car tokenlist))
-    (error (format 'nil "Dokumentet begynner ikke med \"Dokument:\", men med \"~A\"." (car tokenlist))))
-  (parse-help tokenlist))
-
+  
