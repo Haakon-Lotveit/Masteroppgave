@@ -7,7 +7,7 @@
 
 (defun make-growable-string ()
   (make-array '(0)
-	      :element-type 'base-char
+	      :element-type 'extended-char
 	      :adjustable 't
 	      :fill-pointer 0))
 
