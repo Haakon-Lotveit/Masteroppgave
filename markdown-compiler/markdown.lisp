@@ -68,15 +68,18 @@ And that's about all for now. I should add in some extras, such as:
 (defun compile-string (string output-stream)
   (format output-stream "~%(text :markdown-standard~%")
 
-  (let ((output-string (make-growable-string)))
+  (let ((current-line 1)
+	(output-string (make-growable-string)))
     (with-output-to-string (stream output-string)
-      (loop for line in (SPLIT-SEQUENCE:SPLIT-SEQUENCE #\N string) do
-	   (compile-line line stream)))
+      (loop for line in (SPLIT-SEQUENCE:SPLIT-SEQUENCE #\Newline string) do
+	   (compile-line line stream current-line)
+	   (format stream "~%")
+	   (incf current-line)))
     (format output-stream (prin1-to-string output-string)))
 
   (format output-stream ")"))
 
-(defun compile-line (line output-stream)
+(defun compile-line (line output-stream line-number)
   (let* ((output-string (make-growable-string))
 	 (special-tokens (make-hash-table-from-list
 			  '((#\* "BOLD")
@@ -114,9 +117,16 @@ And that's about all for now. I should add in some extras, such as:
 		 (format stream "~A" char)))))
 
     ;;After we've printed everything to the string, let's print the string where it's supposed to go:
-    (format output-stream output-string)))
+    (format output-stream output-string)
+    ;;Finally, check that there are no open tags.
+    (maphash (lambda (key val)
+	       (unless (null val)
+		 (error "On line number ~D:~%\"~A\"~%The directive \"~A\" was opened, but not closed afterwards.~%"			
+			line-number
+			line
+			key)))
+	     special-states)))
 	       
-
 (compile-string *current-subtest* *standard-output*)
 (compile-string *test-string-large* *standard-output*)
 
