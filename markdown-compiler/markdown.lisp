@@ -100,6 +100,11 @@ Nå er listene ferdig begge to.")
 
   (format stream "~A" object))
 
+(defun prettyprint-line (stream object)
+  (format stream "~%")
+
+  (prettyprint stream object))
+
 ;; Hjelpeklasse
 (defclass list-status ()
   ((in-list
@@ -127,12 +132,24 @@ Nå er listene ferdig begge to.")
 (defmethod pop-list-indent-level ((status list-status))
   (pop (indentation-spaces status)))
 
+(defun count-spaces (string)
+  (second (multiple-value-list (scan " *" (CL-PPCRE:regex-replace-all "\\t" string "    ")))))
+
+(defun update-indentation-spaces (status line)
+  (push-list-indent-level status (count-spaces line)))
+
 (defun open-new-unordered-list (status line stream)
   (prettyprint-line stream "(UNORDERED-LIST")
   (update-indentation-spaces status line)
   (setf (in-list status) T)
   (increase-markdown-indentation))
-  
+
+(defun open-new-ordered-list (status line stream)
+  (prettyprint-line stream "(ORDERED-LIST")
+  (update-indentation-spaces status line)
+  (setf (in-list status) T)
+  (increase-markdown-indentation))
+
 (defun close-list (status stream)
     (format stream ")")
     (pop-list-indent-level status)
@@ -145,28 +162,28 @@ Nå er listene ferdig begge to.")
   (first (indentation-spaces status)))
 
 (defmethod print-object ((status list-status) stream)
-  (format stream "#<status-list in-list: ~A indentation-spaces: ~>" (in-list status) (indentation-spaces status)))
+  (format stream "#<status-list in-list: ~A indentation-spaces: ~A>" (in-list status) (indentation-spaces status)))
 
-
-(defun prettyprint-line (stream object)
-  (format stream "~%")
-
-  (prettyprint stream object))
 
 (defun remove-list-stuff (string)
   (regex-replace "\\A\\s*(\\*|-)\\s*" string ""))
-
-(defun count-spaces (string)
-  (second (multiple-value-list (scan " *" (CL-PPCRE:regex-replace-all "\\t" string "    ")))))
 
 (defun add-line-item (line stream)
   (let ((line-item (format 'nil "(LINE-ITEM ~A)" (prin1-to-string (remove-list-stuff line)))))
     (prettyprint-line stream line-item)))
 
-(defun update-indentation-spaces (status line)
-  (push-list-indent-level status (count-spaces line)))
+(defun deal-with-ordered-list (list-status output-stream line)
+  (if (in-list list-status)
+      (cond
+	((> (count-spaces line) (currently-indented-spaces list-status))
+	 (open-new-ordered-list list-status line output-stream))
+	((< (count-spaces line) (currently-indented-spaces list-status))
+	 (close-list list-status output-stream)))
+      (progn
+	(open-new-ordered-list list-status line output-stream)))
+  (add-line-item line output-stream))
 
-(defun deal-with-list (list-status output-stream line)
+(defun deal-with-unordered-list (list-status output-stream line)
   (if (in-list list-status)
       (cond
 	((> (count-spaces line) (currently-indented-spaces list-status))
@@ -183,6 +200,20 @@ Nå er listene ferdig begge to.")
     (close-list list-status output-stream))
   (prettyprint-line output-stream line))
 
+(defun intepret-ordered-lists (input-string)
+  (reset-markdown-indentation-level)
+  (let ((output-string (make-growable-string))
+	(status (make-instance 'list-status))
+	(current-line 1))
+    (with-output-to-string (stream output-string)
+      (let* ((find-ordered-lists-regexp "(^||\\n)\\s*\\d+\\s*")
+	     (lines (split-string-by-newlines input-string)))
+	(loop for line in lines do
+	     (if (scan find-ordered-lists-regexp line)
+		 (deal-with-ordered-list status stream line)
+		 (deal-with-no-list status stream line))
+	     (incf current-line))))
+    output-string))
 
 (defun interpret-unordered-lists (input-string)
   (reset-markdown-indentation-level)
@@ -196,8 +227,8 @@ Nå er listene ferdig begge to.")
       (let* ((find-unordered-lists-regexp "(^|\\n)\\s*(\\*|-)\\s*") 
 	     (lines (split-string-by-newlines input-string)))
 	(loop for line in lines do
-	       (if (scan find-lists-regexp line)
-		   (deal-with-list status stream line)
+	       (if (scan find-unordered-lists-regexp line)
+		   (deal-with-unordered-list status stream line)
 		   (deal-with-no-list status stream line))
 	     (incf current-line))))
     output-string))
@@ -281,8 +312,8 @@ Nå er listene ferdig begge to.")
 			key)))
 	     special-states)))
 	       
-(compile-string *current-subtest* *standard-output*)
-(compile-string *test-string-large* *standard-output*)
+;(compile-string *current-subtest* *standard-output*)
+;(compile-string *test-string-large* *standard-output*)
 
 	
 
