@@ -175,7 +175,7 @@ Der var listene ferdig.
   (regex-replace "\\A\\s*(\\*|-|\\d)\\.?\\s*" string ""))
 
 (defun add-line-item (line stream)
-  (let ((line-item (format 'nil "(LINE-ITEM ~A)" (prin1-to-string (remove-list-stuff line)))))
+  (let ((line-item (format 'nil "(LINE-ITEM ~A)" (remove-list-stuff line))))
     (prettyprint-line stream line-item)))
 
 (defun deal-with-ordered-list (list-status output-stream line)
