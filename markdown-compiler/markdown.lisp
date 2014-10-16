@@ -166,7 +166,7 @@ Nå er listene ferdig begge to.")
 
 
 (defun remove-list-stuff (string)
-  (regex-replace "\\A\\s*(\\*|-)\\s*" string ""))
+  (regex-replace "\\A\\s*(\\*|-|\\d)\\.?\\s*" string ""))
 
 (defun add-line-item (line stream)
   (let ((line-item (format 'nil "(LINE-ITEM ~A)" (prin1-to-string (remove-list-stuff line)))))
