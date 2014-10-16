@@ -11,6 +11,7 @@
 ;; 
 ;; Ting som er implementert:
 ;; - kursiv, fet og understreket skrift
+;; - lister
 ;; 
 ;; Ting som skal implementeres:
 ;; - Overskrifter
@@ -80,19 +81,24 @@ And that's about all for now. I should add in some extras, such as:
 (defun split-string-by-newlines (string)
   (SPLIT-SEQUENCE:SPLIT-SEQUENCE #\Newline string))
 
-(defparameter *lister*
-  " Her kommer det lister:
-  * Dette er en liste uten orden.
-  * Her kommer det et element til.
-  * Listen er over når det kommer en tom linje.
+(defparameter *lister* "Lister kjem:
+
+  * dette er en liste uten orden.
+  * andre elementet av Listen
+  * listen er over når det kommer noe som ikke er en del av en liste.
   * En tom linje er en linje med bare whitespace.
 
   * Dette er en ny liste.
-    - Du kan blande listetegn om du vil.
-    - Men dette er en kjedet liste, eller en liste i en liste.
-  - Men lister defineres per indentering.
+    1 Du kan blande listetegn om du vil.
+    1 Dette er en liste i en liste.
+  * Men lister defineres per indentering.
 
-Nå er listene ferdig begge to.")
+  1. Akkurat nå kan du ikke kjede lister i hverandre
+  2. Det er fordi lukkingen av lister har en bug i seg.
+  4  Men tallene foran listene har ingenting å si.
+
+Der var listene ferdig.
+")
 
 (defun prettyprint (stream object)
   (dotimes (i *markdown-indentation-level*)
@@ -236,71 +242,41 @@ Nå er listene ferdig begge to.")
 
   (format output-stream ")"))
 
-;;TODO: Refactor this to be a part of compile-string.
-(defun compile-line (line output-stream line-number)
-  (let* ((output-string (make-growable-string))
-	 ;;TODO: Refactor this into something better.
-	 
-	 (special-tokens (make-hash-table-from-list
-			  '((#\* "BOLD")
-			    (#\_ "UNDERLINE")
-			    (#\/ "CURSIVE"))))
-	 (special-states (make-hash-table-from-list
-			  '(("BOLD" nil)
-			    ("UNDERLINE" nil)
-			    ("CURSIVE" nil))))
-	 (syntactic-functions (make-hash-table-from-list
-			       (list (list 
-				      "BOLD" (lambda (state stream)
-					       (if state
-						   (format stream ")")
-						   (format stream "(BOLD "))
-					       (setf (gethash "BOLD" special-states) (not state))))
-				     (list
-				      "UNDERLINE" (lambda (state stream)
-						    (if state
-							(format stream ")")
-							(format stream "(UNDERLINE "))
-						    (setf (gethash "UNDERLINE" special-states) (not state))))
-				     (list
-				      "CURSIVE" (lambda (state stream)
-						  (if state
-						      (format stream ")")
-						      (format stream "(CURSIVE "))
-						  (setf (gethash "CURSIVE" special-states) (not state))))))))
+(defun open-tag (name stream)
+  (format stream "(~A " name))
+
+(defun close-tag (stream)
+  (format stream ")"))
+
+;; Must be run after the list-checkers.
+(defun interpret-toggle-chars (input-string relevant-char tag-name)
+  (let ((output-string (make-growable-string))
+	(currently-toggled nil))
     (with-output-to-string (stream output-string)
-      ;; Check for special rules, such as whole-lines etc, that terminates parsing of the line.
-      (cond
-      ;; If a line is composed of only zero or more characters of whitespace, 
-      ;; then at least four dashes (-), and then zero or more characters of whitespace,
-      ;; then the entire line should be interpreted as: "(vertical-space)".
-	((let ((match (cl-ppcre:scan "\\s*----+\\s*" line)))
-	   (and (not (null match))
-		(= 0 match)))
-	 (format stream "(~A)~%" "HORIZONTAL-LINE"))
-	('otherwise
-	 ;; If no terminating special rules have been found, check the generic rules.
-	 (loop for char across line do
-	      (let ((lookup (gethash char special-tokens)))
-		(if lookup
-		    (let ((state (gethash lookup special-states)))
-		      (funcall (gethash lookup syntactic-functions) state stream))
-		    (format stream "~A" char)))))))
+      (loop for char across input-string do
+	   (if (char= char relevant-char)
+	       (if currently-toggled
+		   (progn (close-tag stream)
+			  (setf currently-toggled nil))
+		   (progn (open-tag tag-name stream)
+			  (setf currently-toggled T)))
+	       (format stream "~A" char))))
+    output-string))
 
-    ;;After we've printed everything to the string, let's print the string where it's supposed to go:
-    (format output-stream output-string)
-    ;;Finally, check that there are no open tags.
-    (maphash (lambda (key val)
-	       (unless (null val)
-		 (error "On line number ~D:~%\"~A\"~%The directive \"~A\" was opened, but not closed afterwards.~%"			
-			line-number
-			line
-			key)))
-	     special-states)))
+(defun interpret-horizontal-line-rules (input-string)
+  (let ((output-string (make-growable-string))
+	;; entire line is: some-or-none whitespace, at least four dashes (-) and then some or none whitespace
+	(match-lines-regex "\\A\\s*-{4,}\\s*\\Z") )
+    (with-output-to-string (stream output-string)
+      (loop for line in (split-string-by-newlines input-string) do
+	   (if (scan match-lines-regex line)
+	       (progn (open-tag "HORIZONTAL-LINE" stream)
+		      (close-tag stream))
+	       (prettyprint-line stream line))))
+    output-string))
 	       
-;(compile-string *current-subtest* *standard-output*)
-;(compile-string *test-string-large* *standard-output*)
-
-	
+;; This runs all the current rules.
+;; Currently headers (either type), quotes and block-quotes have not been implemented.
+(interpret-horizontal-line-rules (interpret-toggle (interpret-toggle (interpret-toggle (interpret-lists *test-string-large*) #\/ "CURSIVE") #\* "BOLD") #\_ "UNDERLINE"))
 
 	
