@@ -200,6 +200,23 @@ Nå er listene ferdig begge to.")
     (close-list list-status output-stream))
   (prettyprint-line output-stream line))
 
+(defun interpret-lists (input-string)
+  (reset-markdown-indentation-level) ;; dette burde ikke behøves, men er der akkurat nå likevel
+  (let ((output-string (make-growable-string))
+	(status (make-instance 'list-status))
+	(current-line 1))
+(with-output-to-string (stream output-string)
+      (let* ((find-ordered-lists-regexp "(^||\\n)\\s*\\d+\\s*")
+	     (find-unordered-lists-regexp "(^|\\n)\\s*(\\*|-)\\s*") 
+	     (lines (split-string-by-newlines input-string)))
+	(loop for line in lines do
+	     (if (scan find-ordered-lists-regexp line)
+		 (deal-with-ordered-list status stream line)
+		 (deal-with-no-list status stream line))
+	     (incf current-line))))
+	output-string))
+	
+
 (defun intepret-ordered-lists (input-string)
   (reset-markdown-indentation-level)
   (let ((output-string (make-growable-string))
