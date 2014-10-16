@@ -12,21 +12,21 @@
 ;; Ting som er implementert:
 ;; - kursiv, fet og understreket skrift
 ;; - lister
+;; - akademiske henvisninger. (§sitering§?)
+;; - fotnoter. (¤fotnote¤)
+;; - horisontale linjer
 ;; 
 ;; Ting som skal implementeres:
 ;; - Overskrifter
-;; - horisontale linjer
 ;; - paragrafer
 ;; - lenker
 ;; - sitater
 ;; - blokksitater
-;; - akademiske henvisninger. (@HENVISNING-NAVN@?)
-;; - fotnoter. (§FOTNOTE§?)
 ;; - ESCAPING \*happy\* skal ikke tolkes som (BOLDED happy).
 ;; - Håndtering av parenteser. (hva om jeg vil skrive (BOLDED noe) uten at det blir uthevet?)
 ;; - mm!
 ;; 
-;; Merk at ting ikke er ferdig før det har i alle fall en enhetstest!
+;; Merk at ting ikke er ferdig før det har i alle fall en enhetstest! Kan legges inn i *test-string-large*
 
 					; Her er dependencies
 (ql:quickload :cl-ppcre)
@@ -36,18 +36,18 @@
 (import 'CL-PPCRE:SCAN)
 (import 'CL-PPCRE:REGEX-REPLACE)
 					; Testdata
-(defvar *test-string-large*
+(defparameter *test-string-large*
 "This is not a normal test string.
 in fact, it has both /cursive/ words,
 some  _underlined_ words, and last but not least,
 it has *bolded* words.
 Furthermore it has quotes:
 > The problem with online citations is that it's hard to know if they are authentic or not.
-> - Abraham Lincoln
+> - Abraham Lincoln §Lincoln1984§
 And block quotes too:
 
     I see starts, etc.
-    Blind Singing Man i good at singing.
+    Blind Singing Man¤Stevie Wonder selvsagt¤ is very good at singing.
     And this concludes the quote.
 
 ------------------------------------
@@ -65,7 +65,7 @@ And that's about all for now. I should add in some extras, such as:
   2. ordered lists
   3. headers, of the ---- and ==== varieties
   4. headers of the ### H3 ### and ## H2 ## variety.
-  5. citations (an extension to the markdown language. I'm thinking about using ¤ (currency char) or § (pragraph char) for citations.")
+  5. citations (an extension to the markdown language.")
 
 (defparameter *current-subtest* "Here is some _underlined_ words. This _is_ _important_!")
 (defparameter *markdown-indentation-level* 0)
@@ -212,8 +212,8 @@ Der var listene ferdig.
 	(status (make-instance 'list-status))
 	(current-line 1))
 (with-output-to-string (stream output-string)
-      (let* ((find-ordered-lists-regexp "(^||\\n)\\s*\\d+\\s*")
-	     (find-unordered-lists-regexp "(^|\\n)\\s*(\\*|-)\\s*") 
+      (let* ((find-ordered-lists-regexp "\\A\\s*\\d+\\s*")
+	     (find-unordered-lists-regexp "\\A\\s*(\\*|-)\\s*") 
 	     (lines (split-string-by-newlines input-string)))
 	(loop for line in lines do
 	     (cond ((scan find-ordered-lists-regexp line)
@@ -279,7 +279,13 @@ Der var listene ferdig.
 ;; Currently headers (either type), quotes and block-quotes have not been implemented.
 (defun run-all-the-rules! ()
   (reset-markdown-indentation-level)
-  (interpret-toggle (interpret-toggle (interpret-toggle (interpret-lists (interpret-horizontal-line-rules *test-string-large*)) #\/ "CURSIVE") #\* "BOLD") #\_ "UNDERLINE"))
+  (interpret-toggle
+   (interpret-toggle 
+    (interpret-toggle 
+     (interpret-toggle 
+      (interpret-toggle 
+       (interpret-lists 
+       (interpret-horizontal-line-rules *test-string-large*)) #\/ "CURSIVE") #\* "BOLD") #\_ "UNDERLINE") #\§ "CITE") #\¤ "FOOTNOTE"))
 
 
 	
