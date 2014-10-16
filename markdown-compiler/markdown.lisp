@@ -277,6 +277,9 @@ Der var listene ferdig.
 	       
 ;; This runs all the current rules.
 ;; Currently headers (either type), quotes and block-quotes have not been implemented.
-(interpret-horizontal-line-rules (interpret-toggle (interpret-toggle (interpret-toggle (interpret-lists *test-string-large*) #\/ "CURSIVE") #\* "BOLD") #\_ "UNDERLINE"))
+(defun run-all-the-rules! ()
+  (reset-markdown-indentation-level)
+  (interpret-toggle (interpret-toggle (interpret-toggle (interpret-lists (interpret-horizontal-line-rules *test-string-large*)) #\/ "CURSIVE") #\* "BOLD") #\_ "UNDERLINE"))
+
 
 	
