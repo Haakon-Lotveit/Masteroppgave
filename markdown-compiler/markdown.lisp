@@ -210,46 +210,15 @@ Nå er listene ferdig begge to.")
 	     (find-unordered-lists-regexp "(^|\\n)\\s*(\\*|-)\\s*") 
 	     (lines (split-string-by-newlines input-string)))
 	(loop for line in lines do
-	     (if (scan find-ordered-lists-regexp line)
-		 (deal-with-ordered-list status stream line)
-		 (deal-with-no-list status stream line))
+	     (cond ((scan find-ordered-lists-regexp line)
+		    (deal-with-ordered-list status stream line))
+		   ((scan find-unordered-lists-regexp line)
+		    (deal-with-unordered-list status stream line))
+		   ('NO-LISTS-FOUND
+		    (deal-with-no-list status stream line)))
 	     (incf current-line))))
 	output-string))
 	
-
-(defun intepret-ordered-lists (input-string)
-  (reset-markdown-indentation-level)
-  (let ((output-string (make-growable-string))
-	(status (make-instance 'list-status))
-	(current-line 1))
-    (with-output-to-string (stream output-string)
-      (let* ((find-ordered-lists-regexp "(^||\\n)\\s*\\d+\\s*")
-	     (lines (split-string-by-newlines input-string)))
-	(loop for line in lines do
-	     (if (scan find-ordered-lists-regexp line)
-		 (deal-with-ordered-list status stream line)
-		 (deal-with-no-list status stream line))
-	     (incf current-line))))
-    output-string))
-
-(defun interpret-unordered-lists (input-string)
-  (reset-markdown-indentation-level)
-  (let ((output-string (make-growable-string))
-	(status (make-instance 'list-status))
-	(current-line 1))
-    (with-output-to-string (stream output-string)
-      ;; Explanation of regex:
-      ;; Start of string, or post-newline, some-or none whitespace, a * or a -,
-      ;; and then some-or-none whitespace
-      (let* ((find-unordered-lists-regexp "(^|\\n)\\s*(\\*|-)\\s*") 
-	     (lines (split-string-by-newlines input-string)))
-	(loop for line in lines do
-	       (if (scan find-unordered-lists-regexp line)
-		   (deal-with-unordered-list status stream line)
-		   (deal-with-no-list status stream line))
-	     (incf current-line))))
-    output-string))
-
 ;; This is bullshit, and should be refactored to a more user-friendly expression of love.
 ;; Better idea would be to have functions for everything that could be done, and then just chain those funcalls together.
 ;; But this stuff is staying for now, until I have something better, just so I have something to look at.
