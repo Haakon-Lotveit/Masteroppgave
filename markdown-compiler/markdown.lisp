@@ -14,14 +14,13 @@
 ;; - lister
 ;; - akademiske henvisninger. (§sitering§?)
 ;; - fotnoter. (¤fotnote¤)
+;; - sitater
 ;; - horisontale linjer
 ;; 
 ;; Ting som skal implementeres:
 ;; - Overskrifter
 ;; - paragrafer
 ;; - lenker
-;; - sitater
-;; - blokksitater
 ;; - ESCAPING \*happy\* skal ikke tolkes som (BOLDED happy).
 ;; - Håndtering av parenteser. (hva om jeg vil skrive (BOLDED noe) uten at det blir uthevet?)
 ;; - mm!
@@ -35,6 +34,7 @@
 
 (import 'CL-PPCRE:SCAN)
 (import 'CL-PPCRE:REGEX-REPLACE)
+(import 'CL-PPCRE:REGEX-REPLACE-ALL)
 					; Testdata
 (defparameter *test-string-large*
 "This is not a normal test string.
@@ -44,15 +44,19 @@ it has *bolded* words.
 Furthermore it has quotes:
 > The problem with online citations is that it's hard to know if they are authentic or not.
 > - Abraham Lincoln §Lincoln1984§
-And block quotes too:
+And monospaced text too:
 
-    I see starts, etc.
-    Blind Singing Man¤Stevie Wonder selvsagt¤ is very good at singing.
-    And this concludes the quote.
+    public class HelloWorld¤The classic Java Hello World example¤ {
+        public static void main(String[] args) {
+            System.out.println(\"Hello World!\");
+        }
+    }
 
 ------------------------------------
 
 And that was a line!
+Please note that the current in-between language treats parens as magical characters unless escaped.
+So if you want to use parens (like this!), you have to escape them with forward-slashes (\\)
 
 Not to be outdone, here's a list:
   - This is the first item of the list.
@@ -65,7 +69,7 @@ And that's about all for now. I should add in some extras, such as:
   2. ordered lists
   3. headers, of the ---- and ==== varieties
   4. headers of the ### H3 ### and ## H2 ## variety.
-  5. citations (an extension to the markdown language.")
+  5. citations (an extension to the markdown language.)")
 
 (defparameter *current-subtest* "Here is some _underlined_ words. This _is_ _important_!")
 (defparameter *markdown-indentation-level* 0)
@@ -170,7 +174,6 @@ Der var listene ferdig.
 (defmethod print-object ((status list-status) stream)
   (format stream "#<status-list in-list: ~A indentation-spaces: ~A>" (in-list status) (indentation-spaces status)))
 
-
 (defun remove-list-stuff (string)
   (regex-replace "\\A\\s*(\\*|-|\\d)\\.?\\s*" string ""))
 
@@ -211,7 +214,7 @@ Der var listene ferdig.
   (let ((output-string (make-growable-string))
 	(status (make-instance 'list-status))
 	(current-line 1))
-(with-output-to-string (stream output-string)
+    (with-output-to-string (stream output-string)
       (let* ((find-ordered-lists-regexp "\\A\\s*\\d+\\s*")
 	     (find-unordered-lists-regexp "\\A\\s*(\\*|-)\\s*") 
 	     (lines (split-string-by-newlines input-string)))
@@ -223,24 +226,30 @@ Der var listene ferdig.
 		   ('NO-LISTS-FOUND
 		    (deal-with-no-list status stream line)))
 	     (incf current-line))))
-	output-string))
+    output-string))
 	
-;; This is bullshit, and should be refactored to a more user-friendly expression of love.
-;; Better idea would be to have functions for everything that could be done, and then just chain those funcalls together.
-;; But this stuff is staying for now, until I have something better, just so I have something to look at.
-(defun compile-string (string output-stream)
-  (format output-stream "~%(text :markdown-standard~%")
-
-  (let ((current-line 1)
-	(output-string (make-growable-string)))
+(defun remove-quote-stuff (line)
+  (regex-replace "\\A\\s*>\\s+" line " "))
+(defun interpret-quotes (input-string)
+  (let ((output-string (make-growable-string))
+	(match-quote-regex "\\A\\s*>\\s+")
+	(inside-quotes nil)
+	(lines (split-string-by-newlines input-string)))
     (with-output-to-string (stream output-string)
-      (loop for line in (SPLIT-SEQUENCE:SPLIT-SEQUENCE #\Newline string) do
-	   (compile-line line stream current-line)
-	   (format stream "~%")
-	   (incf current-line)))
-    (format output-stream (prin1-to-string output-string)))
-
-  (format output-stream ")"))
+      (loop for line in lines do
+	   (cond
+	     ((scan match-quote-regex line)
+	      (when (not inside-quotes)
+		(prettyprint-line stream "")
+		(open-tag "QUOTE" stream)
+		(setf inside-quotes T))
+	      (prettyprint-line stream (remove-quote-stuff line)))
+	     ('WHEN-WE-DO-NOT-HAVE-A-QUOTE
+	      (when inside-quotes
+		(setf inside-quotes NIL)
+		(close-tag stream))
+	      (prettyprint-line stream line)))))
+    output-string))
 
 (defun open-tag (name stream)
   (format stream "(~A " name))
@@ -263,29 +272,92 @@ Der var listene ferdig.
 	       (format stream "~A" char))))
     output-string))
 
+(defun interpret-toggle-regex (input-string regex-rule tag-name)
+  (let ((output-string (copy-seq input-string))
+	(toggle-flag nil)
+	(sanity-check 0))
+    (loop while (scan regex-rule output-string) do
+	 (when (> sanity-check 10)
+	   (error "LOL DERP"))
+	 (incf sanity-check)
+	 (format 't "Current output-string: ~A~%" output-string)
+	 (setf output-string
+	       (regex-replace regex-rule output-string
+			      (if toggle-flag
+				  ")"
+				  (format nil "(~A " tag-name))))
+	 (setf toggle-flag (not toggle-flag)))
+    output-string))
+	     
+(defun is-whitespace-linep (line)
+  (if (scan "\\A\\s*\\Z" line)
+      T
+      NIL))
+
 (defun interpret-horizontal-line-rules (input-string)
   (let ((output-string (make-growable-string))
 	;; entire line is: some-or-none whitespace, at least four dashes (-) and then some or none whitespace
-	(match-lines-regex "\\A\\s*-{4,}\\s*\\Z") )
+	(match-lines-regex "\\A\\s*-{4,}\\s*\\Z")
+	(previous-line-was-whitespaced T))
     (with-output-to-string (stream output-string)
       (loop for line in (split-string-by-newlines input-string) do
 	   (if (scan match-lines-regex line)
-	       (progn (open-tag "HORIZONTAL-LINE" stream)
-		      (close-tag stream))
-	       (prettyprint-line stream line))))
+	       (if previous-line-was-whitespaced
+		   (progn (prettyprint-line stream "")
+			  (open-tag "HORIZONTAL-LINE" stream)
+			  (close-tag stream))
+		   (format 't "Skal ikke linjes, fordi forrige linje var ikke whitespace"))
+	       (prettyprint-line stream line))
+	       (setf previous-line-was-whitespaced (is-whitespace-linep line))))
     output-string))
-	       
-;; This runs all the current rules.
-;; Currently headers (either type), quotes and block-quotes have not been implemented.
+
+(defun escape-parens (input-string)
+  (regex-replace-all "\\)"
+		     (regex-replace-all "\\(" input-string "\\(")
+		     "\\)"))
+
+(defparameter *rules*
+  (make-hash-table :test 'equal))
+
+(defun set-rule (rule-name rule)
+  (setf (gethash rule-name *rules*) rule))
+
+(defun make-toggle-regex-rule (regex tag-name)
+  (lambda (input-string)
+    (interpret-toggle-regex input-string regex tag-name)))
+
+(defun make-and-set-toggle-regex-rule (rule-name tag-name regex)
+  (set-rule rule-name (make-toggle-regex-rule regex tag-name)))
+
+(defun apply-rule (rule-name string)
+  (let ((rule (gethash rule-name *rules*)))
+    (unless rule
+      (error "No rule called \"~A\" found." rule-name))
+    (funcall rule string)))
+
+					; This sets up some standard rules to be used later.
+(make-and-set-toggle-regex-rule "EMPHASISED" "EMPHASISED" "(?<!\\\\)\\*")
+(make-and-set-toggle-regex-rule "BOLD" "BOLD" "(?<!\\\\)__")
+(make-and-set-toggle-regex-rule "CITE" "CITE" "(?<!\\\\)§")
+(make-and-set-toggle-regex-rule "FOOTNOTE" "FOOTNOTE" "(?<!\\\\)¤")
+(make-and-set-toggle-regex-rule "UNDERLINE" "UNDERLINE" "(?<!\\\\)_")
+(make-and-set-toggle-regex-rule "CURSIVE" "CURSIVE" "(?<!\\\\)\\/")
+(set-rule "HORIZONTAL-LINE" #'interpret-horizontal-line-rules)
+(set-rule "LISTS" #'interpret-lists)
+
+;; An ad-hoc unit-test, that runs all the rules, who have been added manually.
 (defun run-all-the-rules! ()
-  (reset-markdown-indentation-level)
-  (interpret-toggle
-   (interpret-toggle 
-    (interpret-toggle 
-     (interpret-toggle 
-      (interpret-toggle 
-       (interpret-lists 
-       (interpret-horizontal-line-rules *test-string-large*)) #\/ "CURSIVE") #\* "BOLD") #\_ "UNDERLINE") #\§ "CITE") #\¤ "FOOTNOTE"))
-
-
-	
+  (let ((output (copy-seq *test-string-large*)))
+    ;; We could just chain these calls, but it looks nicer when we setf them.
+    ;; Notice that HORIZONTAL-LINE must run before LISTS
+    ;; Interestingly, it should be okay if we run them in alphabetical order. ^_^
+    (setf output (apply-rule "HORIZONTAL-LINE" output))
+    (setf output (apply-rule "LISTS" output))
+    (setf output (apply-rule "CURSIVE" output))
+    (setf output (apply-rule "UNDERLINE" output))
+    (setf output (apply-rule "FOOTNOTE" output))
+    (setf output (apply-rule "CITE" output))
+    (setf output (apply-rule "BOLD" output))
+    (setf output (apply-rule "EMPHASISED" output))
+    output))
+      
