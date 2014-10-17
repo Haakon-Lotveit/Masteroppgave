@@ -257,21 +257,6 @@ Der var listene ferdig.
 (defun close-tag (stream)
   (format stream ")"))
 
-;; Must be run after the list-checkers.
-(defun interpret-toggle-chars (input-string relevant-char tag-name)
-  (let ((output-string (make-growable-string))
-	(currently-toggled nil))
-    (with-output-to-string (stream output-string)
-      (loop for char across input-string do
-	   (if (char= char relevant-char)
-	       (if currently-toggled
-		   (progn (close-tag stream)
-			  (setf currently-toggled nil))
-		   (progn (open-tag tag-name stream)
-			  (setf currently-toggled T)))
-	       (format stream "~A" char))))
-    output-string))
-
 (defun interpret-toggle-regex (input-string regex-rule tag-name)
   (let ((output-string (copy-seq input-string))
 	(toggle-flag nil)
