@@ -7,23 +7,29 @@
 ;; - Ikke at jeg ønsker å implementere "Markdown" helt korrekt heller, siden deler av språket er merkelige greier.
 ;; 
 ;; Ting som er implementert:
+;; - Overskrifter (De er det som nå blir tolket som horisontale linjer. H2 i alle fall.)
 ;; - kursiv, fet og understreket skrift
 ;; - lister
 ;; - akademiske henvisninger. (§sitering§?)
 ;; - fotnoter. (¤fotnote¤)
 ;; - sitater
-;; - horisontale linjer, selv om de nå er feil. De skal være noe ala: ([-+*]\\s+){3,} som helt sikkert er feil. 
+;; - framtvinging av newlines.
+;; - horisontale linjer
 ;; - ESCAPING \*happy\* skal ikke tolkes som (TAG happy), men som *happy*
 ;; - Håndtering av parenteser. () blir nå til \(\) i output.
+;; - ## H2 ## Overskrifter
 ;; 
 ;; Ting som skal implementeres:
-;; - Overskrifter (De er det som nå blir tolket som horisontale linjer. H2 i alle fall.)
 ;; - paragrafer (Sjekk om vi har to whitespace linjer på rad, og hvis vi så har...)
-;; - lenker (Kven veit heilt korleis?)
+;; DISSE BLIR GJORT NEST SIST!
+;; - lenker (Kven veit heilt korleis? Og om det egentlig trengs?)
+;; DISSE BLIR GJORT SIST! (må tenke på hvordan det henger sammen med resten av programmet)
 ;; - indentering av et dokument
 ;; - trimming av dokumentet (unødvendig mye plass tatt opp både foran og bak)
 ;; - mm!
 ;; 
+;; Ting som *ikke* blir støttet:
+;; - Bilder (bruk heller det overordnede predikatet for bilder!)
 ;; Merk at ting ikke er ferdig før det har i alle fall en enhetstest! Kan legges inn i *test-string-large*
 
 					; Her er dependencies
@@ -51,9 +57,18 @@ And monospaced text too:
         }
     }
 
-------------------------------------
+- - - - - - - - - - - - - - - - - - - - - - - 
+And here are two lines!
+ * * * * * * * * * * * * * * * * * * * * * * *
 
-And that was a line!
+#### This is a level 4 header ####
+
+And here is a level 1 header!
+-----------------------------
+
+Note that you only need 4 chars to make it a header.
+     ====
+
 Please note that the current in-between language treats parens as magical characters unless escaped.
 So if you want to use parens (like this!), you have to escape them with forward-slashes (\\)
 
@@ -85,12 +100,12 @@ And that's about all for now. I should add in some extras, such as:
 (defun split-string-by-newlines (string)
   (SPLIT-SEQUENCE:SPLIT-SEQUENCE #\Newline string))
 
+;;TODO: FJERN PRETTYPRINT FUNKSJONENE!
 (defun prettyprint (stream object)
   (format stream "~A" object))
 
 (defun prettyprint-line (stream object)
   (format stream "~%")
-
   (prettyprint stream object))
 
 ;; Hjelpeklasse
@@ -254,6 +269,43 @@ And that's about all for now. I should add in some extras, such as:
       NIL))
 
 (defun interpret-horizontal-line-rules (input-string)
+  "This is the one that actually works"
+  (let ((output-string (make-growable-string))
+	(horizontal-line-dash-regex "\\A\\s*(\\*\\s){3,}")
+	(horizontal-line-star-regex "\\A\\s*(\\-\\s){3,}"))
+    (with-output-to-string (stream output-string)
+      (loop for line in (split-string-by-newlines input-string) do
+	   (cond
+	     ((or (scan horizontal-line-dash-regex line)
+		  (scan horizontal-line-star-regex line))
+	      (prettyprint-line stream "(HORIZONTAL-LINE)"))
+	     ('NOT-MATCHING
+	      (prettyprint-line stream line)))))
+    output-string))
+
+
+(defun interpret-dashy-and-equally-headline-rules (input-string)
+  (let ((output-string (make-growable-string))
+	(match-dashy-headline-regex "\\A\\s*\\-{4,}\\s*\\Z")
+	(match-equal-headline-regex "\\A\\s*\\={4,}\\s*\\Z")
+	(previous-line ""))
+    (with-output-to-string (stream output-string)
+      (loop for line in (split-string-by-newlines input-string) do
+	   (cond
+	     ((scan match-dashy-headline-regex line)
+	      (format stream "(HEADLINE :LEVEL 1 ~A)" previous-line)
+	      (setf previous-line ""))
+	     ((scan match-equal-headline-regex line)
+	      (format stream "(HEADLINE :LEVEL 2 ~A)" previous-line)
+	      (setf previous-line ""))
+	     ('NO-HEADLINES
+	      (format stream "~%~A" previous-line)
+	      (setf previous-line line))))
+      (format stream "~%~A" previous-line))
+    output-string))
+
+(defun interpret-horizontal-line-rules-deprecated (input-string)
+  "DEPRECATED, DO NOT USE"
   (let ((output-string (make-growable-string))
 	;; entire line is: some-or-none whitespace, at least four dashes (-) and then some or none whitespace
 	;; TODO: This is actually wrong. That's Markdown's code for an H2 header. :D
@@ -265,8 +317,7 @@ And that's about all for now. I should add in some extras, such as:
 	       (if previous-line-was-whitespaced
 		   (progn (prettyprint-line stream "")
 			  (open-tag "HORIZONTAL-LINE" stream)
-			  (close-tag stream))
-		   (format 't "Skal ikke linjes, fordi forrige linje var ikke whitespace"))
+			  (close-tag stream)))
 	       (prettyprint-line stream line))
 	       (setf previous-line-was-whitespaced (is-whitespace-linep line))))
     output-string))
@@ -309,6 +360,45 @@ And that's about all for now. I should add in some extras, such as:
 	      (prettyprint-line stream line))))))
 	     output-string))
 
+(defun interpret-forced-newline-rules (input-string)
+  "The newline in the string ruins the look of this function, but it works."
+    (regex-replace-all "  \\n" 
+		       input-string 
+		       " (NEWLINE)
+"
+		       ))
+
+
+(defun string-headline-of-levelp (string level)
+  (let ((regex (format 'nil "\\A\\s*#{~A}(?!#)" level)))
+    (scan regex string)))
+
+(defun remove-headline-markings (string level)
+  (regex-replace (format 'nil "\\s*#{~A}\\s*\\Z" level)
+		 (regex-replace (format 'nil "\\A\\s*#{~A}\\s*" level)
+				string
+				"")
+		 ""))
+
+(defun markdown-headline-to-middle-language (string level)
+  (let ((output-string (make-growable-string)))
+    (with-output-to-string (stream output-string)
+      (format stream "(HEADLINE :LEVEL ~A ~A)" level (remove-headline-markings string level)))
+    output-string))
+      
+(defun make-hash-headline-rule (level)
+  (lambda (string)
+    (let ((output-string (make-growable-string)))
+      (with-output-to-string (stream output-string)
+	(loop for line in (split-string-by-newlines string) do
+	     (cond
+	       ((string-headline-of-levelp line level)
+		(format stream "~A~%" (markdown-headline-to-middle-language line level)))
+	       ('ELSE
+		(format stream "~A~%" line)))))
+      output-string)))
+	       
+
 ;; These are functions that deal with the management of all these rules.
 ;; The previous stuff is either special case rules (lines and lists for example), or general case rules generation.
 ;; (Although lists could do with some simplification.)
@@ -343,6 +433,14 @@ And that's about all for now. I should add in some extras, such as:
 (set-rule "LISTS" #'interpret-lists)
 (set-rule "CODE-BLOCKS" #'interpret-code-literal-rules)
 (set-rule "QUOTES" #'interpret-quotes)
+(set-rule "FORCED-NEWLINE" #'interpret-forced-newline-rules)
+(set-rule "HASH-HEADLINE-1" (make-hash-headline-rule 1))
+(set-rule "HASH-HEADLINE-2" (make-hash-headline-rule 2))
+(set-rule "HASH-HEADLINE-3" (make-hash-headline-rule 3))
+(set-rule "HASH-HEADLINE-4" (make-hash-headline-rule 4))
+(set-rule "HASH-HEADLINE-5" (make-hash-headline-rule 5))
+(set-rule "HASH-HEADLINE-6" (make-hash-headline-rule 6))
+(set-rule "DASH-AND-EQUAL-HEADLINES" #'interpret-dashy-and-equally-headline-rules)
 
 ;; An ad-hoc unit-test, that runs all the rules, who have been added manually.
 (defun run-all-the-rules! ()
@@ -352,13 +450,37 @@ And that's about all for now. I should add in some extras, such as:
     ;; Interestingly, it should be okay if we run them in alphabetical order. ^_^
     (setf output (apply-rule "ESCAPE-PARENS" output))
     (setf output (apply-rule "HORIZONTAL-LINE" output))
+    (setf output (apply-rule "DASH-AND-EQUAL-HEADLINES" output))
     (setf output (apply-rule "LISTS" output))
     (setf output (apply-rule "CODE-BLOCKS" output))
     (setf output (apply-rule "QUOTES" output))
+    (setf output (apply-rule "HASH-HEADLINE-1" output))
+    (setf output (apply-rule "HASH-HEADLINE-2" output))
+    (setf output (apply-rule "HASH-HEADLINE-3" output))
+    (setf output (apply-rule "HASH-HEADLINE-4" output))
+    (setf output (apply-rule "HASH-HEADLINE-5" output))
+    (setf output (apply-rule "HASH-HEADLINE-6" output))
     (setf output (apply-rule "CURSIVE" output))
     (setf output (apply-rule "UNDERLINE" output))
     (setf output (apply-rule "FOOTNOTE" output))
     (setf output (apply-rule "CITE" output))
     (setf output (apply-rule "BOLD" output))
     (setf output (apply-rule "EMPHASISED" output))
+    (setf output (apply-rule "FORCED-NEWLINE" output))
     output))
+
+(defparameter *test-paragraphs*
+  "This is how paragraphs should work:
+
+This should create a new paragraph.
+This should not.")
+
+(defparameter *test-force-newlines*
+  "This is how forcing newlines should work:
+Two spaces on the end of a line like this:  
+Forces a newline.  
+However, this does not: 
+Note the lack of newline?")
+
+;; Sketching pad area for functions
+(run-all-the-rules!)
