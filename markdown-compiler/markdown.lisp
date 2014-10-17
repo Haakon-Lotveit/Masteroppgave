@@ -4,10 +4,7 @@
 ;; - Den tar ikke å escaper HTML-tegn, slik som &.
 ;; - Den fungerer per linje, med hacks for å fikse entiteter som går over flere linjer, slik som blokksitater.
 ;; - Siden Markdown ikke er en faktisk standard med EBNF-standard grammatikk, kan jeg ta feil på flere viktige områder.
-;; 
-;; Tekst blir skrevet ut i følgende format:
-;; (tekst :format "Markdown 0.1" [STRENG])
-;; der [STRENG] er en Common Lisp-streng som kan leses via read. Whitespace kan legges til etter ønske og behov. Newlines i strengen kan, men trenger ikke å escapes.
+;; - Ikke at jeg ønsker å implementere "Markdown" helt korrekt heller, siden deler av språket er merkelige greier.
 ;; 
 ;; Ting som er implementert:
 ;; - kursiv, fet og understreket skrift
@@ -15,14 +12,16 @@
 ;; - akademiske henvisninger. (§sitering§?)
 ;; - fotnoter. (¤fotnote¤)
 ;; - sitater
-;; - horisontale linjer
+;; - horisontale linjer, selv om de nå er feil. De skal være noe ala: ([-+*]\\s+){3,} som helt sikkert er feil. 
+;; - ESCAPING \*happy\* skal ikke tolkes som (TAG happy), men som *happy*
+;; - Håndtering av parenteser. () blir nå til \(\) i output.
 ;; 
 ;; Ting som skal implementeres:
-;; - Overskrifter
-;; - paragrafer
-;; - lenker
-;; - ESCAPING \*happy\* skal ikke tolkes som (BOLDED happy).
-;; - Håndtering av parenteser. (hva om jeg vil skrive (BOLDED noe) uten at det blir uthevet?)
+;; - Overskrifter (De er det som nå blir tolket som horisontale linjer. H2 i alle fall.)
+;; - paragrafer (Sjekk om vi har to whitespace linjer på rad, og hvis vi så har...)
+;; - lenker (Kven veit heilt korleis?)
+;; - indentering av et dokument
+;; - trimming av dokumentet (unødvendig mye plass tatt opp både foran og bak)
 ;; - mm!
 ;; 
 ;; Merk at ting ikke er ferdig før det har i alle fall en enhetstest! Kan legges inn i *test-string-large*
@@ -71,9 +70,10 @@ And that's about all for now. I should add in some extras, such as:
   4. headers of the ### H3 ### and ## H2 ## variety.
   5. citations (an extension to the markdown language.)")
 
-(defparameter *current-subtest* "Here is some _underlined_ words. This _is_ _important_!")
+					; globs that can be easily changed
 (defparameter *markdown-indentation-level* 0)
 (defparameter *markdown-indentation-step* 4)
+(defparameter *tabs-are-this-many-spaces* 4)
 
 (defun increase-markdown-indentation ()
   (incf *markdown-indentation-level* *markdown-indentation-step*))
@@ -85,29 +85,7 @@ And that's about all for now. I should add in some extras, such as:
 (defun split-string-by-newlines (string)
   (SPLIT-SEQUENCE:SPLIT-SEQUENCE #\Newline string))
 
-(defparameter *lister* "Lister kjem:
-
-  * dette er en liste uten orden.
-  * andre elementet av Listen
-  * listen er over når det kommer noe som ikke er en del av en liste.
-  * En tom linje er en linje med bare whitespace.
-
-  * Dette er en ny liste.
-    1 Du kan blande listetegn om du vil.
-    1 Dette er en liste i en liste.
-  * Men lister defineres per indentering.
-
-  1. Akkurat nå kan du ikke kjede lister i hverandre
-  2. Det er fordi lukkingen av lister har en bug i seg.
-  4  Men tallene foran listene har ingenting å si.
-
-Der var listene ferdig.
-")
-
 (defun prettyprint (stream object)
-  (dotimes (i *markdown-indentation-level*)
-    (format stream " "))
-
   (format stream "~A" object))
 
 (defun prettyprint-line (stream object)
@@ -228,8 +206,15 @@ Der var listene ferdig.
 	     (incf current-line))))
     output-string))
 	
+(defun open-tag (name stream)
+  (format stream "(~A " name))
+
+(defun close-tag (stream)
+  (format stream ")"))
+
 (defun remove-quote-stuff (line)
   (regex-replace "\\A\\s*>\\s+" line " "))
+
 (defun interpret-quotes (input-string)
   (let ((output-string (make-growable-string))
 	(match-quote-regex "\\A\\s*>\\s+")
@@ -251,21 +236,10 @@ Der var listene ferdig.
 	      (prettyprint-line stream line)))))
     output-string))
 
-(defun open-tag (name stream)
-  (format stream "(~A " name))
-
-(defun close-tag (stream)
-  (format stream ")"))
-
 (defun interpret-toggle-regex (input-string regex-rule tag-name)
   (let ((output-string (copy-seq input-string))
-	(toggle-flag nil)
-	(sanity-check 0))
+	(toggle-flag nil))
     (loop while (scan regex-rule output-string) do
-	 (when (> sanity-check 10)
-	   (error "LOL DERP"))
-	 (incf sanity-check)
-	 (format 't "Current output-string: ~A~%" output-string)
 	 (setf output-string
 	       (regex-replace regex-rule output-string
 			      (if toggle-flag
@@ -282,6 +256,7 @@ Der var listene ferdig.
 (defun interpret-horizontal-line-rules (input-string)
   (let ((output-string (make-growable-string))
 	;; entire line is: some-or-none whitespace, at least four dashes (-) and then some or none whitespace
+	;; TODO: This is actually wrong. That's Markdown's code for an H2 header. :D
 	(match-lines-regex "\\A\\s*-{4,}\\s*\\Z")
 	(previous-line-was-whitespaced T))
     (with-output-to-string (stream output-string)
@@ -301,6 +276,42 @@ Der var listene ferdig.
 		     (regex-replace-all "\\(" input-string "\\(")
 		     "\\)"))
 
+(defun remove-n-chars-from-string (n string)
+  (subseq string n))
+
+(defun tab-replacement ()
+  (coerce (make-array *tabs-are-this-many-spaces* :initial-element #\Space) 'string))
+
+(defun count-spaces (string)
+  (let ((spaces 0))
+    (loop for character across (regex-replace-all "\\t" string (tab-replacement)) while (char= character #\Space) do (incf spaces))
+    spaces))
+
+(defun interpret-code-literal-rules (input-string)
+  "NOTE: This *must* be run *after* the list interpretations have been run."
+  (let ((output-string (make-growable-string))
+	(currently-in-code-block nil)
+	(match-code-block-regex "\\A( {4,}|\\s*\\t\\s*)"))
+    (with-output-to-string (stream output-string)
+    (loop for line in (split-string-by-newlines input-string) do
+	 (let ((this-line-is-code-block (scan match-code-block-regex line)))
+	   (cond
+	     (this-line-is-code-block
+	      (unless currently-in-code-block
+		(setf currently-in-code-block (count-spaces line))
+		(prettyprint-line stream "")
+		(open-tag "CODE" stream))
+	      (format stream "~%~A" (remove-n-chars-from-string currently-in-code-block line)))
+	     ((not this-line-is-code-block) 
+	      (when currently-in-code-block
+		(setf currently-in-code-block nil)
+		(close-tag stream))
+	      (prettyprint-line stream line))))))
+	     output-string))
+
+;; These are functions that deal with the management of all these rules.
+;; The previous stuff is either special case rules (lines and lists for example), or general case rules generation.
+;; (Although lists could do with some simplification.)
 (defparameter *rules*
   (make-hash-table :test 'equal))
 
@@ -327,8 +338,11 @@ Der var listene ferdig.
 (make-and-set-toggle-regex-rule "FOOTNOTE" "FOOTNOTE" "(?<!\\\\)¤")
 (make-and-set-toggle-regex-rule "UNDERLINE" "UNDERLINE" "(?<!\\\\)_")
 (make-and-set-toggle-regex-rule "CURSIVE" "CURSIVE" "(?<!\\\\)\\/")
+(set-rule "ESCAPE-PARENS" #'escape-parens)
 (set-rule "HORIZONTAL-LINE" #'interpret-horizontal-line-rules)
 (set-rule "LISTS" #'interpret-lists)
+(set-rule "CODE-BLOCKS" #'interpret-code-literal-rules)
+(set-rule "QUOTES" #'interpret-quotes)
 
 ;; An ad-hoc unit-test, that runs all the rules, who have been added manually.
 (defun run-all-the-rules! ()
@@ -336,8 +350,11 @@ Der var listene ferdig.
     ;; We could just chain these calls, but it looks nicer when we setf them.
     ;; Notice that HORIZONTAL-LINE must run before LISTS
     ;; Interestingly, it should be okay if we run them in alphabetical order. ^_^
+    (setf output (apply-rule "ESCAPE-PARENS" output))
     (setf output (apply-rule "HORIZONTAL-LINE" output))
     (setf output (apply-rule "LISTS" output))
+    (setf output (apply-rule "CODE-BLOCKS" output))
+    (setf output (apply-rule "QUOTES" output))
     (setf output (apply-rule "CURSIVE" output))
     (setf output (apply-rule "UNDERLINE" output))
     (setf output (apply-rule "FOOTNOTE" output))
@@ -345,4 +362,3 @@ Der var listene ferdig.
     (setf output (apply-rule "BOLD" output))
     (setf output (apply-rule "EMPHASISED" output))
     output))
-      
