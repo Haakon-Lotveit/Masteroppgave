@@ -289,7 +289,7 @@ And that's about all for now. I should add in some extras, such as:
 	      (prettyprint-line stream "(HORIZONTAL-LINE)"))
 	     ('NOT-MATCHING
 	      (prettyprint-line stream line)))))
-    output-string))
+    (remove-first-char output-string)))
 
 
 (defun interpret-dashy-and-equally-headline-rules (input-string)
@@ -313,24 +313,6 @@ And that's about all for now. I should add in some extras, such as:
 	      (setf previous-line line)))
 	   (setf first-iteration nil))
       (format stream "~A" previous-line))
-    output-string))
-
-(defun interpret-horizontal-line-rules-deprecated (input-string)
-  "DEPRECATED, DO NOT USE"
-  (let ((output-string (make-growable-string))
-	;; entire line is: some-or-none whitespace, at least four dashes (-) and then some or none whitespace
-	;; TODO: This is actually wrong. That's Markdown's code for an H2 header. :D
-	(match-lines-regex "\\A\\s*-{4,}\\s*\\Z")
-	(previous-line-was-whitespaced T))
-    (with-output-to-string (stream output-string)
-      (loop for line in (split-string-by-newlines input-string) do
-	   (if (scan match-lines-regex line)
-	       (if previous-line-was-whitespaced
-		   (progn (prettyprint-line stream "")
-			  (open-tag "HORIZONTAL-LINE" stream)
-			  (close-tag stream)))
-	       (prettyprint-line stream line))
-	       (setf previous-line-was-whitespaced (is-whitespace-linep line))))
     output-string))
 
 (defun escape-parens (input-string)
