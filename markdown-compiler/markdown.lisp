@@ -368,8 +368,10 @@ And that's about all for now. I should add in some extras, such as:
 	      (when currently-in-code-block
 		(setf currently-in-code-block nil)
 		(close-tag stream))
-	      (prettyprint-line stream line))))))
-	     output-string))
+	      (prettyprint-line stream line)))))
+    (when currently-in-code-block 
+      (format stream ")")))
+    (remove-first-char output-string)))
 
 (defun interpret-forced-newline-rules (input-string)
   "The newline in the string ruins the look of this function, but it works."
@@ -633,6 +635,12 @@ A list of all the good bits of flawedtopia:
 (defparameter *test-escape-parens*
   "Hvis vi skal ha parenteser, må de escapes (ellers blir de tolket som kommandoer/tagger i midtspråket).
 Derfor er det viktig at de blir escapet korrekt. \\(\\)")
+
+(defparameter *test-code-blocks*
+"Here are some code blocks:
+    (defun greet-world ()
+        (write-line \"Hello World!\"))
+        (greet-world)")
 
 (defparameter *test-quotations*
 "> Implying you are a cat
