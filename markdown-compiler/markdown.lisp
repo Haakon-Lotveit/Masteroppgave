@@ -235,7 +235,7 @@ And that's about all for now. I should add in some extras, such as:
   (format stream ")"))
 
 (defun remove-quote-stuff (line)
-  (regex-replace "\\A\\s*>\\s+" line " "))
+  (regex-replace "\\A\\s*>\\s+" line ""))
 
 (defun interpret-quotes (input-string)
   (let ((output-string (make-growable-string))
@@ -255,8 +255,10 @@ And that's about all for now. I should add in some extras, such as:
 	      (when inside-quotes
 		(setf inside-quotes NIL)
 		(close-tag stream))
-	      (prettyprint-line stream line)))))
-    output-string))
+	      (prettyprint-line stream line))))
+      (when inside-quotes
+	(format stream ")")))
+    (remove-first-char output-string)))
 
 (defun interpret-toggle-regex (input-string regex-rule tag-name)
   (let ((output-string (copy-seq input-string))
@@ -407,6 +409,15 @@ And that's about all for now. I should add in some extras, such as:
       (remove-last-char output-string))))
 	       
 
+(defun escape-slashes (input-string)
+  "OBS! Må kjøres før escape-parens blir kalt!"
+  (regex-replace-all "\\\\" input-string "\\\\\\\\"))
+
+(defun interpret-escape-sequences (input-string)
+  (escape-parens
+   (escape-slashes
+    input-string)))
+
 ;; These are functions that deal with the management of all these rules.
 ;; The previous stuff is either special case rules (lines and lists for example), or general case rules generation.
 ;; (Although lists could do with some simplification.)
@@ -437,7 +448,9 @@ And that's about all for now. I should add in some extras, such as:
 (make-and-set-toggle-regex-rule "UNDERLINE" "UNDERLINE" "(?<!\\\\)_")
 (make-and-set-toggle-regex-rule "CURSIVE" "CURSIVE" "(?<!\\\\)\\/")
 
+(set-rule "ESCAPE-SEQUENCES" #'interpret-escape-sequences)
 (set-rule "ESCAPE-PARENS" #'escape-parens)
+(set-rule "ESCAPE-SLASHES" #'escape-slashes)
 (set-rule "HORIZONTAL-LINE" #'interpret-horizontal-line-rules)
 (set-rule "LISTS" #'interpret-lists)
 (set-rule "CODE-BLOCKS" #'interpret-code-literal-rules)
@@ -457,7 +470,7 @@ And that's about all for now. I should add in some extras, such as:
     ;; We could just chain these calls, but it looks nicer when we setf them.
     ;; Notice that HORIZONTAL-LINE must run before LISTS
     ;; Interestingly, it should be okay if we run them in alphabetical order. ^_^
-    (setf output (apply-rule "ESCAPE-PARENS" output))
+    (setf output (apply-rule "ESCAPE-SEQUENCES" output))
     (setf output (apply-rule "HORIZONTAL-LINE" output))
     (setf output (apply-rule "DASH-AND-EQUAL-HEADLINES" output))
     (setf output (apply-rule "LISTS" output))
@@ -616,3 +629,11 @@ A list of all the good bits of flawedtopia:
   1. The coffee was rather acceptable.
   1. The tea was not too expensive.
   4. The crumpets were excellent.")
+
+(defparameter *test-escape-parens*
+  "Hvis vi skal ha parenteser, må de escapes (ellers blir de tolket som kommandoer/tagger i midtspråket).
+Derfor er det viktig at de blir escapet korrekt. \\(\\)")
+
+(defparameter *test-quotations*
+"> Implying you are a cat
+> Implying you aren't just trying to steal my gains")
