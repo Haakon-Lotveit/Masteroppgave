@@ -135,6 +135,12 @@ And that's about all for now. I should add in some extras, such as:
 (defmethod pop-list-indent-level ((status list-status))
   (pop (indentation-spaces status)))
 
+(defun remove-first-char (string)
+  (subseq string 1))
+
+(defun remove-last-char (string)
+  (subseq string 0 (1- (length string))))
+
 (defun count-spaces (string)
   (second (multiple-value-list (scan " *" (CL-PPCRE:regex-replace-all "\\t" string "    ")))))
 
@@ -218,8 +224,9 @@ And that's about all for now. I should add in some extras, such as:
 		    (deal-with-unordered-list status stream line))
 		   ('NO-LISTS-FOUND
 		    (deal-with-no-list status stream line)))
-	     (incf current-line))))
-    output-string))
+	     (incf current-line))
+	(deal-with-no-list status stream "")))
+    (remove-last-char (remove-first-char output-string))))
 	
 (defun open-tag (name stream)
   (format stream "(~A " name))
@@ -269,7 +276,6 @@ And that's about all for now. I should add in some extras, such as:
       NIL))
 
 (defun interpret-horizontal-line-rules (input-string)
-  "This is the one that actually works"
   (let ((output-string (make-growable-string))
 	(horizontal-line-dash-regex "\\A\\s*(\\*\\s){3,}")
 	(horizontal-line-star-regex "\\A\\s*(\\-\\s){3,}"))
@@ -288,7 +294,8 @@ And that's about all for now. I should add in some extras, such as:
   (let ((output-string (make-growable-string))
 	(match-dashy-headline-regex "\\A\\s*\\-{4,}\\s*\\Z")
 	(match-equal-headline-regex "\\A\\s*\\={4,}\\s*\\Z")
-	(previous-line ""))
+	(previous-line "")
+	(first-iteration T))
     (with-output-to-string (stream output-string)
       (loop for line in (split-string-by-newlines input-string) do
 	   (cond
@@ -299,9 +306,11 @@ And that's about all for now. I should add in some extras, such as:
 	      (format stream "(HEADLINE :LEVEL 2 ~A)" previous-line)
 	      (setf previous-line ""))
 	     ('NO-HEADLINES
-	      (format stream "~%~A" previous-line)
-	      (setf previous-line line))))
-      (format stream "~%~A" previous-line))
+	      (unless first-iteration
+		(format stream "~A~%" previous-line))
+	      (setf previous-line line)))
+	   (setf first-iteration nil))
+      (format stream "~A" previous-line))
     output-string))
 
 (defun interpret-horizontal-line-rules-deprecated (input-string)
@@ -362,10 +371,9 @@ And that's about all for now. I should add in some extras, such as:
 
 (defun interpret-forced-newline-rules (input-string)
   "The newline in the string ruins the look of this function, but it works."
-    (regex-replace-all "  \\n" 
+    (regex-replace-all "  (?=\\n|\\Z)"
 		       input-string 
-		       " (NEWLINE)
-"
+		       " (NEWLINE)"
 		       ))
 
 
@@ -396,7 +404,7 @@ And that's about all for now. I should add in some extras, such as:
 		(format stream "~A~%" (markdown-headline-to-middle-language line level)))
 	       ('ELSE
 		(format stream "~A~%" line)))))
-      output-string)))
+      (remove-last-char output-string))))
 	       
 
 ;; These are functions that deal with the management of all these rules.
@@ -428,6 +436,7 @@ And that's about all for now. I should add in some extras, such as:
 (make-and-set-toggle-regex-rule "FOOTNOTE" "FOOTNOTE" "(?<!\\\\)¤")
 (make-and-set-toggle-regex-rule "UNDERLINE" "UNDERLINE" "(?<!\\\\)_")
 (make-and-set-toggle-regex-rule "CURSIVE" "CURSIVE" "(?<!\\\\)\\/")
+
 (set-rule "ESCAPE-PARENS" #'escape-parens)
 (set-rule "HORIZONTAL-LINE" #'interpret-horizontal-line-rules)
 (set-rule "LISTS" #'interpret-lists)
@@ -484,3 +493,126 @@ Note the lack of newline?")
 
 ;; Sketching pad area for functions
 (run-all-the-rules!)
+
+(defparameter *test-hash-headline*
+"   # Will Ye Go Lassie, Go? #
+
+    ## Verse 1 ##
+Oh, the summertime is coming
+And the trees are sweetly blooming
+And the wild mountain thyme
+Grows around the blooming heather
+Will ye go lassie, go?
+
+    ## CHORUS ##
+And we’ll all go together
+To pluck wild mountain thyme
+All around the blooming heather
+Will ye go lassie, go?
+
+    ## Verse 2 ##
+I will build my love a bower
+Near yon pure crystal fountain
+And on it I will pile
+All the flowers of the mountain
+Will ye go lassie, go?
+
+CHORUS
+
+    ## Verse 3 ##
+If my true love she were gone
+I would surely find another
+Where wild mountain thyme
+Grows around the blooming heather
+Will ye go lassie, go?
+
+CHORUS
+
+    ## Verse 4 ##
+Oh, the summertime is coming
+And the trees are sweetly blooming
+And the wild mountain thyme
+Grows around the blooming heather
+Will ye go lassie, go?
+
+CHORUS")
+
+(defparameter *test-dash-and-equal-headlines*
+"THIS IS A HEADLINE
+------------------
+And come tell me Sean O'Farrell tell me why you hurry so
+Husha buachaill hush and listen and his cheeks were all a glow
+I bare orders from the captain get you ready quick and soon
+For the pikes must be together by the rising of the moon
+
+CHORUS
+======
+    By the rising of the moon, by the rising of the moon
+    For the pikes must be together by the rising of the moon
+
+And come tell me Sean O'Farrell where the gath'rin is to be
+At the old spot by the river quite well known to you and me
+One more word for signal token whistle out the marchin' tune
+With your pike upon your shoulder by the rising of the moon
+
+By the rising of the moon, by the rising of the moon
+With your pike upon your shoulder by the rising of the moon
+
+Out from many a mud wall cabin eyes were watching through the night
+Many a manly heart was beating for the blessed warning light
+Murmurs rang along the valleys to the banshees lonely croon
+And a thousand pikes were flashing by the rising of the moon
+
+By the rising of the moon, by the rising of the moon
+And a thousand pikes were flashing by the rising of the moon
+
+All along that singing river that black mass of men was seen
+High above their shining weapons flew their own beloved green
+Death to every foe and traitor! Whistle out the marching tune
+And hurrah, me boys, for freedom, 'tis the rising of the moon
+
+'Tis the rising of the moon, 'tis the rising of the moon
+And hurrah, me boys, for freedom, 'tis the rising of the moon")
+
+(defparameter *test-forced-newlines*
+"Her skal der være en tvungen newline:  
+Her skal det ikke være en tvungen newline:
+Her skal der være en igjen:  ")
+
+(defparameter *test-emphasis*
+"Emphasis looks is when you put stars around words, like \\*this\\*.
+Escaping the stars with slashes '\\' removes the emphasis.
+This is why *this* is emphasised, and \\*this\\* is not.")
+
+(defparameter *test-bold*
+"Bolded text is denoted by two underscores: \\_
+So __this text is bolded__, and \\__this text is not\\__
+Why is this text so __bold?__")
+
+(defparameter *test-cite*
+"You can cite things§Citatus55AD§ by using the \\§ characters to enclose a citation§Løtveit2014§.
+Citing is very important for any good journal or scientific body of work§CaptObvious2006§.")
+
+(defparameter *test-footnote*
+"Footnotes are added by using the currency character.¤It looks like this: '\\¤'¤
+I tend to overuse them¤No, really, I do!¤, because I like them too much.")
+
+(defparameter *test-underline*
+"You can underline things by using a _single_ underscore. (This character '\\_')
+This is useful for emphasis, and making a bit of text stand out more.")
+
+(defparameter *test-cursive*
+"Cursive text is made by using the \\/ character. It may make you sound quite /mean/.
+/Please be aware that people have used the cursive writing as a means to make snarky passive-aggressive comments about others.
+You may want to avoid using it too much to not seem like a meanie./")
+
+(defparameter *test-lists*
+"A list of all the flaws in flawedtopia:
+  - It's not perfect
+  - It's rather not good, to be perfectly frank.
+  - Frank didn't even like it.
+
+A list of all the good bits of flawedtopia:
+  1. The coffee was rather acceptable.
+  1. The tea was not too expensive.
+  4. The crumpets were excellent.")
