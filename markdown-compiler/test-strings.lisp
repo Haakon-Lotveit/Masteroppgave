@@ -1,3 +1,33 @@
+(defparameter *test-paragraphs*
+  "This is how paragraphs should work:
+
+This should create a new paragraph.
+This should not.")
+
+(defparameter *test-force-newlines*
+  "This is how forcing newlines should work:
+Two spaces on the end of a line like this:  
+Forces a newline.  
+However, this does not: 
+Note the lack of newline?")
+
+(defparameter *test-paragraphs*
+"Here is one and only one new paragraph:
+
+
+And here is not a new paragraph:
+See?
+")
+
+(defparameter *test-links*
+  "Here is a link: [print-name](http://example.com \"And this is the name that should be displayed when the mouse hovers over\"
+This is not a link: [name] (because there is a space there \"Because there is no evaluation of URL legality.\")
+Notice that any space between the ']' and '(' will mean that it is not a url.
+Furthermore notice that [print-[-name](http://example.com \"name\") is undefined.
+If you want to be sure, you will have to escape the bracket, like so: \\[print-[name] or [print-\\[name] depending on what you want.")
+
+(defparameter *basic-link*
+  "DO NOT MATCH[Match this](http://example.com \"This is a string literal\")DO NOT MATCH")
 
 (defparameter *test-hash-headline*
 "   # Will Ye Go Lassie, Go? #

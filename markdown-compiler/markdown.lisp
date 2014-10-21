@@ -18,9 +18,9 @@
 ;; - ESCAPING \*happy\* skal ikke tolkes som (TAG happy), men som *happy*
 ;; - Håndtering av parenteser. () blir nå til \(\) i output.
 ;; - ## H2 ## Overskrifter
+;; - paragrafer (Sjekk om vi har to whitespace linjer på rad, og hvis vi så har...)
 ;; 
 ;; Ting som skal implementeres:
-;; - paragrafer (Sjekk om vi har to whitespace linjer på rad, og hvis vi så har...)
 ;; DISSE BLIR GJORT NEST SIST!
 ;; - lenker (Kven veit heilt korleis? Og om det egentlig trengs?)
 ;; DISSE BLIR GJORT SIST! (må tenke på hvordan det henger sammen med resten av programmet)
@@ -44,7 +44,7 @@
 (defparameter *test-string-large*
 "This is not a normal test string.
 in fact, it has both /cursive/ words,
-some  _underlined_ words, and last but not least,
+some _underlined_ words, and last but not least,
 it has *bolded* words.
 Furthermore it has quotes:
 > The problem with online citations is that it's hard to know if they are authentic or not.
@@ -60,18 +60,22 @@ And monospaced text too:
 - - - - - - - - - - - - - - - - - - - - - - - 
 And here are two lines!
  * * * * * * * * * * * * * * * * * * * * * * *
-
 #### This is a level 4 header ####
-
 And here is a level 1 header!
 -----------------------------
-
 Note that you only need 4 chars to make it a header.
      ====
+
+ ### It does have links!
+
+[Links look like this!](www.example.com \"eksempelnettsted\")
+You can escape them by prepending '\\' characters on the parens or brackets. Only one of the chars need to be escaped.
+[This is an escaped link]\(www.example.com \"eksempelnettsted\")
 
 Please note that the current in-between language treats parens as magical characters unless escaped.
 So if you want to use parens (like this!), you have to escape them with forward-slashes (\\)
 
+## Here are some list examples ##
 Not to be outdone, here's a list:
   - This is the first item of the list.
   - This is the second item of the list, which makes you less likely to remember the contents.
@@ -360,8 +364,7 @@ And that's about all for now. I should add in some extras, such as:
   "The newline in the string ruins the look of this function, but it works."
     (regex-replace-all "  (?=\\n|\\Z)"
 		       input-string 
-		       " (NEWLINE)"
-		       ))
+		       " (NEWLINE)"))
 
 
 (defun string-headline-of-levelp (string level)
@@ -392,7 +395,6 @@ And that's about all for now. I should add in some extras, such as:
 	       ('ELSE
 		(format stream "~A~%" line)))))
       (remove-last-char output-string))))
-	       
 
 (defun escape-slashes (input-string)
   "OBS! Må kjøres før escape-parens blir kalt!"
@@ -402,6 +404,70 @@ And that's about all for now. I should add in some extras, such as:
   (escape-parens
    (escape-slashes
     input-string)))
+
+(defun interpret-force-paragraph-rules (input-string)
+  (let ((output-string (make-growable-string))
+	(previous-line nil)
+	(previous-write-was-new-paragraph nil))
+    (with-output-to-string (stream output-string)
+      (loop for line in (split-string-by-newlines input-string) do
+	   (unless (null previous-line)
+	     (cond
+	       ((is-whitespace-linep previous-line)
+		(unless previous-write-was-new-paragraph
+		  (format stream "(PARAGRAPH)~%"))
+		(setf previous-write-was-new-paragraph T))
+	       ('NOT-WHITESPACE
+		(format stream "~A~%" previous-line)
+		(setf previous-write-was-new-paragraph NIL))))
+	     (setf previous-line line))
+      (format stream "~A~%" previous-line))
+    (remove-last-char output-string)))
+
+(defparameter *regex-string-literal*
+  "\".*(?<!\\\\)\"")
+(defparameter *regex-brackets-pair*
+  "(?<!\\\\)\\[.+(?<!\\\\)\\]")
+; (?<!a)b
+
+(defparameter *regex-match-url*
+	 (concatenate 'string
+		      *regex-brackets-pair*
+		      "\\(.+\\s+"
+		      *regex-string-literal*
+		      "\\)"
+		      ))
+
+(defun parse-link-literal-url (stream string)
+  (let ((url-name (subseq string 
+			  1 (scan "\\s+\"" string))))
+    (format stream " :URL \"~A\"" url-name)
+    (subseq string (1+ (length url-name)))))
+	  
+(defun parse-link-literal-display-name (stream string)
+  (let ((name (ppcre:scan-to-strings *regex-brackets-pair* string)))
+    (format stream " :NAME \"~A\"" 
+	    (subseq name 1 (1- (length name))))
+    (subseq string (length name))))
+
+(defun parse-link-literal-alternate-name (stream string)
+  (let ((alt-name (ppcre:scan-to-strings *regex-string-literal* string)))
+    (format stream " :ALT-NAME ~A" alt-name))
+  "")
+
+(defun interpret-link-literal (link-literal)
+  "This function does not check if everything is okay or not. It utterly assumes that you know what you're doing and only pass in correct things.
+interpret-link-literal will translate a link literal of the type: [link-name](url \"name\") into (URL :ALT-NAME name :NAME link-name :URL url)
+The order of operators is *not* guaranteed, only the existence of all three. They are listed here in alphabetical order."
+  (let ((literal (copy-seq link-literal))
+	(output-string (make-growable-string)))
+    (with-output-to-string (stream output-string)
+      (format stream "(URL")
+      (parse-link-literal-alternate-name stream
+					 (parse-link-literal-url stream
+								 (parse-link-literal-display-name stream literal)))
+      (format stream ")"))
+    output-string))
 
 ;; These are functions that deal with the management of all these rules.
 ;; The previous stuff is either special case rules (lines and lists for example), or general case rules generation.
@@ -440,6 +506,7 @@ And that's about all for now. I should add in some extras, such as:
 (set-rule "LISTS" #'interpret-lists)
 (set-rule "CODE-BLOCKS" #'interpret-code-literal-rules)
 (set-rule "QUOTES" #'interpret-quotes)
+(set-rule "PARAGRAPHS" #'interpret-force-paragraph-rules)
 (set-rule "FORCED-NEWLINE" #'interpret-forced-newline-rules)
 (set-rule "HASH-HEADLINE-1" (make-hash-headline-rule 1))
 (set-rule "HASH-HEADLINE-2" (make-hash-headline-rule 2))
@@ -474,22 +541,9 @@ And that's about all for now. I should add in some extras, such as:
     (setf output (apply-rule "BOLD" output))
     (setf output (apply-rule "EMPHASISED" output))
     (setf output (apply-rule "FORCED-NEWLINE" output))
+    (setf output (apply-rule "PARAGRAPHS" output))
     output))
-
-(defparameter *test-paragraphs*
-  "This is how paragraphs should work:
-
-This should create a new paragraph.
-This should not.")
-
-(defparameter *test-force-newlines*
-  "This is how forcing newlines should work:
-Two spaces on the end of a line like this:  
-Forces a newline.  
-However, this does not: 
-Note the lack of newline?")
 
 ;; Sketching pad area for functions
 (load "test-strings.lisp")
 (format t "~A~%" (run-all-the-rules!))
-
