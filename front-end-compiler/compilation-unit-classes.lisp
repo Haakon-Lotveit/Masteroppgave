@@ -5,10 +5,6 @@
 (defun indentation-spaces ()
   (* *indentation-level* *spaces-per-indent*))
 
-;; Om denne kan slettes, skal den slettes.
-;(defun std-emit (item)
-;  (format 'T "~A" item))
-
 (defun generate-load (filename)
   (load (merge-pathnames (format nil "front-end-compiler/~A.lisp" filename)
 			 *default-pathname-defaults*)))
@@ -56,30 +52,3 @@
 	    "ja")
       map)))
 
-; Hvor bør disse gå?
-;(defmethod behandle ((compilation-unit compilation-package) (token string))
-;  (flet ((token-is (string) (string= token string)))
-;    (cond ((token-is ".")
-;	   (progn
-;	     (pop *stack*)
-;	     (compile-package compilation-unit)
-;	     (when-done compilation-unit)))
-;	  
-;	  ('Standard-prosedyre-om-intet-annet-passer
-;	   (let ((key (subseq token 0 (position #\= token)))
-;		 (val (subseq token (1+ (position #\= token)))))
-;	     (setf (gethash key (fields compilation-unit)) (read-from-string val))))))
-;  compilation-unit)
-
-#|
-(defgeneric on-creation (package))
-(defmethod on-creation ((package compilation-package)) package)
-(defmethod on-creation ((package dokument-compilation-package))
-  (start-block package "dokument")
-  package)
-
-(defgeneric when-done (package))
-(defmethod when-done ((package compilation-package)) package)
-(defmethod when-done ((package dokument-compilation-package))
-  (end-block package))
-|#
