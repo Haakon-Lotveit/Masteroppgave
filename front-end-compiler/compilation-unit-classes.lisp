@@ -34,21 +34,16 @@
 (defmethod compile-package ((package text-compilation-package))
   (error "No compilation method have been defined for basic text-compilation"))
 
-;; TODO: Bruk aux-metoden istedenfor
-(defvar *image-hashmap* (progn
-			  (let ((table (make-hash-table :test 'equal)))
-			    (setf (gethash "fil" table) "~/Bilder/bilde.png")
-			    (setf (gethash "location" table) "centered")
-			    (setf (gethash "size" table) "50%")
-			    table)))
 
-;; TODO: Bruk aux-metoden istedenfor
+(defvar *image-hashmap* 
+  (make-hash-table-from-list 
+   '(("fil" "~/Bilder/bilde.png")
+     ("location" "centered")
+     ("size" "50%"))))
+
 (defvar *table-hashmap*
-  (progn
-    (let ((map (make-hash-table :test 'equal)))
-      (setf (gethash "fil" map)
-	    "exampledata/small-table.csv")
-      (setf (gethash "første-linje-er-tabellnavn" map)
-	    "ja")
-      map)))
+  (make-hash-table-from-list
+      '(("fil" "exampledata/small-table.csv")
+	("første-linje-er-tabellnavn" "ja"))))
+
 
