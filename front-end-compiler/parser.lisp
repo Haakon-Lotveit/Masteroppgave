@@ -78,6 +78,7 @@
   (test #'equal nil (gethash "c" map))
   (test #'equal forventet-rest rest-list)
   T)
+
 (defvar *parsing-functions*
   (progn
     (let ((funmap (make-hash-table :test 'equal)))
@@ -122,9 +123,9 @@
 (defun parse (tokenlist stream)
   (let ((*indentation-level* 0))
     (parse-help tokenlist stream)))
+
 ;; enhetstest for funksjonen "parse".
 ;; tester implisitt hjelpefunksjoner.
-
 (let* ((parse-output (make-growable-string))
        (expected (concatenate 'string
 			      +nl+ "(dokument" 

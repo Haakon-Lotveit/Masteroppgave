@@ -34,16 +34,3 @@
 (defmethod compile-package ((package text-compilation-package))
   (error "No compilation method have been defined for basic text-compilation"))
 
-
-(defvar *image-hashmap* 
-  (make-hash-table-from-list 
-   '(("fil" "~/Bilder/bilde.png")
-     ("location" "centered")
-     ("size" "50%"))))
-
-(defvar *table-hashmap*
-  (make-hash-table-from-list
-      '(("fil" "exampledata/small-table.csv")
-	("første-linje-er-tabellnavn" "ja"))))
-
-
