@@ -69,8 +69,9 @@ Note that you only need 4 chars to make it a header.
  ### It does have links!
 
 [Links look like this!](www.example.com \"eksempelnettsted\")
-You can escape them by prepending '\\' characters on the parens or brackets. Only one of the chars need to be escaped.
-[This is an escaped link]\(www.example.com \"eksempelnettsted\")
+You can escape them by prepending '\\' characters on the brackets. Only one of the chars need to be escaped.
+Escaping the parens has some weird bug in it.
+\\[This is an escaped link](www.example.com \"eksempelnettsted\") and will not be made a URL
 
 Please note that the current in-between language treats parens as magical characters unless escaped.
 So if you want to use parens (like this!), you have to escape them with forward-slashes (\\)
@@ -425,18 +426,17 @@ And that's about all for now. I should add in some extras, such as:
     (remove-last-char output-string)))
 
 (defparameter *regex-string-literal*
-  "\".*(?<!\\\\)\"")
+  "\".*?(?<!\\\\)\"")
 (defparameter *regex-brackets-pair*
-  "(?<!\\\\)\\[.+(?<!\\\\)\\]")
+  "(?<!\\\\)\\[.+?(?<!\\\\)\\]")
 ; (?<!a)b
 
 (defparameter *regex-match-url*
 	 (concatenate 'string
 		      *regex-brackets-pair*
-		      "\\(.+\\s+"
+		      "\\\\?\\(.+?\\s+?"
 		      *regex-string-literal*
-		      "\\)"
-		      ))
+		      "\\\\?\\)"))
 
 (defun parse-link-literal-url (stream string)
   (let ((url-name (subseq string 
@@ -468,6 +468,27 @@ The order of operators is *not* guaranteed, only the existence of all three. The
 								 (parse-link-literal-display-name stream literal)))
       (format stream ")"))
     output-string))
+
+(defun interpret-url-rules (input-string)
+  (let* ((string (copy-seq input-string)) ; to avoid clobbering the input-string
+	 (output-string (make-growable-string))
+	 (match-vals (multiple-value-list (scan *regex-match-url* string))))
+    (with-output-to-string (stream output-string)
+      (loop while (first match-vals) do
+	 ;; write any string before we get to the match
+	   (format stream "~a" (subseq string 0 (first match-vals)))
+	 ;; write the parsed match
+	   (format stream "~a" (interpret-link-literal (subseq string (first match-vals) (second match-vals))))
+	 ;; setf the line to the rest of the string
+	   (setf string (subseq string (second match-vals)))
+	   (setf match-vals (multiple-value-list (scan *regex-match-url* string))))
+      ;;finally write the rest of the string
+      (format stream "~a" string))
+    output-string))
+
+		   
+	     
+(defparameter *2urls* "'ere we go! [url1](www.example.com \"example1\") and second: [url2](www.example.com \"example2\") and donne.")
 
 ;; These are functions that deal with the management of all these rules.
 ;; The previous stuff is either special case rules (lines and lists for example), or general case rules generation.
@@ -502,6 +523,7 @@ The order of operators is *not* guaranteed, only the existence of all three. The
 (set-rule "ESCAPE-SEQUENCES" #'interpret-escape-sequences)
 (set-rule "ESCAPE-PARENS" #'escape-parens)
 (set-rule "ESCAPE-SLASHES" #'escape-slashes)
+(set-rule "URLS" #'interpret-url-rules)
 (set-rule "HORIZONTAL-LINE" #'interpret-horizontal-line-rules)
 (set-rule "LISTS" #'interpret-lists)
 (set-rule "CODE-BLOCKS" #'interpret-code-literal-rules)
@@ -521,8 +543,10 @@ The order of operators is *not* guaranteed, only the existence of all three. The
   (let ((output (copy-seq *test-string-large*)))
     ;; We could just chain these calls, but it looks nicer when we setf them.
     ;; Notice that HORIZONTAL-LINE must run before LISTS
+    ;; Also, due to the URL syntax being a pain, it must be run before the escape sequences in order to work.
     ;; Interestingly, it should be okay if we run them in alphabetical order. ^_^
     (setf output (apply-rule "ESCAPE-SEQUENCES" output))
+    (setf output (apply-rule "URLS" output))
     (setf output (apply-rule "HORIZONTAL-LINE" output))
     (setf output (apply-rule "DASH-AND-EQUAL-HEADLINES" output))
     (setf output (apply-rule "LISTS" output))
