@@ -35,7 +35,6 @@
 					; Her er dependencies
 (ql:quickload :cl-ppcre)
 (ql:quickload :split-sequence)
-(load "../front-end-compiler/auxiliary-functions.lisp") ; Vi vil ha make-hash-table-from-list funksjonen.
 
 (import 'CL-PPCRE:SCAN)
 (import 'CL-PPCRE:REGEX-REPLACE)
@@ -537,6 +536,34 @@ The order of operators is *not* guaranteed, only the existence of all three. The
 (set-rule "HASH-HEADLINE-5" (make-hash-headline-rule 5))
 (set-rule "HASH-HEADLINE-6" (make-hash-headline-rule 6))
 (set-rule "DASH-AND-EQUAL-HEADLINES" #'interpret-dashy-and-equally-headline-rules)
+
+(defun compile-markdown-string (markdown-string)
+  "Compiles a markdown string to the mid-level language.
+Takes a string, and returns a string.
+Does not change the original string in any way."
+  (let ((output (copy-seq markdown-string)))
+    (setf output (apply-rule "ESCAPE-SEQUENCES" output))
+    (setf output (apply-rule "URLS" output))
+    (setf output (apply-rule "HORIZONTAL-LINE" output))
+    (setf output (apply-rule "DASH-AND-EQUAL-HEADLINES" output))
+    (setf output (apply-rule "LISTS" output))
+    (setf output (apply-rule "CODE-BLOCKS" output))
+    (setf output (apply-rule "QUOTES" output))
+    (setf output (apply-rule "HASH-HEADLINE-1" output))
+    (setf output (apply-rule "HASH-HEADLINE-2" output))
+    (setf output (apply-rule "HASH-HEADLINE-3" output))
+    (setf output (apply-rule "HASH-HEADLINE-4" output))
+    (setf output (apply-rule "HASH-HEADLINE-5" output))
+    (setf output (apply-rule "HASH-HEADLINE-6" output))
+    (setf output (apply-rule "CURSIVE" output))
+    (setf output (apply-rule "UNDERLINE" output))
+    (setf output (apply-rule "FOOTNOTE" output))
+    (setf output (apply-rule "CITE" output))
+    (setf output (apply-rule "BOLD" output))
+    (setf output (apply-rule "EMPHASISED" output))
+    (setf output (apply-rule "FORCED-NEWLINE" output))
+    (setf output (apply-rule "PARAGRAPHS" output))
+    output))
 
 ;; An ad-hoc unit-test, that runs all the rules, who have been added manually.
 (defun run-all-the-rules! ()

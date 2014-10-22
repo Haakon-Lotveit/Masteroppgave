@@ -45,8 +45,9 @@
  | 6: Når parseren er ferdig, nullstiller den en evt. state i kompilatoren.
  |#
 
-(load "auxiliary-functions.lisp")
-(load "compilation-unit-classes.lisp")
+(load (merge-pathnames "front-end-compiler/compilation-unit-classes.lisp" *default-pathname-defaults*))
+
+
 (defvar *test-tokens* '("Dokument:" "Bilde:" "fil=\"~/Bilder/bilde.png\"" "." "."))
 
 (defun legg-til-par (par hash-table)
@@ -123,12 +124,11 @@
     (parse-help tokenlist stream)))
 ;; enhetstest for funksjonen "parse".
 ;; tester implisitt hjelpefunksjoner.
+
 (let* ((parse-output (make-growable-string))
-       (nl '(#\Newline)) ; TODO: Det må finnes en "join" funksjon i Common Lisp et sted?
        (expected (concatenate 'string
-			      nl "(dokument" 
-			      nl "    (bilde"
-			      nl "        :fil ~/Bilder/bilde.png))")))
+			      +nl+ "(dokument" 
+			      +nl+ "    (bilde :fil ~/Bilder/bilde.png))")))
   (with-output-to-string (string-stream parse-output)
     (parse *test-tokens* string-stream))
   (test #'string= expected parse-output "Test for function \"parse\""))
