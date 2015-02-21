@@ -59,6 +59,8 @@
     (setf (gethash key hash-table) val))
   hash-table)
 
+;; Reads arguments of the form "[VAR]=[VALUE], separated by space, until it reaches a token that's equal to "."
+;; Then it returns the hashmap it has read.
 (defun collect-arguments (arglist)
   (cond ((string= "." (car arglist))
 	 (list (make-hash-table :test 'equal) (cdr arglist)))
@@ -79,33 +81,68 @@
   (test #'equal forventet-rest rest-list)
   T)
 
+(defun dokument-parsefun (stream arglist)
+  "Opens a document, quick hack that doesn't recursively parse, which should be fixed in the future."
+  (compile-package (make-instance 'start-document
+				  :destination-stream stream))
+  arglist) ;; We don't touch the arglist, we just send it back.
+
+(defun bilde-parsefun (stream arglist)
+  (let* ((collection (collect-arguments arglist))
+	 (fields (first collection))
+	 (rest-list (second collection)))
+    (compile-package (make-instance 'image-compilation-package
+				    :fields fields
+				    :destination-stream stream))
+    rest-list))
+
+(defun markdown-parsefun (stream fields)
+    (compile-package (make-instance 'markdown-package
+				 :fields fields
+				 :destination-stream stream)))
+
+(defun generic-text-parsefun (stream arglist)
+  "Deals with the various types of text"
+  (let* ((collection (collect-arguments arglist))
+	 (fields     (first collection))
+	 (rest-list  (second collection))
+	 (type       (gethash "type" fields "UNKNOWN-TYPE")))
+    (cond 
+      ((string= type markdown)
+       markdown)
+      ((string= type "uformattert")
+       uformattert)
+      ((string= type "direkte-innsatt")
+       direkte-innsatt)
+      ('DEFAULT
+       (error (format 'nil "Text type ~A is not recognized"))))
+    rest-list))
+
+(let ((arglist '("fil=\"~/textfile.text\"" "type=\"markdown\"" "." ".")))
+  (generic-text-parsefun *standard-output* arglist))
+
+(let ((lookup "B"))
+  (cond
+    ((string= lookup "A")
+     (write-line "found A"))
+    ((string= lookup "B")
+     (write-line "found B"))
+    ((string= lookup "C")
+     (write-line "found C"))))
+
+(defun end-parsefun (stream arglist)
+  (format stream ")")
+  arglist)
+
 (defvar *parsing-functions*
   (progn
     (let ((funmap (make-hash-table :test 'equal)))
-      
       (setf (gethash "Dokument:" funmap)
-	    (lambda (stream arglist)
-	      "Åpner et dokument. I framtiden burde den rekursivt parse resten, men akkurat nå er dette en kjapp hack. Krever manuell lukking."
-	      (compile-package (make-instance 'start-document
-					      :destination-stream stream))
-	      arglist))
-      
+	    #'dokument-parsefun)
       (setf (gethash "Bilde:" funmap)
-	    (lambda (stream arglist)
-	      (let* ((collection (collect-arguments arglist))
-		     (fields (first collection))
-		     (rest-list (second collection)))
-		(compile-package (make-instance 'image-compilation-package
-						:fields fields
-						:destination-stream stream))
-		rest-list)))
-      
+	    #'bilde-parsefun)
       (setf (gethash "." funmap)
-	    (lambda (stream arglist)
-	      "Sørger for manuell lukking av Dokument: tokener"
-	      (format stream ")")
-	      arglist))
-      
+	    #'end-parsefun)
       funmap)))
 
 (defun parse-en-ting (parse-list stream)
@@ -133,5 +170,6 @@
   (with-output-to-string (string-stream parse-output)
     (parse *test-tokens* string-stream))
   (test #'string= expected parse-output "Test for function \"parse\""))
+
 
   

@@ -15,8 +15,6 @@
 (defvar *stack* nil)
 (defvar *gyldige-rapportbit-navn* (make-hash-table :test 'equal))
 
-(load "compilation-unit-classes.lisp")
-
 (defun reset-gyldige-rapportbit-navn-tabell (emit-function)
   (let ((table (make-hash-table :test 'equal)))
     (setf (gethash "Preludium:" table)
@@ -90,5 +88,6 @@
        (if (er-ny-rapportbit-p token)
 	   (push (lag-ny-rapportbit token) *stack*)
 	   (behandle-token token *stack*))))
+
 
 

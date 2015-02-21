@@ -17,6 +17,7 @@
 		    (#\r #\Return)))
       (setf (gethash (car pair) escape-map) (cadr pair)))
     escape-map))
+
 (defvar *escape-map* (produce-standard-escape-map))
 
 (defun get-escaped-char (char)
@@ -27,7 +28,8 @@
 (defvar *stop-symbols*
   (list #\.))
 
-(defun tokenise (string)
+;; Takes a large string and tokenizes it.
+(defun tokenize (string)
   (let ((inside-literal nil)
 	(acc ())
 	(tegn #\Space)
@@ -60,4 +62,9 @@
       (empty-acc)
       (reverse tokens))))
 
-	
+;; Takes a filespec and returns a list of tokens from that file.
+(defun tokenize-file (filename)
+  (with-open-file (filestream filename :direction :input)
+    (let ((seq (make-string (file-length filestream))))
+      (read-sequence seq filestream)
+      (tokenize seq))))

@@ -2,4 +2,6 @@
   ((name
     :initform "markdown")
    (text-type
-    :initform "markdown-standard")))
+    :initform "markdown-standard")
+   (field-names
+    :initform '("input-text"))))

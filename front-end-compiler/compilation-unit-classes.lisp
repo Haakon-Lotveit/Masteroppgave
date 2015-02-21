@@ -25,9 +25,6 @@
 (generate-load "no-markup-text-passage")
 (generate-load "directly-inserted-text-package")
 
-(defmethod compile-package ((package dokument-compilation-package))
-  package)
-
 (defmethod compile-package ((package preludium-compilation-package))
   package)
 
