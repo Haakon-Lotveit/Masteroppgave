@@ -2,7 +2,7 @@
 (defvar *indentation-level* 0)
 (defvar *spaces-per-indent* 4)
 
-(defun indentation-spaces ()
+(defun compilation-unit-indentation-spaces ()
   (* *indentation-level* *spaces-per-indent*))
 
 (defun generate-load (filename)

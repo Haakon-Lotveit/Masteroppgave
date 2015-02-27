@@ -41,7 +41,7 @@
 (import 'CL-PPCRE:REGEX-REPLACE-ALL)
 					; Testdata
 (defparameter *test-string-large*
-"This is not a normal test string.
+  "This is not a normal test string.
 in fact, it has both /cursive/ words,
 some _underlined_ words, and last but not least,
 it has *bolded* words.
@@ -112,33 +112,6 @@ And that's about all for now. I should add in some extras, such as:
   (format stream "~%")
   (prettyprint stream object))
 
-;; Hjelpeklasse
-(defclass list-status ()
-  ((in-list
-    :accessor in-list
-    :initform nil
-    :initarg :in-list)
-   (indentation-spaces
-    :accessor indentation-spaces
-    :initform '(0)
-    :initarg :indentation-spaces)))
-
-(defgeneric increase-indentation (status number))
-(defmethod increase-indentation ((status list-status) number)
-  (setf (indentation-spaces status)
-	(+ (indentation-spaces status) number))
-  status)
-
-(defgeneric push-list-indent-level (status new-level))
-(defmethod push-list-indent-level ((status list-status) new-level)
-  (setf (indentation-spaces status)
-	(cons new-level (indentation-spaces status)))
-  status)
-
-(defgeneric pop-list-indent-level (status))
-(defmethod pop-list-indent-level ((status list-status))
-  (pop (indentation-spaces status)))
-
 (defun remove-first-char (string)
   (subseq string 1))
 
@@ -164,18 +137,11 @@ And that's about all for now. I should add in some extras, such as:
   (increase-markdown-indentation))
 
 (defun close-list (status stream)
-    (format stream ")")
-    (pop-list-indent-level status)
-    (when (= (first (indentation-spaces status)) 0)
-      (setf (in-list status) nil))
-    (decrease-markdown-indentation))
-
-(defgeneric currently-indented-spaces (status))
-(defmethod currently-indented-spaces ((status list-status))
-  (first (indentation-spaces status)))
-
-(defmethod print-object ((status list-status) stream)
-  (format stream "#<status-list in-list: ~A indentation-spaces: ~A>" (in-list status) (indentation-spaces status)))
+  (format stream ")")
+  (pop-list-indent-level status)
+  (when (= (first (indentation-spaces status)) 0)
+    (setf (in-list status) nil))
+  (decrease-markdown-indentation))
 
 (defun remove-list-stuff (string)
   (regex-replace "\\A\\s*(\\*|-|\\d)\\.?\\s*" string ""))
@@ -231,7 +197,7 @@ And that's about all for now. I should add in some extras, such as:
 	     (incf current-line))
 	(deal-with-no-list status stream "")))
     (remove-last-char (remove-first-char output-string))))
-	
+
 (defun open-tag (name stream)
   (format stream "(~A " name))
 
@@ -275,7 +241,7 @@ And that's about all for now. I should add in some extras, such as:
 				  (format nil "(~A " tag-name))))
 	 (setf toggle-flag (not toggle-flag)))
     output-string))
-	     
+
 (defun is-whitespace-linep (line)
   (if (scan "\\A\\s*\\Z" line)
       T
@@ -283,7 +249,7 @@ And that's about all for now. I should add in some extras, such as:
 
 (defun interpret-horizontal-line-rules (input-string)
   (let ((output-string (make-growable-string))
-	; I guarantee you that there is a better regex for this than these two, but hug it.
+					; I guarantee you that there is a better regex for this than these two, but hug it.
 	(horizontal-line-dash-regex "\\A\\s*(\\*\\s){3,}")
 	(horizontal-line-star-regex "\\A\\s*(\\-\\s){3,}"))
     (with-output-to-string (stream output-string)
@@ -320,11 +286,6 @@ And that's about all for now. I should add in some extras, such as:
       (format stream "~A" previous-line))
     output-string))
 
-(defun escape-parens (input-string)
-  (regex-replace-all "\\)"
-		     (regex-replace-all "\\(" input-string "\\(")
-		     "\\)"))
-
 (defun remove-n-chars-from-string (n string)
   (subseq string n))
 
@@ -342,29 +303,29 @@ And that's about all for now. I should add in some extras, such as:
 	(currently-in-code-block nil)
 	(match-code-block-regex "\\A( {4,}|\\s*\\t\\s*)"))
     (with-output-to-string (stream output-string)
-    (loop for line in (split-string-by-newlines input-string) do
-	 (let ((this-line-is-code-block (scan match-code-block-regex line)))
-	   (cond
-	     (this-line-is-code-block
-	      (unless currently-in-code-block
-		(setf currently-in-code-block (count-spaces line))
-		(prettyprint-line stream "")
-		(open-tag "CODE" stream))
-	      (format stream "~%~A" (remove-n-chars-from-string currently-in-code-block line)))
-	     ((not this-line-is-code-block) 
-	      (when currently-in-code-block
-		(setf currently-in-code-block nil)
-		(close-tag stream))
-	      (prettyprint-line stream line)))))
-    (when currently-in-code-block 
-      (format stream ")")))
+      (loop for line in (split-string-by-newlines input-string) do
+	   (let ((this-line-is-code-block (scan match-code-block-regex line)))
+	     (cond
+	       (this-line-is-code-block
+		(unless currently-in-code-block
+		  (setf currently-in-code-block (count-spaces line))
+		  (prettyprint-line stream "")
+		  (open-tag "CODE" stream))
+		(format stream "~%~A" (remove-n-chars-from-string currently-in-code-block line)))
+	       ((not this-line-is-code-block) 
+		(when currently-in-code-block
+		  (setf currently-in-code-block nil)
+		  (close-tag stream))
+		(prettyprint-line stream line)))))
+      (when currently-in-code-block 
+	(format stream ")")))
     (remove-first-char output-string)))
 
 (defun interpret-forced-newline-rules (input-string)
   "The newline in the string ruins the look of this function, but it works."
-    (regex-replace-all "  (?=\\n|\\Z)"
-		       input-string 
-		       " (NEWLINE)"))
+  (regex-replace-all "  (?=\\n|\\Z)"
+		     input-string 
+		     " (NEWLINE)"))
 
 
 (defun string-headline-of-levelp (string level)
@@ -383,7 +344,7 @@ And that's about all for now. I should add in some extras, such as:
     (with-output-to-string (stream output-string)
       (format stream "(HEADLINE :LEVEL ~A ~A)" level (remove-headline-markings string level)))
     output-string))
-      
+
 (defun make-hash-headline-rule (level)
   (lambda (string)
     (let ((output-string (make-growable-string)))
@@ -395,6 +356,11 @@ And that's about all for now. I should add in some extras, such as:
 	       ('ELSE
 		(format stream "~A~%" line)))))
       (remove-last-char output-string))))
+
+(defun escape-parens (input-string)
+  (regex-replace-all "\\)"
+		     (regex-replace-all "\\(" input-string "\\(")
+		     "\\)"))
 
 (defun escape-slashes (input-string)
   "OBS! Må kjøres før escape-parens blir kalt!"
@@ -415,12 +381,12 @@ And that's about all for now. I should add in some extras, such as:
 	     (cond
 	       ((is-whitespace-linep previous-line)
 		(unless previous-write-was-new-paragraph
-		  (format stream "(PARAGRAPH)~%"))
+		  (format stream "(NEW-PARAGRAPH)~%"))
 		(setf previous-write-was-new-paragraph T))
 	       ('NOT-WHITESPACE
 		(format stream "~A~%" previous-line)
 		(setf previous-write-was-new-paragraph NIL))))
-	     (setf previous-line line))
+	   (setf previous-line line))
       (format stream "~A~%" previous-line))
     (remove-last-char output-string)))
 
@@ -428,21 +394,21 @@ And that's about all for now. I should add in some extras, such as:
   "\".*?(?<!\\\\)\"")
 (defparameter *regex-brackets-pair*
   "(?<!\\\\)\\[.+?(?<!\\\\)\\]")
-; (?<!a)b
+					; (?<!a)b
 
 (defparameter *regex-match-url*
-	 (concatenate 'string
-		      *regex-brackets-pair*
-		      "\\\\?\\(.+?\\s+?"
-		      *regex-string-literal*
-		      "\\\\?\\)"))
+  (concatenate 'string
+	       *regex-brackets-pair*
+	       "\\\\?\\(.+?\\s+?"
+	       *regex-string-literal*
+	       "\\\\?\\)"))
 
 (defun parse-link-literal-url (stream string)
   (let ((url-name (subseq string 
 			  1 (scan "\\s+\"" string))))
     (format stream " :URL \"~A\"" url-name)
     (subseq string (1+ (length url-name)))))
-	  
+
 (defun parse-link-literal-display-name (stream string)
   (let ((name (ppcre:scan-to-strings *regex-brackets-pair* string)))
     (format stream " :NAME \"~A\"" 
@@ -468,6 +434,15 @@ The order of operators is *not* guaranteed, only the existence of all three. The
       (format stream ")"))
     output-string))
 
+;; PLAN FOR OMSKRIVING:
+;; 0: Appliker på liste av strenger istedenfor en streng
+;; 1: For hver streng:
+;; 2: Bruk REGEX til å finne første match.
+;; 3: Alt før første match blir en streng.
+;; 4: Alt inni matchen blir en streng som skal skrives om.
+;; 5: Rekurser på resten av strengene.
+;; 6: Samle inn alle listene av strenger og flat de ut til en liste.
+;; 7: returner listen.
 (defun interpret-url-rules (input-string)
   (let* ((string (copy-seq input-string)) ; to avoid clobbering the input-string
 	 (output-string (make-growable-string))
@@ -485,8 +460,8 @@ The order of operators is *not* guaranteed, only the existence of all three. The
       (format stream "~a" string))
     output-string))
 
-		   
-	     
+
+
 (defparameter *2urls* "'ere we go! [url1](www.example.com \"example1\") and second: [url2](www.example.com \"example2\") and donne.")
 
 ;; These are functions that deal with the management of all these rules.
@@ -565,36 +540,35 @@ Does not change the original string in any way."
     (setf output (apply-rule "PARAGRAPHS" output))
     output))
 
-;; An ad-hoc unit-test, that runs all the rules, who have been added manually.
-(defun run-all-the-rules! ()
-  (let ((output (copy-seq *test-string-large*)))
-    ;; We could just chain these calls, but it looks nicer when we setf them.
-    ;; Notice that HORIZONTAL-LINE must run before LISTS
-    ;; Also, due to the URL syntax being a pain, it must be run before the escape sequences in order to work.
-    ;; Interestingly, it should be okay if we run them in alphabetical order. ^_^
-    (setf output (apply-rule "ESCAPE-SEQUENCES" output))
-    (setf output (apply-rule "URLS" output))
-    (setf output (apply-rule "HORIZONTAL-LINE" output))
-    (setf output (apply-rule "DASH-AND-EQUAL-HEADLINES" output))
-    (setf output (apply-rule "LISTS" output))
-    (setf output (apply-rule "CODE-BLOCKS" output))
-    (setf output (apply-rule "QUOTES" output))
-    (setf output (apply-rule "HASH-HEADLINE-1" output))
-    (setf output (apply-rule "HASH-HEADLINE-2" output))
-    (setf output (apply-rule "HASH-HEADLINE-3" output))
-    (setf output (apply-rule "HASH-HEADLINE-4" output))
-    (setf output (apply-rule "HASH-HEADLINE-5" output))
-    (setf output (apply-rule "HASH-HEADLINE-6" output))
-    (setf output (apply-rule "CURSIVE" output))
-    (setf output (apply-rule "UNDERLINE" output))
-    (setf output (apply-rule "FOOTNOTE" output))
-    (setf output (apply-rule "CITE" output))
-    (setf output (apply-rule "BOLD" output))
-    (setf output (apply-rule "EMPHASISED" output))
-    (setf output (apply-rule "FORCED-NEWLINE" output))
-    (setf output (apply-rule "PARAGRAPHS" output))
-    output))
-
 ;; Sketching pad area for functions
-(load "test-strings.lisp")
-(format t "~A~%" (run-all-the-rules!))
+(setf *test-string-small*
+      "how low *can* you go?")
+
+(let ((buffer (make-growable-string))
+      (inside-function 0)
+      (prev-char #\A))
+  
+  (loop for c across "how low (EMPHASISED can) you go?" do
+       (cond
+	 ;; OPEN NEW FUNCTION
+	 ((and (not (char= #\\ prev-char))
+	       (char= #\( c))
+	  (write-line "NEW FUNCTION")
+	  (princ buffer)
+	  (setf buffer (make-growable-string))
+	  (incf inside-function)
+	  (vector-push c buffer))
+	 ;; CLOSE FUNCTION
+	 ((and (not (char= #\\ prev-char))
+	       (char= #\) c))
+	  (write-line "END FUNCTION")
+	  (write-line buffer)
+	  (decf inside-function)
+	  (vector-push c buffer)
+	  (setf buffer (make-growable-string)))
+	 ;; OTHERWISE
+	 ('DEFAULT
+	  (write-line "DEFAULT")
+	  (vector-push c buffer))
+	 )))
+

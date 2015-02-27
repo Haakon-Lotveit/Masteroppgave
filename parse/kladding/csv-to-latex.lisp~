@@ -1,0 +1,6 @@
+;; This is a filthy dirty hack to load some libs.
+;; I'm not going to bother to do it right in a sketching
+;; environment. ^_^
+(ql:quickload "cl-csv")
+(defun get-file (file)
+  

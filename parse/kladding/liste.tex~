@@ -1,0 +1,25 @@
+\documentclass[11pt]{article}
+\usepackage{cite}
+\usepackage{hyperref}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\begin{document}
+
+\title{Litteraturgjennomgang}
+\author{Haakon Løtveit}
+\date{24. april 2014}
+\maketitle
+
+\section{table}
+\label{sec:table}
+
+Here is a table. \\
+\begin{tabular}{r l l}
+fruit name & cost (NOK/KG) & available amount (kg) \\
+Apple & 13 & 432 \\
+Orange & 15 & 120 \\
+\end{tabular} \\
+Wasn't that a nice table?
+
+\end{document}

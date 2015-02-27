@@ -16,4 +16,13 @@
     (error "~A failed:~%Expected:~%~A~%Actual:~%~A~%" test-name expected actual))
   T)
 
+(defun slurp-stream (stream)
+  (let ((seq (make-array (file-length stream) :element-type 'character :fill-pointer t)))
+    (setf (fill-pointer seq) (read-sequence seq stream))
+    seq))
+
+(defun slurp-file (filespec)
+  (with-open-file (filestream filespec)
+    (slurp-stream filestream)))
+
 (defconstant +nl+ '(#\Newline))

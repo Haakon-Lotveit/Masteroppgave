@@ -101,34 +101,25 @@
 				 :fields fields
 				 :destination-stream stream)))
 
-(defun generic-text-parsefun (stream arglist)
-  "Deals with the various types of text"
-  (let* ((collection (collect-arguments arglist))
-	 (fields     (first collection))
-	 (rest-list  (second collection))
-	 (type       (gethash "type" fields "UNKNOWN-TYPE")))
-    (cond 
-      ((string= type markdown)
-       markdown)
-      ((string= type "uformattert")
-       uformattert)
-      ((string= type "direkte-innsatt")
-       direkte-innsatt)
-      ('DEFAULT
-       (error (format 'nil "Text type ~A is not recognized"))))
-    rest-list))
+;; (defun generic-text-parsefun (stream arglist)
+;;   "Deals with the various types of text"
+;;   (let* ((collection (collect-arguments arglist))
+;; 	 (fields     (first collection))
+;; 	 (rest-list  (second collection))
+;; 	 (type       (gethash "type" fields "UNKNOWN-TYPE")))
+;;     (cond 
+;;       ((string= type "markdown")
+;;        markdown)
+;;       ((string= type "uformattert")
+;;        uformattert)
+;;       ((string= type "direkte-innsatt")
+;;        direkte-innsatt)
+;;       ('DEFAULT
+;;        (error (format 'nil "Text type ~A is not recognized"))))
+;;     rest-list))
 
-(let ((arglist '("fil=\"~/textfile.text\"" "type=\"markdown\"" "." ".")))
-  (generic-text-parsefun *standard-output* arglist))
-
-(let ((lookup "B"))
-  (cond
-    ((string= lookup "A")
-     (write-line "found A"))
-    ((string= lookup "B")
-     (write-line "found B"))
-    ((string= lookup "C")
-     (write-line "found C"))))
+;; (let ((arglist '("fil=\"~/textfile.text\"" "type=\"markdown\"" "." ".")))
+;;   (generic-text-parsefun *standard-output* arglist))
 
 (defun end-parsefun (stream arglist)
   (format stream ")")

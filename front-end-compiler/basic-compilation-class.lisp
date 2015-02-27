@@ -34,7 +34,7 @@
 
 (defgeneric indent (package))
 (defmethod indent ((package compilation-package))
-  (dotimes (i (indentation-spaces)) (output package #\Space)))
+  (dotimes (i (compilation-unit-indentation-spaces)) (output package #\Space)))
 
 (defgeneric newline-and-indent (package))
 (defmethod newline-and-indent ((package compilation-package))

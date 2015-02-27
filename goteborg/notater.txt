@@ -1,0 +1,18 @@
+Gjort
+=====
+
+Tar bilde.
+Sendes til sftp.
+
+Gjenstår
+========
+
+Preview
+Robusthet
+Ingen påminnelser
+
+Krav til server
+===============
+
+bruker på den serveren som appen bruker
+sftp med skriverettigheter

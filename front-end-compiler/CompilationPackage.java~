@@ -1,0 +1,28 @@
+/*
+(defclass compilation-package ()
+  ((name
+    :reader name
+    :initform ""
+    :initarg :name)
+   
+   (field-names
+    :reader field-names
+    :initform nil
+    :initarg :field-names)
+
+   (actual-fields
+    :reader fields
+    :initform (make-hash-table :test 'equal)
+    :initarg :fields)))
+*/
+
+
+/**
+ * @author Haakon Løtveit 2014
+ * A reimplementation of the compilation-package class for my parser-project
+ */
+public class CompilationPackage{
+    private final String name;
+    private final Set<String> fields;
+    private final Map<String, String> actualFields;
+}

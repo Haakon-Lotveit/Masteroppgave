@@ -14,6 +14,7 @@
 
 (defvar *stack* nil)
 (defvar *gyldige-rapportbit-navn* (make-hash-table :test 'equal))
+(defun std-emit (
 
 (defun reset-gyldige-rapportbit-navn-tabell (emit-function)
   (let ((table (make-hash-table :test 'equal)))
