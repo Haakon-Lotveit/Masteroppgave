@@ -434,15 +434,6 @@ The order of operators is *not* guaranteed, only the existence of all three. The
       (format stream ")"))
     output-string))
 
-;; PLAN FOR OMSKRIVING:
-;; 0: Appliker på liste av strenger istedenfor en streng
-;; 1: For hver streng:
-;; 2: Bruk REGEX til å finne første match.
-;; 3: Alt før første match blir en streng.
-;; 4: Alt inni matchen blir en streng som skal skrives om.
-;; 5: Rekurser på resten av strengene.
-;; 6: Samle inn alle listene av strenger og flat de ut til en liste.
-;; 7: returner listen.
 (defun interpret-url-rules (input-string)
   (let* ((string (copy-seq input-string)) ; to avoid clobbering the input-string
 	 (output-string (make-growable-string))
@@ -572,3 +563,19 @@ Does not change the original string in any way."
 	  (vector-push c buffer))
 	 )))
 
+;; First attempt at creating a proper rule for markdown.
+(defun cursive-rule (string)
+  (let ((strings '())
+	(pos (position #\* string)))
+    (if pos
+	
+	string)))
+
+(defun maybe-compile (list)
+  (flet ((stringcomp (item)
+	   (if (stringp item)
+	       (compile-markdown-string item)
+	       item)))
+    (mapcar #'stringcomp list)))
+
+(maybe-compile (read-from-string *example-predicate*))
