@@ -1,6 +1,6 @@
 # Bakgrunn #
 
-## Hvorfor lage Rapgen? ##
+## Hvorfor lage AuRa? ##
 En må per i dag lage rapporter som bygger på data.
 Datamaskinen din vet hva dataene er, den kan sannsynligvis lage ting utav dataene, og alt du egentlig har lyst til er å trykke på knappen, og få en pdf-fil, eller et annet format. (Docbook, docx, postscript, html eller annet.)
 
@@ -16,6 +16,7 @@ NASA sin autogenerator for rapporter bør nevnes.
 Proprietære systemer (Super 5.0, den motbydelige bøtten av dårlig kode den er.)
 Andre?
 
+Pandoc er et program som oversetter fra et dokumentformat til et annet. Derfor er det interessant fordi det parser dokumenter og lager dokumenter ut av dem.
 Per i dag kan du selvsagt skripte handlinger som å hente data ut fra en server, du kan skripte numerisk analyse vha. statistiskkprogrammer som til dømes R, og du kan lime sammen mange filer til en stor fil og sende det til et program, som for eksempel en LaTeX kompilator, som kan lage pdf-en din.
 
 Men du må altså gjøre det for hånd. Og selv om du kan sette opp make til å kjøre skriptene som henter ut og behandle dataene, og deretter lime det sammen via cat til en enhetlig fil som kan kompileres, er du begrenset til et format som du kan evt. kompilere vha. programmer som for eksempel Pandoc.
