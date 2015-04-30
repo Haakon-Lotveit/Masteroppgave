@@ -17,3 +17,7 @@
 
 ;; Siteringer som ikke er i bibtex-filen enda:
 (find-file "~/git/Masteroppgave/oppgaven/missing-citations")
+
+;; Ting som også skal være der:
+(find-file "~/git/Masteroppgave/oppgaven/bits-and-pieces/design.markdown")
+(find-file "~/git/Masteroppgave/oppgaven/bits-and-pieces/disposisjon.md")
