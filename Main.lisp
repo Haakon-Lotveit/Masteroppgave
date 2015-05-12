@@ -26,13 +26,3 @@
     (main args))
   (exit :code 0))
 
-;; This is essentially the back-end compiler...
-;; only it will
-;; 1: LOAD  the appropriate compiler-back-end functions
-;; 2: READ  the file
-;; 3: EVAL  the result
-;; 4: PRINT the eval'ed program to an output-file
-(defun funk (&rest lines)
-  (loop for item in lines do
-       (print (eval item))))
-

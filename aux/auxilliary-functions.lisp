@@ -26,3 +26,4 @@
     (slurp-stream filestream)))
 
 (defconstant +nl+ '(#\Newline))
+

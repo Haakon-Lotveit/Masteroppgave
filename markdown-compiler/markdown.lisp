@@ -578,4 +578,3 @@ Does not change the original string in any way."
 	       item)))
     (mapcar #'stringcomp list)))
 
-(maybe-compile (read-from-string *example-predicate*))
