@@ -1,0 +1,192 @@
+@Comment URL Citations by category:
+                  
+@Comment Standards, ontologies, etc.:
+
+@url{ csv,
+    author = "Shafranovich, Yakov",
+    howpublished = "\url{http://tools.ietf.org/html/rfc4180}",
+    title = "RFC 4180 - Common Format and MIME Type for Comma-Separated Values (CSV) Files",
+    year = "2005",
+    note = "[Online; accessed 2014.02.25]" }
+
+@url{ gnuarg,
+    author = "Loosemore, Sandra and Stallman, Richard M. and  McGrath, Rolan and Oram, Andrew and Drepper, Ulrich",
+    howpublished = "\url{http://www.gnu.org/software/libc/manual/html_node/Argument-Syntax.html}",
+    title = "GNU argumentsyntax",
+    year = "2014",
+    note = "[Online; accessed 2014.02.27]" }
+
+@url{ owlref,
+    author = "Bechhofer, Sean and van Harmelen, Frank and Hendler, Jim and Horrocks, Ian and McGuinnes, Deborah L. and Patel-Schneider, Peter F. and Stein, Lynn Andrea",
+    howpublished = "\url{http://www.w3.org/TR/owl-ref/}",
+    title = "OWL Web Ontology Language Reference W3C Recommendation 10 February 2004",
+    note = "[Online; accessed 2014-03-04]" }
+
+@url{ owl2oversikt,
+    author = "FIXME: ADD AUTHOR",
+    howpublished = "\url{http://www.w3.org/TR/owl2-overview/}",
+    title = "OWL 2 Web Ontology Language Document Overview (Second Edition) W3C Recommendation 11 December 2012",
+    year = "????",
+    note = "[Online; accessed 2014-03-04]" }
+
+
+@url{ rdf11primer,
+    author = "Schreiber, Guus and Raimond, Yves",
+    howpublished = "\url{http://www.w3.org/TR/2014/NOTE-rdf11-primer-20140225/}",
+    title = "RDF 1.1 Primer",
+    year = "2014",
+    note = "[Online; accessed 2014-03-04]" }
+
+@url{ damloil,
+    author = "Horrocks, Ian and van Harmelen, Frank and Peter Patel-Schneider and BernersLee, Tim and Brickley, Dan and Connolly, Dan and Dean, Mike and Decker, Stefan and Fensel, Dieter and Fikes, Richard and Hayes, Pat and Heflin, Jeff and Hendler, Jim and Lassila, Ora and McGuinness, Deb and Stein, Lynn Andrea",
+    howpublished = "\url{http://www.daml.org/2001/03/daml+oil-index}",
+    title = "DAML+OIL (March 2001)",
+    year = "2001",
+    note = "[Online; accessed 2014-03-04]" }
+
+@url{ medont,
+    author = "Goldfain, Albert and Ruttenberg, Alan",
+    howpublished = "\url{http://code.google.com/p/ogms/}",
+    title = "Ontology for General Medical Science",
+    note = "[Online; accessed 2014-03-10]" }
+
+
+@Comment Programming
+
+@book{ Oates2006,
+    author = "Oates, Briony J",
+    isbn = "1-4129-0223-1",
+    title = "Researching Information Systems and Computing",
+    publisher = "SAGE",
+    year = "2006" }
+    
+@url{ taoup,
+    author = "Raymond, Eric S.",
+    howpublished = "\url{http://www.catb.org/esr/writings/taoup/html/}",
+    title = "The Art Of UNIX Programming",
+    year = "2003",
+    note = "[Online; accessed 2014.02.27]" }
+
+@book{ Larman2005,
+    author = "Larman, Craig",
+    isbn = "0-13-148906-2",
+    title = "Applying UML and Patterns",
+    edition = "14th printing January 2011" }
+
+@book{ umldistilled,
+    author = "FIXME: ADD AUTHOR",
+    isbn = "0321193687",
+    title = "UML Distilled Third Edition",
+    edition = "10th printing December 2006" }
+
+@book{ certguide,
+    author = "Long, Fred and Mohndra, Dhruv and Seacord, Robert C. and Sutherland, Dean F. and Svoboda, David",
+    isbn = "978-0-321-80395-5",
+    title = "The CERT® Oreacle® Secure Coding Standard for Java™" }
+    
+
+@Comment Report Generation and Reasoners
+@url{ hybrid-case-based,
+    author = "Chien-Chang, Hsu and Cheng-Seen Ho",
+    howpublished = "\url{http://ieeexplore.ieee.org/xpl/articleDetails.jsp?tp=&arnumber=744865&queryText%3Dmedical+reasoner}",
+    title = "A Hybrid Case-Based Medical Diagnosis System",
+    year = 1998,
+    note = "[Online; accessed 2014-03-04]"}
+    
+@url{ miakt,
+    author = "FIXME: ADD AUTHOR",
+    howpublished = "\url{http://www.openclinical.org/prj_miakt.html}",
+    title = "Medical Imaging and Advanced Knowledge Technologies",
+    year = "????",
+    note = "[Online; accessed 2014-03-04]" }
+
+@url{ clinicdss,
+    author = "FIXME: ADD AUTHOR",
+    howpublished = "\url{http://jama.jamanetwork.com/article.aspx?articleid=188081}",
+    title = "Effects of Computer-Based Clinical Decision Support Systems on Physician Performance and Patient OutcomesA Systematic Review",
+    year = "????",
+    note = "[Online; accessed 2014.03.04]" }
+
+
+@url{ repgenmiakt,
+    author = "Bontcheva, Kalina and Wilks, Yorick",
+    howpublished = "\url{http://link.springer.com/content/pdf/10.1007%2Fb98754.pdf}",
+    title = "Automatic Report Generation from Ontologies: The MIAKT Approach",
+    year = "2004",
+    note = "[Online; accessed 2014-03-04]" }
+
+@url{ webrepgen,
+    author = "Luo, Ling and Bai, Xiaoying",
+    howpublished = "\url{http://ieeexplore.ieee.org/xpl/articleDetails.jsp?arnumber=6076035}",
+    title = "Web Services-Based Test Report Generation",
+    year = "2005",
+    note = "[Online; accessed 2014-03-10]" }
+
+@url{ modbasedrepgen,
+    author = "Delp, Christoffer and Lam, Doris and Fosse, Elyse and Lee, Cin-Young",
+    isbn = "978-1-4673-1812-9",
+    howpublished = "\url{http://ieeexplore.ieee.org/xpl/articleDetails.jsp?tp=&arnumber=6496926&queryText\%3Dreport+generation}",
+    year = "2013",
+    title = "Model Based Document and Report Generation for Systems Engineering",
+    note = "[Online; accessed  2014-03-10]" }
+
+
+@Comment Reasoners
+@url{ fuzzycogmap,
+    author = "Styliosa, D and Georgopoulosb, Voula C. and Malandrakic, Georgia A. and Chouliarad, Spyridoula",
+    howpublished = "\url{http://www.sciencedirect.com/science/article/pii/S1568494607001226}",
+    title = "Fuzzy cognitive map architectures for medical decision support systems",
+    year = "????",
+    note = "[Online; accessed 2014.03.04]" }
+
+@url{ fuzzy-approach,
+    author = "Carmen De Maio, Vincenzo Loia and Giuseppe Fenza, Mariacristina Gallo and Roberto Linciano, Aldo Morrone",
+    howpublished = "\url{http://ieeexplore.ieee.org/xpl/articleDetails.jsp?tp=&arnumber=6007498&queryText%3Dmedical+reasoner}",
+    title = "Fuzzy Knowledge Approach to Automatic Disease Diagnosis",
+    year = "2011",
+    note = "[Online; accessed 2014.03.04]" }
+
+@url { application-ontological-reasoning,
+    author = "Szwed, Piotr",
+    howpublished = "\url{http://ieeexplore.ieee.org/xpl/articleDetails.jsp?tp=&arnumber=6577845&queryText%3Dmedical+reasoner}",
+    title = "Application of Fuzzy Ontological Reasoning in an Implementation of Medical Guidelines",
+    year = "2013",
+    note = "[Online; accessed 2014.03.04]" }
+
+@Comment FLOSS stuff that might be really useful
+@url{ tarql,
+    author = "Cyganiak, Richard",
+    howpublished = "\url{https://github.com/cygri/tarql}",
+    title = "TARQL, lifts from CSV to RDF triples",
+    year = "2013",
+    note = "[Online; accessed 2014-03-10]" }
+
+
+@Comment Other
+@url{ kreftregistret2011,
+    author = "Cancer Registry of Norway",
+    howpublished = "\url{http://kreftregisteret.no/Global/Cancer\%20in\%20Norway/2011/cin2011_with_special_issue-NORDCAN.pdf}",
+    title = "Cancer in Norway 2011 - Cancer incidence, mortality, survival and prevalence in Norway",
+    year = "2013",
+    note = "[Online; accessed 2014-03-10]"}
+
+
+@Comment Stuff that's added but not sorted yet.
+@url{ openbsd-bsdcan2014-libressl,
+    howpublished = "\url{http://www.openbsd.org/papers/bsdcan14-libressl/}",
+    title = "MagicPoint presentation foils",
+    year = "2014",
+    note = "[Online; accessed 2014-05-26]" }
+
+    
+@url{ GNU-MAKE,
+    howpublished = "\url{https://www.gnu.org/software/make/manual/}",
+    title = "GNU Make Manual - GNU Project - Free Software Foundation (FSF)",
+    year = "2013",
+    note = "[Online; accessed 2014-05-29]" }
+
+@url{ GNU-MANIFESTO,
+    howpublished = "https://www.gnu.org/gnu/manifesto.html",
+    title = "The GNU Manifesto - GNU Project - Free Software Foundation (FSF)",
+    year = "2014",
+    note = "[Online; accessed 2014-05-29]", }
