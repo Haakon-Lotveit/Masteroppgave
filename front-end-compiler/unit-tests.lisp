@@ -6,16 +6,16 @@
 				     ("første-linje-er-tabellnavn" "ja"))))
 	 (concatenate 'string
 		      +nl+
-		      "(tabell
-    (row (header \"fruit name\") (header \"price per kg\") (header \"db id\"))
-    (row (data \"apple\") (data \"14,90\") (data \"1\"))
-    (row (data \"banana\") (data \"12,40\") (data \"2\"))
-    (row (data \"cumquat\") (data \"22,99\") (data \"3\"))
-    (row (data \"dates\") (data \"49,90\") (data \"4\"))
-    (row (data \"elderberries\") (data \"39,90\") (data \"5\"))
-    (row (data \"figs\") (data \"54,49\") (data \"6\"))
-    (row (data \"grapes\") (data \"25,90\") (data \"7\"))
-    (row (data \"harlots\") (data \"9,90\") (data \"8\")))"))
+		      "(TABELL :SIZE \"3\" :HEADERS \"yes\"
+    (ROW (HEADER fruit name) (HEADER price per kg) (HEADER db id))
+    (ROW (DATA apple) (DATA 14,90) (DATA 1))
+    (ROW (DATA banana) (DATA 12,40) (DATA 2))
+    (ROW (DATA cumquat) (DATA 22,99) (DATA 3))
+    (ROW (DATA dates) (DATA 49,90) (DATA 4))
+    (ROW (DATA elderberries) (DATA 39,90) (DATA 5))
+    (ROW (DATA figs) (DATA 54,49) (DATA 6))
+    (ROW (DATA grapes) (DATA 25,90) (DATA 7))
+    (ROW (DATA harlots) (DATA 9,90) (DATA 8)))"))
 
 	;; Tester at bilder kompileres korrekt
 	(test-compilation-unit-compile 

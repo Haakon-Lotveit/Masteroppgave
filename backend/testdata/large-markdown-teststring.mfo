@@ -1,3 +1,4 @@
+(IMAGE :FILE "~/git/Masteroppgave/front-end-compiler/testdata/bilde.png)"
 This is not a normal test string.
 in fact, it has both (CURSIVE cursive) words,
 some (UNDERLINE underlined) words, and last but not least,
@@ -10,29 +11,29 @@ And monospaced text too:
 (NEW-PARAGRAPH)
 (CODE 
 public class HelloWorld(FOOTNOTE The classic Java Hello World example) {
-    public static void main\\(String[] args\\) {
-        System.out.println\\(\"Hello World!\"\\);
+    public static void main\(String[] args\) {
+        System.out.println\("Hello World!"\);
     }
 })
 (NEW-PARAGRAPH)
 (HORIZONTAL-LINE)
 And here are two lines!
 (HORIZONTAL-LINE)
-(HEADLINE :LEVEL 4 This is a level 4 header)
-(HEADLINE :LEVEL 1 And here is a level 1 header!)
-(HEADLINE :LEVEL 2 Note that you only need 4 chars to make it a header.)
+(HEADLINE :LEVEL "4" This is a level 4 header)
+(HEADLINE :LEVEL "1" And here is a level 1 header!)
+(HEADLINE :LEVEL "2" Note that you only need 4 chars to make it a header.)
 (NEW-PARAGRAPH)
-(HEADLINE :LEVEL 3 It does have links!)
+(HEADLINE :LEVEL "3" It does have links!)
 (NEW-PARAGRAPH)
-(URL :NAME \"Links look like this!\" :URL \"(www.example.com\" :ALT-NAME \"eksempelnettsted\")
+(URL :NAME "Links look like this!" :URL "www.example.com" :ALT-NAME "eksempelnettsted")
 You can escape them by prepending '\\\\' characters on the brackets. Only one of the chars need to be escaped.
 Escaping the parens has some weird bug in it.
-\\\\[This is an escaped link]\\(www.example.com \"eksempelnettsted\"\\) and will not be made a URL
+\\\\[This is an escaped link]\(www.example.com "eksempelnettsted"\) and will not be made a URL
 (NEW-PARAGRAPH)
 Please note that the current in-between language treats parens as magical characters unless escaped.
-So if you want to use parens \\(like this!\\), you have to escape them with forward-slashes \\(\\\\\\)
+So if you want to use parens \(like this!\), you have to escape them with forward-slashes \(\\\\\)
 (NEW-PARAGRAPH)
-(HEADLINE :LEVEL 2 Here are some list examples)
+(HEADLINE :LEVEL "2" Here are some list examples)
 Not to be outdone, here's a list:
 (UNORDERED-LIST
 (LINE-ITEM This is the first item of the list.)
@@ -46,4 +47,16 @@ And that's about all for now. I should add in some extras, such as:
 (LINE-ITEM ordered lists)
 (LINE-ITEM headers, of the ---- and ==== varieties)
 (LINE-ITEM headers of the ### H3 ### and ## H2 ## variety.)
-(LINE-ITEM citations \\(an extension to the markdown language.\\)))
+(LINE-ITEM citations \(an extension to the markdown language.\)))
+
+(TABLE :SIZE "3" :HEADERS "yes"
+
+(ROW (HEADER fruit name) (HEADER price per kg) (HEADER db id))
+(ROW (DATA apple) (DATA 14,90) (DATA 1))
+(ROW (DATA banana) (DATA 12,40) (DATA 2))
+(ROW (DATA cumquat) (DATA 22,99) (DATA 3))
+(ROW (DATA dates) (DATA 49,90) (DATA 4))
+(ROW (DATA elderberries) (DATA 39,90) (DATA 5))
+(ROW (DATA figs) (DATA 54,49) (DATA 6))
+(ROW (DATA grapes) (DATA 25,90) (DATA 7))
+(ROW (DATA harlots) (DATA 9,90) (DATA 8)))

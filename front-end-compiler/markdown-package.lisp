@@ -9,7 +9,4 @@
 
 (defmethod compile-package ((package markdown-package))
   (newline-and-indent package)
-  (start-block package "formatted-text :version 0.1")
-  (newline-and-indent package)
-  (output package (prin1-to-string (compile-markdown-string (get-text package))))
-  (end-block package))
+  (output package (compile-markdown-string (get-text package))))

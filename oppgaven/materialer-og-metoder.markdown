@@ -165,7 +165,7 @@ En kan da tenke seg følgende fil:
       (slett-etter-kjøring fil="~/rapporter/testrapport/database-fig-2.csv")
       
       ;; Inkluder materiale
-      (markdown fil="~/rapporter/testrapport/innledning.md")
+      (le(markdown fil="~/rapporter/testrapport/innledning.md")
       (bilde fil="~/rapporter/testrapport/graf-fig-1.png")
       (markdown fil="~/rapporter/testrapport/brodtekst.md")
       (tabell fil="~/rapporter/testrapport/database-fig-2.csv")

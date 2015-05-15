@@ -9,7 +9,7 @@
 (fload "front-end-compiler/parser.lisp")
 (fload "front-end-compiler/unit-test-functions.lisp")
 (fload "front-end-compiler/unit-tests.lisp")
-';(fload "front-end-compiler/compiler.lisp")
+;(fload "front-end-compiler/compiler.lisp")
 
 (defun main (args)
   (write-line args))

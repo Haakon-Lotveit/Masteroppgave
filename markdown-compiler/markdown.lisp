@@ -273,10 +273,10 @@ And that's about all for now. I should add in some extras, such as:
       (loop for line in (split-string-by-newlines input-string) do
 	   (cond
 	     ((scan match-dashy-headline-regex line)
-	      (format stream "(HEADLINE :LEVEL 1 ~A)" previous-line)
+	      (format stream "(HEADLINE :LEVEL \"1\" ~A)" previous-line)
 	      (setf previous-line ""))
 	     ((scan match-equal-headline-regex line)
-	      (format stream "(HEADLINE :LEVEL 2 ~A)" previous-line)
+	      (format stream "(HEADLINE :LEVEL \"2\" ~A)" previous-line)
 	      (setf previous-line ""))
 	     ('NO-HEADLINES
 	      (unless first-iteration
@@ -342,7 +342,7 @@ And that's about all for now. I should add in some extras, such as:
 (defun markdown-headline-to-middle-language (string level)
   (let ((output-string (make-growable-string)))
     (with-output-to-string (stream output-string)
-      (format stream "(HEADLINE :LEVEL ~A ~A)" level (remove-headline-markings string level)))
+      (format stream "(HEADLINE :LEVEL \"~A\" ~A)" level (remove-headline-markings string level)))
     output-string))
 
 (defun make-hash-headline-rule (level)
@@ -405,7 +405,7 @@ And that's about all for now. I should add in some extras, such as:
 
 (defun parse-link-literal-url (stream string)
   (let ((url-name (subseq string 
-			  1 (scan "\\s+\"" string))))
+			  2 (scan "\\s+\"" string)))) ;; The two skips the \( sequence, which is hacky af.
     (format stream " :URL \"~A\"" url-name)
     (subseq string (1+ (length url-name)))))
 
@@ -532,49 +532,5 @@ Does not change the original string in any way."
     output))
 
 ;; Sketching pad area for functions
-(setf *test-string-small*
-      "how low *can* you go?")
-
-(let ((buffer (make-growable-string))
-      (inside-function 0)
-      (prev-char #\A))
-  
-  (loop for c across "how low (EMPHASISED can) you go?" do
-       (cond
-	 ;; OPEN NEW FUNCTION
-	 ((and (not (char= #\\ prev-char))
-	       (char= #\( c))
-	  (write-line "NEW FUNCTION")
-	  (princ buffer)
-	  (setf buffer (make-growable-string))
-	  (incf inside-function)
-	  (vector-push c buffer))
-	 ;; CLOSE FUNCTION
-	 ((and (not (char= #\\ prev-char))
-	       (char= #\) c))
-	  (write-line "END FUNCTION")
-	  (write-line buffer)
-	  (decf inside-function)
-	  (vector-push c buffer)
-	  (setf buffer (make-growable-string)))
-	 ;; OTHERWISE
-	 ('DEFAULT
-	  (write-line "DEFAULT")
-	  (vector-push c buffer))
-	 )))
-
-;; First attempt at creating a proper rule for markdown.
-(defun cursive-rule (string)
-  (let ((strings '())
-	(pos (position #\* string)))
-    (if pos
-	
-	string)))
-
-(defun maybe-compile (list)
-  (flet ((stringcomp (item)
-	   (if (stringp item)
-	       (compile-markdown-string item)
-	       item)))
-    (mapcar #'stringcomp list)))
+(write-line (compile-markdown-string *test-string-large*))
 
