@@ -1,4 +1,4 @@
 #!/bin/bash
 
-echo "$*" | sbcl --noinform --load 'Main.lisp' --eval "(start)"
-yes
+echo "$*" | sbcl --noinform --load 'unix-load-file.lisp' --end-toplevel-options
+

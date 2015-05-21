@@ -1,0 +1,23 @@
+% Standard preamble for AuRa's pdflatex backend compiler
+% Version 0.1, for questions please e-mail haakon_lotveit@live.no
+\documentclass[11pt]{article}
+
+\usepackage{cite}
+\usepackage{hyperref}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{graphicx} % deals with imagery
+\usepackage{listings} % listings is used for source-code
+\usepackage[normalem]{ulem} % ulem is used for better underlining of text.
+
+% Command used to draw horizontal lines
+\newcommand{\horizontalline}{
+\begin{center}
+\line(1,0){250}
+\end{center}}
+
+\begin{document}
+% End of preamble
+
+

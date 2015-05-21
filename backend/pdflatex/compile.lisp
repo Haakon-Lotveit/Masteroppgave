@@ -1,27 +1,23 @@
 #|
- | Compiler for mfo to latex, meant to be compiled with the pdflatex compiler.
- | The compiler assumes that it runs on an AMD64 Ubuntu 14.10 system with the following packages:
- | 
- | sbcl (ver 2:1.2.3-1ubuntu1)
- | texlive (ver 2014.20140717-01ubuntu1)
- | 
- |#
-
-;; A horrible hack to load auxilliary functions, because I haven't made a proper ASDF system out of them.
-;; This is very likely to break horribly.
-(load "/home/hkl/git/Masteroppgave/aux/auxilliary-functions.lisp")
+| Compiler for mfo to latex, meant to be compiled with the pdflatex compiler.
+| The compiler assumes that it runs on an AMD64 Ubuntu 14.10 system with the following packages:
+| 
+| sbcl (ver 2:1.2.3-1ubuntu1)
+| texlive (ver 2014.20140717-01ubuntu1)
+| 
+|#
 
 ;; This assures SBCL that the function named latex-recursively-handle-text will be defined somewhere in this file, silencing a warning.
 (declaim (ftype function latex-recursively-handle-text))
 
-(defun is-whitespace-linep (char)
+(defun is-whitespace-or-linep (char)
   (or 
    (char= #\Space char)
    (char= #\Tab char)
    (char= #\Newline char)))
 
 (defun trim-textlist (textlist)
-  (if (is-whitespace-linep (car textlist))
+  (if (is-whitespace-or-linep (car textlist))
       (trim-textlist (cdr textlist))
       textlist))
 
@@ -71,7 +67,7 @@
 
 (defun collect-tag (textlist)
   (cond
-    ((is-whitespace-linep (car textlist))
+    ((is-whitespace-or-linep (car textlist))
      (list () (cdr textlist)))
     ('ELSE
      (let ((rec-val (collect-tag (cdr textlist))))
@@ -110,16 +106,16 @@
 	(format stream "\\href{~A}{~A}" (gethash ":URL" tags) (gethash ":NAME" tags))
 	(format stream "\\url{~A}" (gethash ":URL" tags)))
     rest))
-    
+
 (defun file-to-list (filename)
   (flet ((append-with-newline (list1 list2)
 	   (append list1 '(#\Newline) list2)))
-  (reduce #'append-with-newline ;; <3 Høyere ordens programmering <3
-	  (with-open-file (stream filename)
-	
-    (loop for line = (read-line stream nil) ;; We read the file per line, in case we want to do line counting or similar.
-	       while line
-	       collect (coerce line 'list))))))
+    (reduce #'append-with-newline ;; <3 Høyere ordens programmering <3
+	    (with-open-file (stream filename)
+	      
+	      (loop for line = (read-line stream nil) ;; We read the file per line, in case we want to do line counting or similar.
+		 while line
+		 collect (coerce line 'list))))))
 
 (defvar *MARKDOWN-TEST-FILE-AS-LIST*
   (file-to-list "/home/hkl/git/Masteroppgave/backend/testdata/large-markdown-teststring.mfo")
@@ -127,32 +123,14 @@
 
 (defvar *LOG-STREAM* (make-broadcast-stream))
 
-(defvar *PREAMBLE* "% NO PREAMBLE SET %"
+(defvar *PREAMBLE* (slurp-file "backend/pdflatex/preamble.txt")
   "This variable holds any lines that should go into the document before the compiled stuff.")
 
-(defvar *POSTAMBLE* "% NO POSTAMBLE SET %"
+(defvar *POSTAMBLE* (slurp-file "backend/pdflatex/postamble.txt")
   "This variable holds any lines that should go into the document after the compiled data.")
-
-(defvar *OUTPUT-FILE* (merge-pathnames *DEFAULT-PATHNAME-DEFAULTS* "output-file.pdf")
-  "The path to the file we are supposed to output to. This will be what we have when pdf-latex is ready.")
-
-(defvar *INPUT-FILE* nil
-  "The path to the file that have been precompiled.")
 
 (defvar *LATEX-BEGINNING-OF-TABLE-ROW* T)
 (defvar *LATEX-TABLE-HEADER* T)
-
-(defun read-std-input ()
-    (let ((args (make-growable-string)))
-      (loop for line = (read-line *standard-input* nil :eof) 
-	 until (eq line :eof) do 
-	   (with-output-to-string (output-stream args)
-	     (format output-stream "~A" line)))
-      args))
-
-(defun external-entry-point ()
-  (format *STANDARD-OUTPUT* "~%I found this at the command line: ~A~%" (read-std-input))
-  (exit :code 0))
 
 (defun handle-unknown-command (command text output-stream)
   (format output-stream "~%    %    ERROR!~%    %    Unknown Command: ~A~%    %    Text left as is~%" (coerce command 'string))
@@ -169,7 +147,7 @@
   (format nil "~%~A~%" command))
 
 (defun begin (command)
- (format nil "~%\\begin{~A}~%" command))
+  (format nil "~%\\begin{~A}~%" command))
 
 (defun end (command)
   (format nil "~%\\end{~A}~%" command))
@@ -197,20 +175,12 @@
 	 (rest-text (parse-tag-val-pair (trim-textlist textlist) hash-table)))
     (latex-print-headline (trim-textlist rest-text) stream *LOG-STREAM* (parse-integer (gethash ":LEVEL" hash-table)))))
 
-(defun latex-remove-last-char (string)
-  (let ((beg 0)
-	(end (1- (length string))))
-    (subseq (copy-seq string) beg end)))
-
-(unless (string= "YABBA" (latex-remove-last-char "YABBA!"))
-  (error "In file pdflatex compiler file compile.lisp: function \"latex-remove-last-char\" does not work."))
-
 (defun latex-handle-image (textlist stream)
   (let* ((hash-table (make-hash-table :test 'equal))
 	 (rest-text (parse-tag-val-pair (trim-textlist textlist) hash-table)))
-
-  (format stream "\\includegraphics{~A}~%" (latex-remove-last-char (gethash ":FILE" hash-table)))
-  (trim-textlist rest-text)))
+    
+    (format stream "\\includegraphics{~A}~%" (gethash ":FILE" hash-table))
+    (latex-recursively-handle-text (trim-textlist rest-text) stream)))
 
 (defun latex-handle-table-data (textlist stream)
   (if *LATEX-BEGINNING-OF-TABLE-ROW*
@@ -225,30 +195,25 @@
   (let ((rest-text (latex-recursively-handle-text textlist stream)))
     (format stream " \\\\ \\hline")
     rest-text))
-	
-	
+
+
 (defun latex-handle-tables (textlist stream)
   (let* ((hash-table (make-hash-table :test 'equal))
 	 (rest-text (parse-tag-val-pair (parse-tag-val-pair textlist hash-table) hash-table)))
-
-    (format stream "Creating a table with ~A columns. Is first row headers? ~A~%"
-	    (gethash ":SIZE" hash-table)
-	    (gethash ":HEADERS" hash-table))
-
     (format stream "~%\\begin{tabular}{|")
     (dotimes (i (parse-integer (gethash ":SIZE" hash-table)))
       (format stream "c|"))
-    (format stream "}~%\\hline~%")
+    (format stream "}~%\\hline")
     (let ((final-rest-text (latex-recursively-handle-text rest-text stream)))
       (format stream "~%\\end{tabular}~%")
       final-rest-text)))
 
 #|
- ; Size = 3, header = yes
+ ; Size = 3, header = yes		;
 \begin{tabular}{|c|c|c|} ← DETTE !
- X & X & X \\ \hline ← DISSE VIRKER
- X & X & X \\ \hline
- X & X & X \\ \hline
+X & X & X \\ \hline ← DISSE VIRKER
+X & X & X \\ \hline
+X & X & X \\ \hline
 \end{tabular} ← OG DETTE! Må er det som må gjøres, så er du FERDIG med back-end! :D
 |#
 (defvar *handling-functions*
@@ -288,8 +253,38 @@
 	(funcall (gethash command-name *handling-functions*) textlist stream)
 	(handle-unknown-command command-name textlist stream))))
 
+(defun latex-write-char (char output-stream)
+    ;; If we hit normally escapable symbols, we escape them by prepending them with backslashes.
+  (cond
+    ((or
+      (char= char #\&)
+      (char= char #\%)
+      (char= char #\$)
+      (char= char #\#)
+      (char= char #\_)
+      (char= char #\{)
+      (char= char #\}))
+     (progn 
+       (write-char #\\ output-stream)
+       (write-char char output-stream)))
+
+    ;; Tildes must be escaped using a particular sequence  
+    ((char= char #\~)
+     (format output-stream "\\textasciitilde "))
+
+    ;; Cirumflexes must be escaped using a particular seqence too.
+    ((char= char #\^)
+     (format output-stream "\\textasciicircum "))
+        
+    ;; As must backslashes. \\ means to force a newline after all.
+    ((char= char #\\)
+     (format output-stream "\\textbackslash "))
+
+    ('NORMAL-CHAR-THANK-YOU-JESUS
+     (write-char char output-stream))))
+
 (defun latex-recursively-handle-text (text-as-list output-stream)
-   (cond
+  (cond
     ;; Base case: Nothing more to process'
     ((null text-as-list)
      nil)
@@ -297,72 +292,42 @@
     ;; Case for escape sequence
     ((char= #\\ (car text-as-list))
      (progn
-       (write-char (second text-as-list))
+       (latex-write-char (cadr text-as-list) output-stream)
        (latex-recursively-handle-text (cddr text-as-list) output-stream)))
 
     ;; Case for command sequence
     ((char= #\( (car text-as-list))
      (latex-recursively-handle-text
-	     (latex-handle-command (cdr text-as-list) output-stream)
-	     output-stream))
+      (latex-handle-command (cdr text-as-list) output-stream)
+      output-stream))
 
     ;; Closing a command
     ((char= #\) (car text-as-list))
-       (cdr text-as-list))
-
+     (cdr text-as-list))
+  
     ;; The default case for the system: Just output the character
     ('DEFAULT
      (progn
-       (write-char (car text-as-list) output-stream)
+       (latex-write-char (car text-as-list) output-stream)
        (latex-recursively-handle-text (cdr text-as-list) output-stream)))))
- 
-(defun compile-mfo-file (&key ((:preamble pre) *PREAMBLE*) ((:path filepath)) ((:postamble post) *POSTAMBLE*) ((:stream output) *STANDARD-OUTPUT*))
-  (format *STANDARD-OUTPUT* "Compiling file ~A with the preamble ~A and the postamble ~A.~%" filepath pre post)
-  (format output "% PREAMBLE START %~%~A~%% PREAMBLE END %~%~%" pre)
-  (latex-recursively-handle-text (file-to-list filepath) output)
-  (format output "% POSTAMBLE START %~%~A~%% POSTAMBLE END %" post))
+
+(defclass pdflatex-compiler (compiler)
+  ((name :initform "pdflatex-compiler")
+   (version :initform 0.1)))
+
+(defmethod backend-compile ((compiler pdflatex-compiler) infile outfile)
+  (with-open-file (outstream outfile :direction :output :if-exists :overwrite :if-does-not-exist :create)
+    (format outstream *PREAMBLE*)
+    (latex-recursively-handle-text (file-to-list infile) outstream)
+    (format outstream *POSTAMBLE*)
+    'FINISHED))
 
 
-(compile-mfo-file :path "/home/hkl/git/Masteroppgave/backend/testdata/large-markdown-teststring.mfo")
-		  
-#| Commands that have been implemented (with unit tests)
- | - Unknown commands
- | - CURSIVE
- | - UNDELINE
- | - EMPHASISE
- | - QUOTE
- | - FOOTNOTE
- |#
-  
-#| TODO-LIST for commands that are unimplemented:
- | - CITE
- | - NEW-PARAGRAPH
- | - CODE
- | - HORIZONTAL-LINE
- | - HEADLINE (with levels)
- | - URL (with name, link and alt-text)
- | - UNORDERED-LIST
- | - ORDERED-LIST
- | - LINE-ITEM
- | As well as the commands for the other frontend-producers (namely the other text modes, image and table)
- | Table looks to be rather painful as LaTeX isn't that fond of tables it seems... :D
- | These must all be done by Thursday, I guess?
- |#
+(defmethod print-object ((object pdflatex-compiler) stream)
+  (format stream "#<~A ver: ~A>"
+	  (get-name object)
+	  (get-version object)))
 
 
-#| Stuff that needs to go into preamble:
+(provide-compiler (make-instance 'pdflatex-compiler))
 
- \usepackage{graphicx} % deals with imagery
- \usepackage{listings} % listings is used for source-code
- \usepackage[normalem]{ulem} % ulem is used for better underlining of text.
- % Command used to draw horizontal lines
- \newcommand{\horizontalline}{
- \begin{center}
- \line(1,0){250}
- \end{center}}
-
- |#
-
-
-#| Stuff that needs to go into postamble:
- |#

@@ -16,10 +16,10 @@
 
 ;; Etter opprydning ellers her, kan det tenkes at dette nesten går tilbake til parseren?
 (generate-load "start-document")
+(generate-load "text-compilation-package")
 (generate-load "markdown-package")
 (generate-load "image-compilation-package")
 (generate-load "table-compilation-package")
-(generate-load "text-compilation-package")
 (generate-load "dokument-compilation-package")
 (generate-load "preludium-compilation-package")
 (generate-load "no-markup-text-passage")

@@ -1,0 +1,47 @@
+This is not a normal test string.
+in fact, it has both /cursive/ words,
+some _underlined_ words, and last but not least,
+it has *bolded* words.
+Furthermore it has quotes:
+> The problem with online citations is that it's hard to know if they are authentic or not.
+> - Abraham Lincoln §Lincoln1984§
+And monospaced text too:
+
+    public class HelloWorld¤The classic Java Hello World example¤ {
+        public static void main(String[] args) {
+            System.out.println(\"Hello World!\");
+        }
+    }
+
+- - - - - - - - - - - - - - - - - - - - - - - 
+And here are two lines!
+ * * * * * * * * * * * * * * * * * * * * * * *
+#### This is a level 4 header ####
+And here is a level 1 header!
+-----------------------------
+Note that you only need 4 chars to make it a header.
+     ====
+
+ ### It does have links!
+
+[Links look like this!](www.example.com \"eksempelnettsted\")
+You can escape them by prepending '\\' characters on the brackets. Only one of the chars need to be escaped.
+Escaping the parens has some weird bug in it.
+\\[This is an escaped link](www.example.com \"eksempelnettsted\") and will not be made a URL
+
+Please note that the current in-between language treats parens as magical characters unless escaped.
+So if you want to use parens (like this!), you have to escape them with forward-slashes (\\)
+
+## Here are some list examples ##
+Not to be outdone, here's a list:
+  - This is the first item of the list.
+  - This is the second item of the list, which makes you less likely to remember the contents.
+  - Along with this third item. You tend to remember the beginning and ends of strings the best, you see.
+  - This fourth item is the one you're most likely to remember.
+
+And that's about all for now. I should add in some extras, such as:
+  1. citations
+  2. ordered lists
+  3. headers, of the ---- and ==== varieties
+  4. headers of the ### H3 ### and ## H2 ## variety.
+  5. citations (an extension to the markdown language.)

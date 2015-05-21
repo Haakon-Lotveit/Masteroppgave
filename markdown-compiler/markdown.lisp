@@ -531,6 +531,3 @@ Does not change the original string in any way."
     (setf output (apply-rule "PARAGRAPHS" output))
     output))
 
-;; Sketching pad area for functions
-(write-line (compile-markdown-string *test-string-large*))
-

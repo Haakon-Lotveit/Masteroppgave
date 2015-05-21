@@ -6,15 +6,15 @@ Alle programmene er åpen kildekode, lisensiert med frie lisenser som BSD eller 
 ### Steel Banks Common Lisp ###
 
 Implementasjonen av Common Lisp er SBCL, som er basert på Carnegie Mellon University Common Lisp (CMUCL) og deler bugfixer med hverandre.
-Hovedforskjeller inkluderer støtte for native-tråding på Linux, som gir en økt mulighet for paralellisering av arbeidsmengder sammenlignet med CMUCL. [CMUCL FAQ](http://www.cons.org/cmucl/FAQ.html)
-SBCL er ansett som en robust og rask implementasjon av Common Lisp, og er valget av Lispimplementasjon på Alioths "Computer Language Benchmarks Game". [Alioth's benchmark's game](http://benchmarksgame.alioth.debian.org/), der den er et av de raskere språkene.
+Hovedforskjeller inkluderer støtte for native-tråding på Linux, som gir en økt mulighet for paralellisering av arbeidsmengder sammenlignet med CMUCL. (http://www.cons.org/cmucl/FAQ.html)
+SBCL er ansett som en robust og rask implementasjon av Common Lisp, og er valget av Lispimplementasjon på Alioths "Computer Language Benchmarks Game". (http://benchmarksgame.alioth.debian.org/), der den er et av de raskere språkene.
 
 Common Lisp er et multiparadigmespråk, som tilbyr objektorientering, funksjonell programmering med høyere ordens funksjoner, og andre metodologier som ønskes. Språket tilbyr også makroer som gjør det mulig å legge til eller endre syntaxen for språket, eller gi språket nye operasjoner det ikke kunne før. 
 
 Utgaven av Steel Banks Common Lisp som er brukt i systemet er SBCL 1.2.3.debian (for AMD64).
 
 ### Quicklisp ###
-[Quicklisp beta](https://www.quicklisp.org/beta/)
+(https://www.quicklisp.org/beta/)
 
 Quicklisp er et system for å håndtere avhengigheter i Common Lisp. Det kan sammenlignes med Apache Ivy eller Apache Maven, med noen forskjeller.
 
@@ -22,7 +22,7 @@ Quicklisp er et system for å håndtere avhengigheter i Common Lisp. Det kan sam
  - Apache Maven og Apache Ivy kjører ved bygging, mens Quicklisp er tilgjengelig mens programmet kjører.
  - Java og Common Lisp bygges på forskjellige måter, så mens Apache Maven har sitt eget byggesystem, og Apache Ivy er tett integrert med Apache Ant, er Quicklisp integrert mot ASDF, som er et byggeverktøy for Common Lisp.
 
-Siden Quicklisp er tilgjengelig ved kjøretid kan en bruke verktøyet fra Read Eval Print Loop (REPL) promptet, og dermed bruke Quicklisp som et verktøy for utforskende programmering. [Exploratory programming](http://en.wikipedia.org/wiki/Exploratory_programming http://www.exploratoryprogramming.org). For å støtte denne bruken har quicklisp også funksjoner for å bla gjennom og søke opp i pakkebrønnene (Eng: repositories) sine etter pakker med spesifikke navn. 
+Siden Quicklisp er tilgjengelig ved kjøretid kan en bruke verktøyet fra Read Eval Print Loop (REPL) promptet, og dermed bruke Quicklisp som et verktøy for utforskende programmering. (http://en.wikipedia.org/wiki/Exploratory_programming, http://www.exploratoryprogramming.org). For å støtte denne bruken har quicklisp også funksjoner for å bla gjennom og søke opp i pakkebrønnene (Eng: repositories) sine etter pakker med spesifikke navn. 
 
 Selv om prosjektet enda er i beta, håndterer det allerede over 1300 biblioteker i pakkebrønnen sin.
 Det har også integrasjon mot SLIME, en vanlig Common Lisp IDE laget for GNU Emacs, skrevet i Emacs Lisp.
@@ -35,14 +35,14 @@ Da Quicklisp oppdaterer seg selv, er nyeste utgave gitt ut siden 28. mai testet.
 
 ### CL-PPCRE - Portable Perl-compatible revular expressions for Common Lisp ###
 
-CL-PPCRE [CL-PPCRE](http://weitz.de/cl-ppcre/) er en effektiv motor for tolking av perl-kompatible regulære uttrykk. Den benytter seg av Lispkompilatoren for effektivitet ved å kompilere mønstrene ned til maskinkode. Dermed istedenfor å bygge en regulær-tilstandsmaskin som en VM, vil den generere en tilstandsmaskin i maskinkode. Dermed vil den kunne kjøre raskere enn tilsvarende PERL-regexer. (Dersom det er interessant er Aho-Corasick algoritmen bak blant annet fgrep, og et sted å begynne.)
+CL-PPCRE [cl-ppcre](http://weitz.de/cl-ppcre/) er en effektiv motor for tolking av perl-kompatible regulære uttrykk. Den benytter seg av Lispkompilatoren for effektivitet ved å kompilere mønstrene ned til maskinkode. Dermed istedenfor å bygge en regulær-tilstandsmaskin som en VM, vil den generere en tilstandsmaskin i maskinkode. Dermed vil den kunne kjøre raskere enn tilsvarende PERL-regexer. (Dersom det er interessant er Aho-Corasick algoritmen bak blant annet fgrep, og et sted å begynne.)
 
-CL-PPCRE er brukt til å parse det regulære språket [Regular Language](http://en.wikipedia.org/wiki/Regular_language) Markdown i kompilatoren.
+CL-PPCRE er brukt til å parse det regulære språket (http://en.wikipedia.org/wiki/Regular_language) Markdown i kompilatoren.
 
 Versjonen brukt er den nyeste per 28. mai.
 
 ### Split-Sequence ###
-Split-Sequence [Split Sequence](http://www.cliki.net/split-sequence) er et enkelt bibliotek for å dele opp sekvenser i delsekvenser.
+Split-Sequence (http://www.cliki.net/split-sequence) er et enkelt bibliotek for å dele opp sekvenser i delsekvenser.
 Brukes i parsingen av inndata i prosjektet.
 
 Versjonen brukt er den nyeste per 28. mai.
@@ -55,7 +55,7 @@ Versjonen av GNU Emacs brukt er GNU Emacs 24.3.1
 
 ### SLIME ###
 
-SLIME [Slime](https://common-lisp.net/project/slime/) (Superior Interaction Mode for Emacs) er et integrert utviklingsmiljø for Common Lisp for Emacs. Den støtter både GNU Emacs og XEmacs. Den støtter også flere implementasjoner av Common Lisp, deriblant Steel Banks Common Lisp.
+SLIME (https://common-lisp.net/project/slime/) (Superior Interaction Mode for Emacs) er et integrert utviklingsmiljø for Common Lisp for Emacs. Den støtter både GNU Emacs og XEmacs. Den støtter også flere implementasjoner av Common Lisp, deriblant Steel Banks Common Lisp.
 
 SLIME kan integreres med Quicklisp og Quickproject, selv om sistnevnte ikke ble brukt i dette prosjektet.
 Som integrert utviklingsverktøy hjelper det til med det meste en skulle ønske et integrert utviklingsmiljø gjorde, inkludert REPL-spesifikke ting som snarveier, setting av nåværende navnerom, med mer.
@@ -89,7 +89,7 @@ Skulle prosjektet blitt gjennomført på nytt igjen fra bar bakke, ville RUP bli
 
 Objektorientering er en måte å innkapsulere data og funksjoner i objekter. Disse objektene representerer entiteter i systemdesignet ditt, og kan utføre handlinger (metoder) basert på hvilke funksjoner de har tilgjengelige. 
 
-I de fleste språk er disse metodene meldinger som sendes til objektene. (Til dømes kan en streng i Java bli bedt om å gjøre alle tegn til store bokstaver slik: "Java Streng".toUpperCase(), dette anses da som å sende en melding til strengen) Common Lisps objektsystem CLOS (Common Lisp Object System) [CLOOS](http://www.dreamsongs.com/NewFiles/ECOOP.pdf) er fundamentalt annerledes, da den baserer seg på et system med generiske funksjoner istedenfor å sende meldinger.
+I de fleste språk er disse metodene meldinger som sendes til objektene. (Til dømes kan en streng i Java bli bedt om å gjøre alle tegn til store bokstaver slik: "Java Streng".toUpperCase(), dette anses da som å sende en melding til strengen) Common Lisps objektsystem CLOS (Common Lisp Object System) (http://www.dreamsongs.com/NewFiles/ECOOP.pdf) er fundamentalt annerledes, da den baserer seg på et system med generiske funksjoner istedenfor å sende meldinger.
 
 En vil dermed i CLOS definere klasser uavhengig av funksjonene som opererer på dem. For å benytte seg av polymorfisme definerer man en generisk klasse, som har en signatur, og en kan dermed *spesialisere* denne generiske klassen med en metode. Denne metoden vil da ta en spesifikk typesignatur til minst et av argumentene sine. Det er viktig å påpeke her at mens i andre objektorienterte språk som Java og C# vil en metode kun tilhøre en klasse (siden den mentale modellen er å sende en melding til en klasse), vil en metode i CLOS kunne tilhøre flere klasser samtidig. Derfor kan en definere metoder uavhengig av klasser.
 
@@ -114,7 +114,7 @@ Og da kan vi spesialisere på for eksempel en lastebil og en fotgjenger slik (an
 		           (if (skadet traffikant2))
 					   (tilkall-ambulanse))
 
-På dette tidspunktet tilhører metoden klassene *lastebil* og *fotgjenger*. De er dermed spesialiserte på begge to, og hører ikke konseptuelt hjemme hos noen av klassene. Det kan virke som om dette er lastebilen som kolliderer med fotgjengeren, men hva om det er to lastebiler som kolliderer? Eller to fotgjengere? I språk som Java og C# får en da et dilemma om hva som skal skje, og hvor koden skal ligge. (En mulig løsning er Visitor-mønsteret [Visitor Pattern](http://en.wikipedia.org/wiki/Visitor_pattern)) I CLOS er dette bygget inn i systemet og en unngår dilemmaet.
+På dette tidspunktet tilhører metoden klassene *lastebil* og *fotgjenger*. De er dermed spesialiserte på begge to, og hører ikke konseptuelt hjemme hos noen av klassene. Det kan virke som om dette er lastebilen som kolliderer med fotgjengeren, men hva om det er to lastebiler som kolliderer? Eller to fotgjengere? I språk som Java og C# får en da et dilemma om hva som skal skje, og hvor koden skal ligge. (En mulig løsning er Visitor-mønsteret (http://en.wikipedia.org/wiki/Visitor_pattern)) I CLOS er dette bygget inn i systemet og en unngår dilemmaet.
 
 [Jeg er ikke helt sikker på hvor mye jeg bør ha her. På den ene siden så er CLOS veldig forskjellig fra andre systemer, og CLOS bryter veldig hardt med den vanlige måten å gjøre OOP på. Det er ikke gitt at folk har en akademisk bakgrunn i hvordan OOP fungerer. På den annen side kan det fort bli litt mye.]
 
@@ -147,7 +147,7 @@ Hver linje beskriver en og bare en del av rapporten helt uavhengig av andre dele
 Og med dette kan du bruke Java sine innebygde GUI elementer til å generere hele greien. JFileChooser, JavaFX, hele pakken. Med denne type objekter enkelt og greit.
 
 
-Du kan lage noe lignende et slikt system vha. standard UNIX-verktøy som Make og Bash. Disse programmene er standard vare, og har vært i bruk lenge og er relativt feilfri. Men det er likevel en forferdelig ide, fordi den jevne kontormedarbeider ikke sitter med en UNIX-maskin, og om de gjorde det (Mac, til dømes er da rimelig populært per i dag), så ville de ikke forventes å kunne bruke Make eller BASH. (Se: [godkjente utdannelser](https://www.ecademy.no/nettstudier/okonomi-og-administrasjon/kontormedarbeider og http://www.treider.no/kontor-og-administrasjon/sekretaer/ for lånekassengodkjente utdannelser innen faget. Se videre Navs kursbeskrivelse her: https://www.nav.no/Forsiden/_attachment/353293?_ts=13fc24b8e78 http://www.studenttorget.no/index.php?show=5192&expand=4631,5192&yrkesid=110 har også ingenting om bruk av operativsystemer eller lignende i sin beskrivelse.) ) Det er også mye å be folk sette seg inn i.
+Du kan lage noe lignende et slikt system vha. standard UNIX-verktøy som Make og Bash. Disse programmene er standard vare, og har vært i bruk lenge og er relativt feilfri. Men det er likevel en forferdelig ide, fordi den jevne kontormedarbeider ikke sitter med en UNIX-maskin, og om de gjorde det (Mac, til dømes er da rimelig populært per i dag), så ville de ikke forventes å kunne bruke Make eller BASH. (Se: https://www.ecademy.no/nettstudier/okonomi-og-administrasjon/kontormedarbeider og http://www.treider.no/kontor-og-administrasjon/sekretaer/ for lånekassengodkjente utdannelser innen faget. Se videre Navs kursbeskrivelse her: https://www.nav.no/Forsiden/_attachment/353293?_ts=13fc24b8e78 http://www.studenttorget.no/index.php?show=5192&expand=4631,5192&yrkesid=110 har også ingenting om bruk av operativsystemer eller lignende i sin beskrivelse.) Det er også mye å be folk sette seg inn i.
 I tillegg ville en slik løsning være porøs og vanskelig å sette opp for forskjellige systemer eller behov. Det er lite til ingen inkapsulering, og det er heller ikke enkelt å integrere mot andre verktøy som det burde vært. Uttrykk strekker seg over flere linjer, en har semantisk betydning i indenteringen, og andre anakronismer. (Lenke mot manualer her?)
 Et eget subspråk for disse typer uttrykk hadde vært bedre. Da blir det enklere å generere uttrykk programmatisk, og det blir lettere for andre mennesker å lese og forstå det som står i uttrykkene, om ikke nødvendigvis skrive dem. (Domain spesific languages boken?)
 
@@ -165,7 +165,7 @@ En kan da tenke seg følgende fil:
       (slett-etter-kjøring fil="~/rapporter/testrapport/database-fig-2.csv")
       
       ;; Inkluder materiale
-      (le(markdown fil="~/rapporter/testrapport/innledning.md")
+      (markdown fil="~/rapporter/testrapport/innledning.md")
       (bilde fil="~/rapporter/testrapport/graf-fig-1.png")
       (markdown fil="~/rapporter/testrapport/brodtekst.md")
       (tabell fil="~/rapporter/testrapport/database-fig-2.csv")

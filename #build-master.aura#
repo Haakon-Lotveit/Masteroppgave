@@ -1,0 +1,7 @@
+; Pretty barebones so far, text only, final destination
+
+(markdown :fil "~/git/Masteroppgave/oppgaven/bakgrunn.markdown")
+(markdown :fil "~/git/Masteroppgave/oppgaven/materialer-og-metoder.markdown")
+(markdown :fil "~/git/Masteroppgave/oppgaven/resultat.markdown")
+(tabell :fil "~/asdf.csv")
+(markdown :fil "~/git/Masteroppgave/oppgaven/diskusjon.markdown")

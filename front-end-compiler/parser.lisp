@@ -75,10 +75,12 @@
    	   (eval (read-from-string command))))))
 
 (defun bilde (&key fil)
-  (format *FEC-OUTPUT-STREAM* "(IMAGE :FILE \"~A)\"" fil))
+  (let ((package (make-instance 'image-compilation-package :destination-stream *FEC-OUTPUT-STREAM*)))
+    (set-field package "fil" fil)
+    (compile-package package)))
 
 (defun fec-text-compile (package file)
-  (setf (gethash "fil" (fields package)) file)
+  (set-field package "fil" file)
   (compile-package package))
 
 (defun markdown (&key fil)
@@ -95,7 +97,4 @@
     (setf (gethash "første-linje-er-tabellnavn" (fields package)) første-linje-er-tabellnavn)
     (setf (gethash "fil" (fields package)) fil)
     (compile-package package)))
-
-
-(fec-compile-file "~/git/Masteroppgave/front-end-compiler/testdata/test-dokument.aura" "~/virker.mfo")
 

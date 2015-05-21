@@ -1,0 +1,4 @@
+(bilde :fil "~/git/Masteroppgave/front-end-compiler/testdata/bilde.png")
+(markdown :fil "~/git/Masteroppgave/front-end-compiler/testdata/tekst.markdown")
+(tabell :fil "~/git/Masteroppgave/front-end-compiler/testdata/tabell.csv" :første-linje-er-tabellnavn "ja")
+

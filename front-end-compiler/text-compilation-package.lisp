@@ -16,6 +16,5 @@
     (if fil   (format string-stream "~A"
 		      (slurp-file fil)))
 	
-    (get-output-stream-string string-s
-tream)))
+    (get-output-stream-string string-stream)))
 

@@ -1,5 +1,5 @@
 (defclass table-compilation-package (compilation-package)
-  ((name :initform "TABELL")
+  ((name :initform "TABLE")
    (field-names :initform '("fil" "første-linje-er-tabellnavn"))))
 
 (defgeneric num-cols (package))
@@ -20,7 +20,6 @@
   (output package (format 'nil " :SIZE \"~A\" :HEADERS \"~A\"" 
 			  (num-cols package)
 			  (headers package)))
-  (incf *INDENTATION-LEVEL*)
   (let ((print-headers (string= "ja"
   				(gethash "første-linje-er-tabellnavn" (fields package)))))
     (loop for row in (with-open-file (csv-stream (gethash "fil" (fields package)) :direction :input)
@@ -38,5 +37,5 @@
   	 (setq print-headers nil)
   	 (end-block package))
     (end-block package) 
-    (decf *INDENTATION-LEVEL*)))
+))
 

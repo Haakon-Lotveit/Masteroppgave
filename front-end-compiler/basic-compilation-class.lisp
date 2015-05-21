@@ -81,6 +81,12 @@
 	   (add-property-pair package key value))))
   (end-block package))
 
+(defgeneric set-field (package field value)
+  (:documentation "sets a `field' to a `value'"))
+
+(defmethod set-field ((package compilation-package) field value)
+  (setf (gethash field (fields package)) value))
+
 (defgeneric set-fields (package hash-table)
   (:documentation
    (concatenate 'string
