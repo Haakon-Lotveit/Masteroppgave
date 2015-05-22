@@ -37,6 +37,7 @@
 (ql:quickload :split-sequence)
 
 (import 'CL-PPCRE:SCAN)
+(import 'CL-PPCRE:SCAN-TO-STRINGS)
 (import 'CL-PPCRE:REGEX-REPLACE)
 (import 'CL-PPCRE:REGEX-REPLACE-ALL)
 					; Testdata
@@ -397,11 +398,8 @@ And that's about all for now. I should add in some extras, such as:
 					; (?<!a)b
 
 (defparameter *regex-match-url*
-  (concatenate 'string
-	       *regex-brackets-pair*
-	       "\\\\?\\(.+?\\s+?"
-	       *regex-string-literal*
-	       "\\\\?\\)"))
+  "(?<!\\\\)\\[.+?\\]\\\\\\(.+?\\\\\\)")
+;;en '[' så få ting som mulig før vi får en ']', før en '(' noen ting men så få som mulig, så en ')'
 
 (defun parse-link-literal-url (stream string)
   (let ((url-name (subseq string 
@@ -422,15 +420,19 @@ And that's about all for now. I should add in some extras, such as:
 
 (defun interpret-link-literal (link-literal)
   "This function does not check if everything is okay or not. It utterly assumes that you know what you're doing and only pass in correct things.
-interpret-link-literal will translate a link literal of the type: [link-name](url \"name\") into (URL :ALT-NAME name :NAME link-name :URL url)
+interpret-link-literal will translate a link literal of the type: [link-name](url name) into (URL :ALT-NAME name :NAME link-name :URL url)
 The order of operators is *not* guaranteed, only the existence of all three. They are listed here in alphabetical order."
   (let ((literal (copy-seq link-literal))
 	(output-string (make-growable-string)))
     (with-output-to-string (stream output-string)
       (format stream "(URL")
-      (parse-link-literal-alternate-name stream
-					 (parse-link-literal-url stream
-								 (parse-link-literal-display-name stream literal)))
+      (let* ((navn-bit (remove-first-char (remove-last-char (scan-to-strings "\\[.*?\\]" literal))))
+	     (url-og-alt (remove-last-char (remove-n-chars-from-string (+ (length navn-bit) 3) literal)))
+	     (url-og-rest (split-sequence:SPLIT-SEQUENCE #\Space url-og-alt)))
+	(format stream " :NAME ~A" (prin1-to-string navn-bit))
+	(format stream " :URL ~A" (prin1-to-string (car url-og-rest)))
+	(format stream " :ALT-NAME ~A" (prin1-to-string
+					(format nil "~{~A~^ ~}" (cdr url-og-rest)))))
       (format stream ")"))
     output-string))
 
@@ -483,7 +485,7 @@ The order of operators is *not* guaranteed, only the existence of all three. The
 (make-and-set-toggle-regex-rule "CITE" "CITE" "(?<!\\\\)§")
 (make-and-set-toggle-regex-rule "FOOTNOTE" "FOOTNOTE" "(?<!\\\\)¤")
 (make-and-set-toggle-regex-rule "UNDERLINE" "UNDERLINE" "(?<!\\\\)_")
-(make-and-set-toggle-regex-rule "CURSIVE" "CURSIVE" "(?<!\\\\)\\/")
+;(make-and-set-toggle-regex-rule "CURSIVE" "CURSIVE" "(?<!\\\\)\\/")
 
 (set-rule "ESCAPE-SEQUENCES" #'interpret-escape-sequences)
 (set-rule "ESCAPE-PARENS" #'escape-parens)
@@ -521,7 +523,7 @@ Does not change the original string in any way."
     (setf output (apply-rule "HASH-HEADLINE-4" output))
     (setf output (apply-rule "HASH-HEADLINE-5" output))
     (setf output (apply-rule "HASH-HEADLINE-6" output))
-    (setf output (apply-rule "CURSIVE" output))
+;    (setf output (apply-rule "CURSIVE" output))
     (setf output (apply-rule "UNDERLINE" output))
     (setf output (apply-rule "FOOTNOTE" output))
     (setf output (apply-rule "CITE" output))

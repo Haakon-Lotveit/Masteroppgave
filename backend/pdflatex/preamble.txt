@@ -17,6 +17,16 @@
 \line(1,0){250}
 \end{center}}
 
+\lstset{
+  literate=%
+  {æ}{{\ae}}1
+  {å}{{\aa}}1
+  {ø}{{\o}}1
+  {Æ}{{\AE}}1
+  {Å}{{\AA}}1
+  {Ø}{{\O}}1
+}
+
 \begin{document}
 % End of preamble
 

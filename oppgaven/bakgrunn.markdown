@@ -1,7 +1,7 @@
 # Bakgrunn #
 
 ## Hvorfor lage AuRa? ##
-Det finnes i dag mange rapporteringsoppgaver som må gjøres på et jevnlig basis [whitepapers og slikt kan siteres, er det en ok ting å gjøre?], og disse tar tid og krefter, og verre er, går ut på å hente ut data fra datamaskinen, lime det sammen i et format andre kan lese og sende det av gårde.
+Det finnes i dag mange rapporteringsoppgaver som må gjøres på et jevnlig basis \[whitepapers og slikt kan siteres, er det en ok ting å gjøre?\], og disse tar tid og krefter, og verre er, går ut på å hente ut data fra datamaskinen, lime det sammen i et format andre kan lese og sende det av gårde.
 Dette tar tid som kunne produktivt brukes på andre ting. Videre er eksisterende løsninger deler av store automatiseringssystemer som er ment til å integrere mot andre løsninger, men ikke å bli integrert mot utenfra. De passer dermed ikke til å automatisk generere dokumenter som en del av en annen prosess, med mindre de selv styrer denne prosessen. Dette låser en ned til spesifikke løsninger, og gjør en mindre fleksibel. En annen løsning har tidligere vært å skripte vha. Python, PERL, Bash eller lignende. Dette er mer fleksibelt, og lar deg kompartmentalisere rapportgenereringen inn i logiske enheter relativt enkelt, men introduserer andre problemer i stedenfor: De har ofte dårlige teknikker for innpakking av kode, de blir fort komplekse, og de må vedlikeholdes på lik linje med all annen kode. De er dermed heller ikke perfekte. En kan selvsagt skrive sitt eget språk for å håndtere denne type data, men da får en et nytt problem. En må nå vedlikeholde et helt språk, og med mindre en får andre til å bruke det, får en problemet med å lære nye mennesker opp i språk.
 
 Oppgaven vil prøve å takle problemet en bit på vei med å introdusere AuRa. Som er både et språk, men også et rammeverk for å produsere rapporter. AuRa er ment til å håndtere problemene som skripting medfører ved hjelp av følgende designvalg:
@@ -26,15 +26,16 @@ Sett under ett gir dette en fleksibilitet som per dags dato mangler i andre stø
 
 ## Hva finnes fra før? ##
 
-### Automate (Kilde: http://www.networkautomation.com/) ###
-(kilde:https://www.networkautomation.com/solutions/automated-report-generation-and-distribution/)
+### Automate ###
+¤(Kilde: [http://www.networkautomation.com/](http://www.networkautomation.com/ http://www.networkautomation.com/)¤
+(kilde:[https://www.networkautomation.com/solutions/automated-report-generation-and-distribution/](https://www.networkautomation.com/solutions/automated-report-generation-and-distribution/ https://www.networkautomation.com/solutions/automated-report-generation-and-distribution/)
 Automate er et system for å generere rapporter automatisk vha. en GUI, hvor en kan dra og slippe rapportenheter. Systemet lover automatisk generering av rapporter uten å måtte skrive en linje kode, for alle støttede filkilder. Rapportgenereringen er en integrert del av en større pakke de tilbyr.
 
 De viktigste forskjellene mellom AuRa som er foreslått, og AutoMate sin rapportgenerering er:
 
  - AutoMate er et ferdig program fra begynnelse til slutt, mens AuRa er ment til å integreres med andre løsninger.
  - AutoMate tilbyr ODS formatet på dokumentene, mens AuRa tilbyr alle formater som kan støttes med en kompilator-plugin.
- - AutoMate er ikke ment til å kunne programmeres, mens for AuRa er det et poeng at du kan programmere det enkelt og smertefritt. Til dømes, i deres case study (kilde: http://www.networkautomation.com/news/case-studies/25/) påpekes det at AutoMate kan lett stilles inn til å trekke ned data, lage en rapport, og skrive den ut. I AuRa, ville en tilsvarende løsning vært å bruke lpr/lpd og cron til å automatisere mtp tid og utskrift.
+ - AutoMate er ikke ment til å kunne programmeres, mens for AuRa er det et poeng at du kan programmere det enkelt og smertefritt. Til dømes, i deres case study (kilde: [https://www.networkautomation.com/solutions/automated-report-generation-and-distribution/](https://www.networkautomation.com/solutions/automated-report-generation-and-distribution/ https://www.networkautomation.com/solutions/automated-report-generation-and-distribution/)http://www.networkautomation.com/news/case-studies/25/) påpekes det at AutoMate kan lett stilles inn til å trekke ned data, lage en rapport, og skrive den ut. I AuRa, ville en tilsvarende løsning vært å bruke lpr/lpd og cron til å automatisere mtp tid og utskrift.
 
 For å oppsummere, er AuRa mer som et forenklet skriptspråk, med enkle kommandoer ment for å gjøre skriving av en spesiell type skript enklere og raskere. Der AutoMate er en programpakke som gjør jobben fra ende til ende, er AuRa ment til å være et verktøy som integreres med andre verktøy til en komplett pakke.
 
@@ -76,7 +77,7 @@ Plugin-systemet er mye likt Emacs sitt system, som er enkelt å drifte, selv om 
 Målet med oppgavene er altså å argumentere for et nytt språk. Et språk som kan brukes til å generere rapporter automatisk og er utelukkende fokusert på dette formålet. Dette språket lar en generere rapporter enkelt og løser dermed problemet med generiske shellscripts ved å være lettere å vedlikeholde, ved å være et enklere språk med tydeligere syntaks. Videre vil et enkelt språk la en generere rapportbeskrivelser programmatisk vha. tredjeparts programmer som kan integrere mot dette systemet.
 
 Rapporter her er ikke bare ting som salgsrapporter eller ledige sykesenger per dag eller slikt, men kan også være resultater av undersøkelser med mer.
-Ved å velge å ikke tilby mer enn nødvendig i språket, men heller tilby å bruke andre språk er dette også et kall* til UNIX-tradisjonene med flere små programmer som er lette å lære, bruke, og koble sammen.
+Ved å velge å ikke tilby mer enn nødvendig i språket, men heller tilby å bruke andre språk er dette også et kall¤Eller evt. et kjærlighetsbrev til denne tradisjonen, men dette er en seriøs akademisk tekst, blottet for humor og selvinnsikt.¤ til UNIX-tradisjonene med flere små programmer som er lette å lære, bruke, og koble sammen.
 
 Hvis du allerede bruker R, hvorfor ikke fortsette å bruke R, og heller bruke resultatene i en rapport uavhengig? Og hvorfor ikke ha et byggesystem for slike rapporter? Dersom du kan ha kontinuerlig integrering (Continous Integration) i alle ledd helt ned til rapporten som leveres til slutt, vil det være bedre for alle involverte. Du må selvsagt ikke bruke R. Du kan også bruke Python, Julia, Java, eller andre programmer. Poenget er å appellere til valgfrihet, og åpne opp for bruken av flere verktøy, istedenfor å låse brukere fast til bare et av dem.
 
@@ -89,4 +90,4 @@ Generiske rapporteringsoppgaver som for eksempel ledige senger ved sykehus, en p
 
 Det er mange muligheter med et slikt system, og å gjøre det enklere å få informasjon ut fra datamaskiner og inn i hendene til mennesker som trenger det vil kunne gjøre livet enklere for mange.
 
-*Eller evt. et kjærlighetsbrev til denne tradisjonen, men dette er en seriøs akademisk tekst, blottet for humor og selvinnsikt.
+

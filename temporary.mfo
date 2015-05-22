@@ -2,13 +2,13 @@
 (HEADLINE :LEVEL "1" Bakgrunn)
 (NEW-PARAGRAPH)
 (HEADLINE :LEVEL "2" Hvorfor lage AuRa?)
-Det finnes i dag mange rapporteringsoppgaver som må gjøres på et jevnlig basis [whitepapers og slikt kan siteres, er det en ok ting å gjøre?], og disse tar tid og krefter, og verre er, går ut på å hente ut data fra datamaskinen, lime det sammen i et format andre kan lese og sende det av gårde.
+Det finnes i dag mange rapporteringsoppgaver som må gjøres på et jevnlig basis \\[whitepapers og slikt kan siteres, er det en ok ting å gjøre?\\], og disse tar tid og krefter, og verre er, går ut på å hente ut data fra datamaskinen, lime det sammen i et format andre kan lese og sende det av gårde.
 Dette tar tid som kunne produktivt brukes på andre ting. Videre er eksisterende løsninger deler av store automatiseringssystemer som er ment til å integrere mot andre løsninger, men ikke å bli integrert mot utenfra. De passer dermed ikke til å automatisk generere dokumenter som en del av en annen prosess, med mindre de selv styrer denne prosessen. Dette låser en ned til spesifikke løsninger, og gjør en mindre fleksibel. En annen løsning har tidligere vært å skripte vha. Python, PERL, Bash eller lignende. Dette er mer fleksibelt, og lar deg kompartmentalisere rapportgenereringen inn i logiske enheter relativt enkelt, men introduserer andre problemer i stedenfor: De har ofte dårlige teknikker for innpakking av kode, de blir fort komplekse, og de må vedlikeholdes på lik linje med all annen kode. De er dermed heller ikke perfekte. En kan selvsagt skrive sitt eget språk for å håndtere denne type data, men da får en et nytt problem. En må nå vedlikeholde et helt språk, og med mindre en får andre til å bruke det, får en problemet med å lære nye mennesker opp i språk.
 (NEW-PARAGRAPH)
 Oppgaven vil prøve å takle problemet en bit på vei med å introdusere AuRa. Som er både et språk, men også et rammeverk for å produsere rapporter. AuRa er ment til å håndtere problemene som skripting medfører ved hjelp av følgende designvalg:
 (NEW-PARAGRAPH)
 (UNORDERED-LIST
-(LINE-ITEM Språket er med vilje holdt enkelt. Det er ingen kompliserte ting i språket som helhet. Du snakker om tekst og(CURSIVE eller filer, og du får ut en eller flere filer.)
+(LINE-ITEM Språket er med vilje holdt enkelt. Det er ingen kompliserte ting i språket som helhet. Du snakker om tekst og/eller filer, og du får ut en eller flere filer.)
 (LINE-ITEM Språket velger alltid klarhet framfor å være kortfattet. Du skriver gjerne kode en gang, men du leser den fire. Å gjøre det lettere for de som skal vedlikeholde programmene beskrevet i AuRa er en stor fordel.)
 (LINE-ITEM Språket er valgt til å enkelt kunne genereres programmatisk. På den måten kan en skrive verktøy som bruker AuRa uten å være bundet til AuRa, eller måtte være en del av AuRa. På den måten kan en ha et samfunn rundt denne løsningen.)
 (LINE-ITEM Språket vil beskrive hver bit av programmet som en fil. Denne filen må dermed enten finnes eller genereres på forhånd. Dette kan gjøres ved hjelp av til dømes Make, SCons eller Rake som kan enten kalle programmer som genererer filen, eller kjøre kommandoen som genererer den selv. En framtidig utgave av AuRa burde også støtte denne typen enkel oppførsel, men for å bli ferdig med prosjektet støttes ikke dette i den nåværende versjonen.)
@@ -27,8 +27,9 @@ Sett under ett gir dette en fleksibilitet som per dags dato mangler i andre stø
 (NEW-PARAGRAPH)
 (HEADLINE :LEVEL "2" Hva finnes fra før?)
 (NEW-PARAGRAPH)
-(HEADLINE :LEVEL "3" Automate \(Kilde: http:)(CURSIVE www.networkautomation.com)\))
-\(kilde:https:(CURSIVE )www.networkautomation.com(CURSIVE solutions)automated-report-generation-and-distribution(CURSIVE \)
+(HEADLINE :LEVEL "3" Automate)
+(FOOTNOTE \(Kilde: (URL :NAME "http://www.networkautomation.com/" :URL "(http://www.networkautomation.com/" :ALT-NAME "http://www.networkautomation.com/\\"))
+\(kilde:(URL :NAME "https://www.networkautomation.com/solutions/automated-report-generation-and-distribution/" :URL "(https://www.networkautomation.com/solutions/automated-report-generation-and-distribution/" :ALT-NAME "https://www.networkautomation.com/solutions/automated-report-generation-and-distribution/\\")
 Automate er et system for å generere rapporter automatisk vha. en GUI, hvor en kan dra og slippe rapportenheter. Systemet lover automatisk generering av rapporter uten å måtte skrive en linje kode, for alle støttede filkilder. Rapportgenereringen er en integrert del av en større pakke de tilbyr.
 (NEW-PARAGRAPH)
 De viktigste forskjellene mellom AuRa som er foreslått, og AutoMate sin rapportgenerering er:
@@ -36,7 +37,7 @@ De viktigste forskjellene mellom AuRa som er foreslått, og AutoMate sin rapport
 (UNORDERED-LIST
 (LINE-ITEM AutoMate er et ferdig program fra begynnelse til slutt, mens AuRa er ment til å integreres med andre løsninger.)
 (LINE-ITEM AutoMate tilbyr ODS formatet på dokumentene, mens AuRa tilbyr alle formater som kan støttes med en kompilator-plugin.)
-(LINE-ITEM AutoMate er ikke ment til å kunne programmeres, mens for AuRa er det et poeng at du kan programmere det enkelt og smertefritt. Til dømes, i deres case study \(kilde: http:)(CURSIVE www.networkautomation.com)news(CURSIVE case-studies)25(CURSIVE \) påpekes det at AutoMate kan lett stilles inn til å trekke ned data, lage en rapport, og skrive den ut. I AuRa, ville en tilsvarende løsning vært å bruke lpr)lpd og cron til å automatisere mtp tid og utskrift.))
+(LINE-ITEM AutoMate er ikke ment til å kunne programmeres, mens for AuRa er det et poeng at du kan programmere det enkelt og smertefritt. Til dømes, i deres case study \(kilde: (URL :NAME "https://www.networkautomation.com/solutions/automated-report-generation-and-distribution/" :URL "(https://www.networkautomation.com/solutions/automated-report-generation-and-distribution/" :ALT-NAME "https://www.networkautomation.com/solutions/automated-report-generation-and-distribution/\\")http://www.networkautomation.com/news/case-studies/25/\) påpekes det at AutoMate kan lett stilles inn til å trekke ned data, lage en rapport, og skrive den ut. I AuRa, ville en tilsvarende løsning vært å bruke lpr/lpd og cron til å automatisere mtp tid og utskrift.))
 (NEW-PARAGRAPH)
 For å oppsummere, er AuRa mer som et forenklet skriptspråk, med enkle kommandoer ment for å gjøre skriving av en spesiell type skript enklere og raskere. Der AutoMate er en programpakke som gjør jobben fra ende til ende, er AuRa ment til å være et verktøy som integreres med andre verktøy til en komplett pakke.
 (NEW-PARAGRAPH)
@@ -78,7 +79,7 @@ Plugin-systemet er mye likt Emacs sitt system, som er enkelt å drifte, selv om 
 Målet med oppgavene er altså å argumentere for et nytt språk. Et språk som kan brukes til å generere rapporter automatisk og er utelukkende fokusert på dette formålet. Dette språket lar en generere rapporter enkelt og løser dermed problemet med generiske shellscripts ved å være lettere å vedlikeholde, ved å være et enklere språk med tydeligere syntaks. Videre vil et enkelt språk la en generere rapportbeskrivelser programmatisk vha. tredjeparts programmer som kan integrere mot dette systemet.
 (NEW-PARAGRAPH)
 Rapporter her er ikke bare ting som salgsrapporter eller ledige sykesenger per dag eller slikt, men kan også være resultater av undersøkelser med mer.
-Ved å velge å ikke tilby mer enn nødvendig i språket, men heller tilby å bruke andre språk er dette også et kall(EMPHASISED  til UNIX-tradisjonene med flere små programmer som er lette å lære, bruke, og koble sammen.
+Ved å velge å ikke tilby mer enn nødvendig i språket, men heller tilby å bruke andre språk er dette også et kall(FOOTNOTE Eller evt. et kjærlighetsbrev til denne tradisjonen, men dette er en seriøs akademisk tekst, blottet for humor og selvinnsikt.) til UNIX-tradisjonene med flere små programmer som er lette å lære, bruke, og koble sammen.
 (NEW-PARAGRAPH)
 Hvis du allerede bruker R, hvorfor ikke fortsette å bruke R, og heller bruke resultatene i en rapport uavhengig? Og hvorfor ikke ha et byggesystem for slike rapporter? Dersom du kan ha kontinuerlig integrering \(Continous Integration\) i alle ledd helt ned til rapporten som leveres til slutt, vil det være bedre for alle involverte. Du må selvsagt ikke bruke R. Du kan også bruke Python, Julia, Java, eller andre programmer. Poenget er å appellere til valgfrihet, og åpne opp for bruken av flere verktøy, istedenfor å låse brukere fast til bare et av dem.
 (NEW-PARAGRAPH)
@@ -91,8 +92,6 @@ Generiske rapporteringsoppgaver som for eksempel ledige senger ved sykehus, en p
 (NEW-PARAGRAPH)
 Det er mange muligheter med et slikt system, og å gjøre det enklere å få informasjon ut fra datamaskiner og inn i hendene til mennesker som trenger det vil kunne gjøre livet enklere for mange.
 (NEW-PARAGRAPH)
-(UNORDERED-LIST
-(LINE-ITEM Eller evt. et kjærlighetsbrev til denne tradisjonen, men dette er en seriøs akademisk tekst, blottet for humor og selvinnsikt.))
 
 (HEADLINE :LEVEL "2" Materialer)
 (NEW-PARAGRAPH)
@@ -102,15 +101,15 @@ Alle programmene er åpen kildekode, lisensiert med frie lisenser som BSD eller 
 (HEADLINE :LEVEL "3" Steel Banks Common Lisp)
 (NEW-PARAGRAPH)
 Implementasjonen av Common Lisp er SBCL, som er basert på Carnegie Mellon University Common Lisp \(CMUCL\) og deler bugfixer med hverandre.
-Hovedforskjeller inkluderer støtte for native-tråding på Linux, som gir en økt mulighet for paralellisering av arbeidsmengder sammenlignet med CMUCL. \(http:(CURSIVE )www.cons.org(CURSIVE cmucl)FAQ.html\)
-SBCL er ansett som en robust og rask implementasjon av Common Lisp, og er valget av Lispimplementasjon på Alioths "Computer Language Benchmarks Game". \(http:(CURSIVE )benchmarksgame.alioth.debian.org(CURSIVE \), der den er et av de raskere språkene.
+Hovedforskjeller inkluderer støtte for native-tråding på Linux, som gir en økt mulighet for paralellisering av arbeidsmengder sammenlignet med CMUCL. (URL :NAME "CMUCL FAQ" :URL "(http://www.cons.org/cmucl/FAQ.html" :ALT-NAME "CMUCL's FAQ\\")
+SBCL er ansett som en robust og rask implementasjon av Common Lisp, og er valget av Lispimplementasjon på Alioths "Computer Language Benchmarks Game". (URL :NAME "Alioth's benchmark's game" :URL "(http://benchmarksgame.alioth.debian.org/" :ALT-NAME "Benchmark game\\"), der den er et av de raskere språkene.
 (NEW-PARAGRAPH)
 Common Lisp er et multiparadigmespråk, som tilbyr objektorientering, funksjonell programmering med høyere ordens funksjoner, og andre metodologier som ønskes. Språket tilbyr også makroer som gjør det mulig å legge til eller endre syntaxen for språket, eller gi språket nye operasjoner det ikke kunne før. 
 (NEW-PARAGRAPH)
 Utgaven av Steel Banks Common Lisp som er brukt i systemet er SBCL 1.2.3.debian \(for AMD64\).
 (NEW-PARAGRAPH)
 (HEADLINE :LEVEL "3" Quicklisp)
-\(https:)(CURSIVE www.quicklisp.org)beta(CURSIVE \)
+(URL :NAME "Quicklisp beta" :URL "(https://www.quicklisp.org/beta/" :ALT-NAME "Quicklisp Beta\\")
 (NEW-PARAGRAPH)
 Quicklisp er et system for å håndtere avhengigheter i Common Lisp. Det kan sammenlignes med Apache Ivy eller Apache Maven, med noen forskjeller.
 (NEW-PARAGRAPH)
@@ -119,7 +118,7 @@ Quicklisp er et system for å håndtere avhengigheter i Common Lisp. Det kan sam
 (LINE-ITEM Apache Maven og Apache Ivy kjører ved bygging, mens Quicklisp er tilgjengelig mens programmet kjører.)
 (LINE-ITEM Java og Common Lisp bygges på forskjellige måter, så mens Apache Maven har sitt eget byggesystem, og Apache Ivy er tett integrert med Apache Ant, er Quicklisp integrert mot ASDF, som er et byggeverktøy for Common Lisp.))
 (NEW-PARAGRAPH)
-Siden Quicklisp er tilgjengelig ved kjøretid kan en bruke verktøyet fra Read Eval Print Loop \(REPL\) promptet, og dermed bruke Quicklisp som et verktøy for utforskende programmering. \(http:)(CURSIVE en.wikipedia.org)wiki(CURSIVE Exploratory(UNDERLINE programming, http:)(CURSIVE www.exploratoryprogramming.org\). For å støtte denne bruken har quicklisp også funksjoner for å bla gjennom og søke opp i pakkebrønnene \(Eng: repositories\) sine etter pakker med spesifikke navn. 
+Siden Quicklisp er tilgjengelig ved kjøretid kan en bruke verktøyet fra Read Eval Print Loop \(REPL\) promptet, og dermed bruke Quicklisp som et verktøy for utforskende programmering. (URL :NAME "Exploratory programming" :URL "(http://en.wikipedia.org/wiki/Exploratory(UNDERLINE programming" :ALT-NAME "Exploratory programming\\"). For å støtte denne bruken har quicklisp også funksjoner for å bla gjennom og søke opp i pakkebrønnene \(Eng: repositories\) sine etter pakker med spesifikke navn. 
 (NEW-PARAGRAPH)
 Selv om prosjektet enda er i beta, håndterer det allerede over 1300 biblioteker i pakkebrønnen sin.
 Det har også integrasjon mot SLIME, en vanlig Common Lisp IDE laget for GNU Emacs, skrevet i Emacs Lisp.
@@ -132,14 +131,14 @@ Da Quicklisp oppdaterer seg selv, er nyeste utgave gitt ut siden 28. mai testet.
 (NEW-PARAGRAPH)
 (HEADLINE :LEVEL "3" CL-PPCRE - Portable Perl-compatible revular expressions for Common Lisp)
 (NEW-PARAGRAPH)
-CL-PPCRE \(http:)(CURSIVE weitz.de)cl-ppcre(CURSIVE \) er en effektiv motor for tolking av perl-kompatible regulære uttrykk. Den benytter seg av Lispkompilatoren for effektivitet ved å kompilere mønstrene ned til maskinkode. Dermed istedenfor å bygge en regulær-tilstandsmaskin som en VM, vil den generere en tilstandsmaskin i maskinkode. Dermed vil den kunne kjøre raskere enn tilsvarende PERL-regexer. \(Dersom det er interessant er Aho-Corasick algoritmen bak blant annet fgrep, og et sted å begynne.\)
+CL-PPCRE (URL :NAME "CL-PPCRE" :URL "(http://weitz.de/cl-ppcre/" :ALT-NAME "CL-PPCRE\\") er en effektiv motor for tolking av perl-kompatible regulære uttrykk. Den benytter seg av Lispkompilatoren for effektivitet ved å kompilere mønstrene ned til maskinkode. Dermed istedenfor å bygge en regulær-tilstandsmaskin som en VM, vil den generere en tilstandsmaskin i maskinkode. Dermed vil den kunne kjøre raskere enn tilsvarende PERL-regexer. \(Dersom det er interessant er Aho-Corasick algoritmen bak blant annet fgrep, og et sted å begynne.\)
 (NEW-PARAGRAPH)
-CL-PPCRE er brukt til å parse det regulære språket \(http:)(CURSIVE en.wikipedia.org)wiki(CURSIVE Regular)language\) Markdown i kompilatoren.
+CL-PPCRE er brukt til å parse det regulære språket (URL :NAME "Regular Language" :URL "(http://en.wikipedia.org/wiki/Regular)language" :ALT-NAME "Regulære språket\\") Markdown i kompilatoren.
 (NEW-PARAGRAPH)
 Versjonen brukt er den nyeste per 28. mai.
 (NEW-PARAGRAPH)
 (HEADLINE :LEVEL "3" Split-Sequence)
-Split-Sequence \(http:)(CURSIVE www.cliki.net)split-sequence\) er et enkelt bibliotek for å dele opp sekvenser i delsekvenser.
+Split-Sequence (URL :NAME "Split Sequence" :URL "(http://www.cliki.net/split-sequence" :ALT-NAME "Split sequence\\") er et enkelt bibliotek for å dele opp sekvenser i delsekvenser.
 Brukes i parsingen av inndata i prosjektet.
 (NEW-PARAGRAPH)
 Versjonen brukt er den nyeste per 28. mai.
@@ -152,14 +151,14 @@ Versjonen av GNU Emacs brukt er GNU Emacs 24.3.1
 (NEW-PARAGRAPH)
 (HEADLINE :LEVEL "3" SLIME)
 (NEW-PARAGRAPH)
-SLIME \(https:(CURSIVE )common-lisp.net(CURSIVE project)slime(CURSIVE \) \(Superior Interaction Mode for Emacs\) er et integrert utviklingsmiljø for Common Lisp for Emacs. Den støtter både GNU Emacs og XEmacs. Den støtter også flere implementasjoner av Common Lisp, deriblant Steel Banks Common Lisp.
+SLIME (URL :NAME "Slime" :URL "(https://common-lisp.net/project/slime/" :ALT-NAME "SLIME\\") \(Superior Interaction Mode for Emacs\) er et integrert utviklingsmiljø for Common Lisp for Emacs. Den støtter både GNU Emacs og XEmacs. Den støtter også flere implementasjoner av Common Lisp, deriblant Steel Banks Common Lisp.
 (NEW-PARAGRAPH)
 SLIME kan integreres med Quicklisp og Quickproject, selv om sistnevnte ikke ble brukt i dette prosjektet.
 Som integrert utviklingsverktøy hjelper det til med det meste en skulle ønske et integrert utviklingsmiljø gjorde, inkludert REPL-spesifikke ting som snarveier, setting av nåværende navnerom, med mer.
 (NEW-PARAGRAPH)
 (HEADLINE :LEVEL "3" Ubuntu 14.10)
 (NEW-PARAGRAPH)
-Programmet ble utviklet til å kjøre på GNU)Linux maskiner på AMD64 baserte prosessorer. I begynnelsen på Ubuntu 14.04LTS \(Trusty Tahr\), men senere Ubzuntu 14.10 \(Utopic Unicorn\). Da Steel Banks Common Lisp er et abstraksjonsnivå på toppen av operativsystemet, og ingen kall til systemet gikk utover standard POSIX-kall burde det ikke være noen problemer med å kjøre på andre systemer, men dette er ikke testet, og integrasjonstesting mot andre systemer ligger utenfor det som er tid til å gjøre på dette prosjektet.
+Programmet ble utviklet til å kjøre på GNU/Linux maskiner på AMD64 baserte prosessorer. I begynnelsen på Ubuntu 14.04LTS \(Trusty Tahr\), men senere Ubzuntu 14.10 \(Utopic Unicorn\). Da Steel Banks Common Lisp er et abstraksjonsnivå på toppen av operativsystemet, og ingen kall til systemet gikk utover standard POSIX-kall burde det ikke være noen problemer med å kjøre på andre systemer, men dette er ikke testet, og integrasjonstesting mot andre systemer ligger utenfor det som er tid til å gjøre på dette prosjektet.
 (NEW-PARAGRAPH)
 (HEADLINE :LEVEL "3" Git DVCS)
 (NEW-PARAGRAPH)
@@ -184,27 +183,27 @@ Skulle prosjektet blitt gjennomført på nytt igjen fra bar bakke, ville RUP bli
 (NEW-PARAGRAPH)
 Objektorientering er en måte å innkapsulere data og funksjoner i objekter. Disse objektene representerer entiteter i systemdesignet ditt, og kan utføre handlinger \(metoder\) basert på hvilke funksjoner de har tilgjengelige. 
 (NEW-PARAGRAPH)
-I de fleste språk er disse metodene meldinger som sendes til objektene. \(Til dømes kan en streng i Java bli bedt om å gjøre alle tegn til store bokstaver slik: "Java Streng".toUpperCase\(\), dette anses da som å sende en melding til strengen\) Common Lisps objektsystem CLOS \(Common Lisp Object System\) \(http:(CURSIVE )www.dreamsongs.com(CURSIVE NewFiles)ECOOP.pdf\) er fundamentalt annerledes, da den baserer seg på et system med generiske funksjoner istedenfor å sende meldinger.
+I de fleste språk er disse metodene meldinger som sendes til objektene. \(Til dømes kan en streng i Java bli bedt om å gjøre alle tegn til store bokstaver slik: "Java Streng".toUpperCase\(\), dette anses da som å sende en melding til strengen\) Common Lisps objektsystem CLOS \(Common Lisp Object System\) (URL :NAME "CLOOS" :URL "(http://www.dreamsongs.com/NewFiles/ECOOP.pdf" :ALT-NAME "CLOOS\\") er fundamentalt annerledes, da den baserer seg på et system med generiske funksjoner istedenfor å sende meldinger.
 (NEW-PARAGRAPH)
 En vil dermed i CLOS definere klasser uavhengig av funksjonene som opererer på dem. For å benytte seg av polymorfisme definerer man en generisk klasse, som har en signatur, og en kan dermed (EMPHASISED spesialisere) denne generiske klassen med en metode. Denne metoden vil da ta en spesifikk typesignatur til minst et av argumentene sine. Det er viktig å påpeke her at mens i andre objektorienterte språk som Java og C# vil en metode kun tilhøre en klasse \(siden den mentale modellen er å sende en melding til en klasse\), vil en metode i CLOS kunne tilhøre flere klasser samtidig. Derfor kan en definere metoder uavhengig av klasser.
 (NEW-PARAGRAPH)
 Dette ser ikke særlig annerledes ut, en kan til dømes ha en klasse "Kjøretøy" med to underklasser "Motorsykkel" og "Lastebil". En kan deklarere en generisk metode ved hjelp av defgeneric slik:
 (NEW-PARAGRAPH)
 (CODE 
-\(defgeneric start-motor kjøretøy
-      \(:documentation "Starter en motor til et kjøretøy. Vil kaste en error om kjøretøyet ikke har motor"\)\))
+\(defgeneric start-motor kjoretoy
+      \(:documentation "Starter en motor til et kjoretoy. Vil kaste en error om kjoretoyet ikke har motor"\)\))
 (NEW-PARAGRAPH)
 Og en kan videre spesialisere en metode for Lastebil således:
 (NEW-PARAGRAPH)
 (CODE 
-\(defmethod start-motor \(\(kjøretøy lastebil\)\)
+\(defmethod start-motor \(\(kjoretoy lastebil\)\)
      \(lag-lyd "vrom vrom!"\)\))
 (NEW-PARAGRAPH)
 På dette punktet kan generiske funksjoner minne om Interface i Java og C#, men for funksjoner istedenfor. Men en kan også tenke seg følgende generisk funksjon:
 (NEW-PARAGRAPH)
 (CODE 
 \(defgeneric kollider traffikant1 traffikant2
-      \(:documentation "Kjører over en myk traffikant med et kjøretøy"\)\))
+      \(:documentation "Kjorer over en myk traffikant med et kjoretoy"\)\))
 (NEW-PARAGRAPH)
 Og da kan vi spesialisere på for eksempel en lastebil og en fotgjenger slik \(antagelsen er at kjøretøy arver fra traffikant\):
 (NEW-PARAGRAPH)
@@ -213,7 +212,7 @@ Og da kan vi spesialisere på for eksempel en lastebil og en fotgjenger slik \(a
      \(if \(skadet traffikant2\)\)
 \(tilkall-ambulanse\)\))
 (NEW-PARAGRAPH)
-På dette tidspunktet tilhører metoden klassene (EMPHASISED lastebil) og (EMPHASISED fotgjenger). De er dermed spesialiserte på begge to, og hører ikke konseptuelt hjemme hos noen av klassene. Det kan virke som om dette er lastebilen som kolliderer med fotgjengeren, men hva om det er to lastebiler som kolliderer? Eller to fotgjengere? I språk som Java og C# får en da et dilemma om hva som skal skje, og hvor koden skal ligge. \(En mulig løsning er Visitor-mønsteret \(http:(CURSIVE )en.wikipedia.org(CURSIVE wiki)Visitor(UNDERLINE pattern\)\) I CLOS er dette bygget inn i systemet og en unngår dilemmaet.
+På dette tidspunktet tilhører metoden klassene (EMPHASISED lastebil) og (EMPHASISED fotgjenger). De er dermed spesialiserte på begge to, og hører ikke konseptuelt hjemme hos noen av klassene. Det kan virke som om dette er lastebilen som kolliderer med fotgjengeren, men hva om det er to lastebiler som kolliderer? Eller to fotgjengere? I språk som Java og C# får en da et dilemma om hva som skal skje, og hvor koden skal ligge. \(En mulig løsning er Visitor-mønsteret (URL :NAME "Visitor Pattern" :URL "(http://en.wikipedia.org/wiki/Visitor(UNDERLINE pattern" :ALT-NAME "Wikipedia visitor pattern Visitor-pattern\\")\) I CLOS er dette bygget inn i systemet og en unngår dilemmaet.
 (NEW-PARAGRAPH)
 [Jeg er ikke helt sikker på hvor mye jeg bør ha her. På den ene siden så er CLOS veldig forskjellig fra andre systemer, og CLOS bryter veldig hardt med den vanlige måten å gjøre OOP på. Det er ikke gitt at folk har en akademisk bakgrunn i hvordan OOP fungerer. På den annen side kan det fort bli litt mye.]
 (NEW-PARAGRAPH)
@@ -247,7 +246,8 @@ public class MarkdownReport extends RepGenEntity {
 (NEW-PARAGRAPH)
 Og med dette kan du bruke Java sine innebygde GUI elementer til å generere hele greien. JFileChooser, JavaFX, hele pakken. Med denne type objekter enkelt og greit.
 (NEW-PARAGRAPH)
-Du kan lage noe lignende et slikt system vha. standard UNIX-verktøy som Make og Bash. Disse programmene er standard vare, og har vært i bruk lenge og er relativt feilfri. Men det er likevel en forferdelig ide, fordi den jevne kontormedarbeider ikke sitter med en UNIX-maskin, og om de gjorde det \(Mac, til dømes er da rimelig populært per i dag\), så ville de ikke forventes å kunne bruke Make eller BASH. \(Se: https:(CURSIVE )www.ecademy.no(CURSIVE nettstudier)okonomi-og-administrasjon(CURSIVE kontormedarbeider og http:)(CURSIVE www.treider.no)kontor-og-administrasjon(CURSIVE sekretaer) for lånekassengodkjente utdannelser innen faget. Se videre Navs kursbeskrivelse her: https:(CURSIVE )www.nav.no(CURSIVE Forsiden))attachment(CURSIVE 353293?(UNDERLINE ts=13fc24b8e78 http:)(CURSIVE www.studenttorget.no)index.php?show=5192&expand=4631,5192&yrkesid=110 har også ingenting om bruk av operativsystemer eller lignende i sin beskrivelse.\) Det er også mye å be folk sette seg inn i.
+Du kan lage noe lignende et slikt system vha. standard UNIX-verktøy som Make og Bash. Disse programmene er standard vare, og har vært i bruk lenge og er relativt feilfri. Men det er likevel en forferdelig ide, fordi den jevne kontormedarbeider ikke sitter med en UNIX-maskin, og om de gjorde det \(Mac, til dømes er da rimelig populært per i dag\), så ville de ikke forventes å kunne bruke Make eller BASH. (FOOTNOTE Se: godkjente utdannelser
+(URL :NAME "Kontormedarbeider" :URL "(https://www.ecademy.no/nettstudier/okonomi-og-administrasjon/kontormedarbeider" :ALT-NAME "kontormedarbeider\\") og (URL :NAME "sekretær" :URL "(http://www.treider.no/kontor-og-administrasjon/sekretaer/" :ALT-NAME "sekretær\\") for lånekassengodkjente utdannelser innen faget. Se videre Navs kursbeskrivelse her: (URL :NAME "navs kursbeskrivelse" :URL "(https://www.nav.no/Forsiden/)attachment/353293?(UNDERLINE ts=13fc24b8e78" :ALT-NAME "navs kursbeskrivelse\\") eller evt. (URL :NAME "studenttorget" :URL "(http://www.studenttorget.no/index.php?show=5192&expand=4631,5192&yrkesid=110" :ALT-NAME "studenttorget\\") har også ingenting om bruk av operativsystemer eller lignende i sin beskrivelse.\) )  Det er også mye å be folk sette seg inn i.
 I tillegg ville en slik løsning være porøs og vanskelig å sette opp for forskjellige systemer eller behov. Det er lite til ingen inkapsulering, og det er heller ikke enkelt å integrere mot andre verktøy som det burde vært. Uttrykk strekker seg over flere linjer, en har semantisk betydning i indenteringen, og andre anakronismer. \(Lenke mot manualer her?\)
 Et eget subspråk for disse typer uttrykk hadde vært bedre. Da blir det enklere å generere uttrykk programmatisk, og det blir lettere for andre mennesker å lese og forstå det som står i uttrykkene, om ikke nødvendigvis skrive dem. \(Domain spesific languages boken?\)
 (NEW-PARAGRAPH)
@@ -256,24 +256,24 @@ Da blir spørsmålet hvilke datakilder som skal støttes, og på hvilket nivå d
 En kan da tenke seg følgende fil:
 (CODE 
 ;; Erklær type
-\(utdata format="LaTeX(CURSIVE PDF"\)
+\(utdata format="LaTeX/PDF"\)
 (NEW-PARAGRAPH)
 ;; Hent data og marker for sletting
-\(kjør fil="~)rapporter(CURSIVE testrapport)statistikk.r"\)
-\(slett-etter-kjøring fil="~(CURSIVE rapporter)testrapport(CURSIVE graf-fig-1.png"\)
+\(kjør fil="~/rapporter/testrapport/statistikk.r"\)
+\(slett-etter-kjøring fil="~/rapporter/testrapport/graf-fig-1.png"\)
 (NEW-PARAGRAPH)
-\(kjør fil="~)rapporter(CURSIVE testrapport)hent-database-informasjon.py"\)
-\(slett-etter-kjøring fil="~(CURSIVE rapporter)testrapport(CURSIVE database-fig-2.csv"\)
+\(kjør fil="~/rapporter/testrapport/hent-database-informasjon.py"\)
+\(slett-etter-kjøring fil="~/rapporter/testrapport/database-fig-2.csv"\)
 (NEW-PARAGRAPH)
 ;; Inkluder materiale
-\(le\(markdown fil="~)rapporter(CURSIVE testrapport)innledning.md"\)
-\(bilde fil="~(CURSIVE rapporter)testrapport(CURSIVE graf-fig-1.png"\)
-\(markdown fil="~)rapporter(CURSIVE testrapport)brodtekst.md"\)
-\(tabell fil="~(CURSIVE rapporter)testrapport(CURSIVE database-fig-2.csv"\)
-\(markdown fil="~)rapporter(CURSIVE testrapport)konklusjon.md"\)
+\(le\(markdown fil="~/rapporter/testrapport/innledning.md"\)
+\(bilde fil="~/rapporter/testrapport/graf-fig-1.png"\)
+\(markdown fil="~/rapporter/testrapport/brodtekst.md"\)
+\(tabell fil="~/rapporter/testrapport/database-fig-2.csv"\)
+\(markdown fil="~/rapporter/testrapport/konklusjon.md"\)
 )
 (NEW-PARAGRAPH)
-Dersom en setter alle kilder og kall til dem som uavhengige uttrykk, og lar alle slike uttrykk være så enkle som mulig, så blir dette en beskrivelse av hva som skal inn i rapporten. Rapporten kan så genereres til et mellomformat som ikke ser så aller verst ut. Men hva med sluttresultatet? Skal den lages som HTML, ren tekst, PDF via LaTeX(CURSIVE DocBook, eller noe annet?
+Dersom en setter alle kilder og kall til dem som uavhengige uttrykk, og lar alle slike uttrykk være så enkle som mulig, så blir dette en beskrivelse av hva som skal inn i rapporten. Rapporten kan så genereres til et mellomformat som ikke ser så aller verst ut. Men hva med sluttresultatet? Skal den lages som HTML, ren tekst, PDF via LaTeX/DocBook, eller noe annet?
 (NEW-PARAGRAPH)
 Dette kan da implementeres ved hjelp av back-ends til kompilatoren. Disse kan da lages etter behov, plugges inn og registreres, slik at de blir tilgjengelige for systemet. Dermed kan en utvide systemet til å møte nye utfordringer.
 (NEW-PARAGRAPH)
@@ -290,4 +290,216 @@ Flere mulige funksjoner ble overveid men til slutt forkastet:
 (NEW-PARAGRAPH)
 [Blant flere muligheter. Dette er en trist liste.]
 
+(HEADLINE :LEVEL "1" Resultater)
+(NEW-PARAGRAPH)
+(HEADLINE :LEVEL "2" AuRa i fire deler)
+(NEW-PARAGRAPH)
+Hovedmålet var å produsere en artefakt som kan fungere som en start på en diskusjon om hvordan vi kan ha standardiserte åpne løsninger på produksjon av rapporter, og hvordan dette kan gjøres enklere, bedre og rimeligere enn i dag. I så måte har AuRa vært et verktøy for å uttrykke et syn på en mulig løsning.
+(NEW-PARAGRAPH)
+AuRa er bygget opp i fire deler. Det er et språk for å definere inndatakildene til en rapport, en frontendkompilator som kompilerer kildene ned til et mellomformat, og så til slutt en backendkompilator som kompilerer det hele ned til et valgt utformat.
+Denne oppbygningen gir programmet en fleksibilitet som lar det takle forskjellige arbeidsoppgaver, og gjør det enkelt å utvide systemet til å takle nye utfordringer.
+(NEW-PARAGRAPH)
+(HEADLINE :LEVEL "2" Valg av støttede formater)
+(NEW-PARAGRAPH)
+Det er valgt ut tre formater som skulle støttes, som ble ansett som et minstemål for å ha et levedyktig system som kunne være reelt nyttig for folk.
+(NEW-PARAGRAPH)
+Disse tre er:
+(NEW-PARAGRAPH)
+(UNORDERED-LIST
+(LINE-ITEM Markdown, som lar en skrive formattert tekst på en enkel måte)
+(LINE-ITEM CSV, som lar en legge til tabulære data)
+(LINE-ITEM PNG, som lar en bruke bilder i rapportene sine.))
+(NEW-PARAGRAPH)
+Tanken var å produsere rapporter basert på data fra disse tre kildene. Årsaken til at disse tre ble valgt var følgende:
+(NEW-PARAGRAPH)
+(HEADLINE :LEVEL "3" Markdown)
+Markdown ble valgt fordi det blir brukt på populære sider som (URL :NAME "StackOverflow" :URL "(http://stackoverflow.com/editing-help\\" :ALT-NAME "") og (URL :NAME "GitHub" :URL "(https://help.github.com/articles/github-flavored-markdown/\\" :ALT-NAME "") og enterpriseverktøy som tilbys av Atlassian som (URL :NAME "Confluence, Stash og Jira" :URL "(https://confluence.atlassian.com/display/STASH/Markdown+syntax+guide\\" :ALT-NAME "") \(riktignok med egne utvidelser\), og er dermed mer sannsynlig at folk har sett før. I tillegg er språket enkelt å begynne å bruke. En kunne ha argumentert for å bruke filer fra MS Word eller lignende, men dette ble ansett som for vanskelig å få til med tiden som var tilgjengelig. Markdown er dessuten et tekstbasert språk, og en kan dermed åpne og redigere det i en vanlig teksteditor som Notepad, gedit eller Text Edit. En kan også bruke mer avanserte editorer som GNU Emacs, Sublime Edit eller lignende dersom en ønsker det.
+(NEW-PARAGRAPH)
+Utfordringen kom i at Markdown ikke har god dokumentasjon. Den har (URL :NAME "en guide" :URL "(http://daringfireball.net/projects/markdown/syntax\\" :ALT-NAME ""), men ingen formell syntaks tilgjengelig på hjemmesiden. Den tilbyr (URL :NAME "en referanseimplementasjon" :URL "(http://daringfireball.net/projects/markdown/\\" :ALT-NAME "") skrevet i perl, levert i en fil, med 1450 linjer kode. Selv om koden var god og idiomatisk perl, er det likevel noe meget for en person å sette seg ned å lese og forstå. Parsing og kompilering av markdown endte opp til slutt med å være den største tidstyven, og det tok flere måneder før en korrekt implementasjon var på plass. Når det er sagt, må det også sies at Markdown ikke ble et populært språk ved å være dårlig. I likhet med dette prosjektet tar det også sikte på å være så leselig som mulig(URL :NAME "Markdown-referanse til lesbarhet" :URL "(http://daringfireball.net/projects/markdown/\\" :ALT-NAME ""), som er en av grunnene til at det ble valgt som første støttede tekstspråk.
+(NEW-PARAGRAPH)
+(HEADLINE :LEVEL "3" CSV)
+CSV ble valgt av flere grunner. For det første er det et lingua franca hva angår tabeller. En kan eksportere til CSV fra regneark som Excel(URL :NAME "excel-csv" :URL "(https://support.office.com/en-za/article/Import-or-export-text-txt-or-csv-files-5250ac4c-663c-47ce-937b-339e391393ba\\" :ALT-NAME "") eller Calc(URL :NAME "calc-csv" :URL "(https://help.libreoffice.org/Calc/Importing(UNDERLINE and)Exporting(UNDERLINE CSV)Files\\" :ALT-NAME ""), samt fra SQL-verktøy som DBVisualiser(URL :NAME "dbvis-csv" :URL "(http://www.dbvis.com/doc/9.0/doc/ug/exportImport/exportImport.html\\" :ALT-NAME ""), eller direkte fra programmeringsspråk som Java, Common Lisp, C#, C++, Haskell, m.fl. At formatet er så universelt gjør det til et selvsagt valg for håndtering av tabeller: En kan alltids gjøre om til CSV fra andre tabellformater, og dermed kan en for eksempel bruke MS Excel til datamanipulering, og så eksportere til CSV, og deretter bruke resultatet nesten direkte i AuRa. I tillegg tilbyr LibreOffice(URL :NAME "lo-ask-odt-csv" :URL "(http://ask.libreoffice.org/en/question/21916/cli-convert-ods-to-csv-with-semicolon-as-delimiter/\\" :ALT-NAME "") muligheter for å skripte konverteringen så en kan gjøre det via skript før en kjører AuRa.
+(NEW-PARAGRAPH)
+(HEADLINE :LEVEL "3" Bilder)
+Det er ikke noe offisielt bildeformat som støttes, selv om det eneste som er omstendelig testet er PNG \(Portable Network Graphics\). Behovet for bilder bygger på flere årsaker:
+(NEW-PARAGRAPH)
+(UNORDERED-LIST
+(LINE-ITEM De fleste større tekststykker har bilder i seg for å bryte opp teksten.)
+(LINE-ITEM Grafer og diagrammer er en naturlig del av rapportering.)
+(LINE-ITEM LaTeX og andre formater støtter kompilering av matematiske formler ned til bildeformater))
+(NEW-PARAGRAPH)
+Dermed, for å støtte disse behovene, ikke bare for generelle bilder, men også diagrammer formler og grafer, ble det implementert støtte for bilder. Denne støtten er den programmatiske enkleste å støtte, og den første som ble gjennomtestet og ferdig.
+(NEW-PARAGRAPH)
+(HEADLINE :LEVEL "2" Prosjektfilen \(.AuRa\))
+(NEW-PARAGRAPH)
+Prosjektfilen i seg selv er ganske enkel. Tomme linjer blir ignorert, og kommentarer begynner med semikolon \(;\) og går til slutten av linjen.
+Hver spesifikasjon begynner med en åpen parantes, med type av inndata som en streng, og deretter blir opsjonenene gitt. Opsjoner begynner alltid med et kolon og blir umiddelbart etterfulgt av en strenginstans. For eksempel:
+(NEW-PARAGRAPH)
+(CODE 
+\(markdown :fil "~/git/Masteroppgave/oppgaven/bakgrunn.markdown"\))
+(NEW-PARAGRAPH)
+\(Dette eksempelet er tatt fra filen som ble brukt til å generere denne oppgaven.\)
+(NEW-PARAGRAPH)
+Mer formelt vil gyldige utsagn alltid ta formen \(Utvidet Backus-Naur Form\):
+(CODE 
+ws = \\[:whitespace:\\]
+gyldig navn = :char:-ws;
+datakilde = gyldig navn ;
+opsjonsnavn = gyldig navn ;
+linje = \\[ws\\], \\[datakilde\\], \\[ws\\], \\[kommentar\\]
+kommentar = ";", [:character:] ;
+datakilde = "\(", navn, {opsjonsgruppe}, \\[ws\\]"\)" ;
+escape hermetegn = "\\\\"" ;
+strengliteral = "\\"" {:char:-"\\"" | escape hermetegn} "\\"" ;
+opsjonsgruppe = ws ":", gyldig navn, ws, strengliteral ;)
+(NEW-PARAGRAPH)
+Per dags dato kan en anse grammatikken som betydelig forenklet med bare følgende lovlige utsagn:
+(CODE 
+escape hermetegn = "\\\\"" ;
+strengliteral    = "\\"" {:char:-"\\"" | escape hermetegn} "\\"" ;
+tar        = ";", [:character:] ;
+markdown         = "\(markdown :fil ", strengliteral, [:whitespace:], "\)" ;
+bilde            = "\(bilde :fil ", strengliteral, [:whitespace:], "\)" ;
+tabell           = \(tabell :fil ", strengliteral, [:whitespace:], [":første-linje-er-tabellnavn ", \("ja"|"nei"\)], "\)" ;
+           = [:whitespace:], [tabell | bilde | markdown], [:whitespace:], [kommentar] ;)
+Men poenget forblir det samme: Grammatikken er svært enkel å forstå for tredjepersoner. Den er med vilje designet for å være lettere å lese enn for å være rask å skrive. 
+Grunnen til at dette valget ble tatt tidlig i prosjektet er hentet fra The Mythical Man Month(CITE MythicalManMonth) der det blir hevdet at over 90% av alle kostnadene ved et programvareprosjekt kommer når en skal vedlikeholde det. Dermed er det mer økonomisk å gjøre det lett for programmerere å vedlikeholde et system, enn det er å gjøre det raskt å skrive. Som en konsekvens av dette blir alle kilder spesifisert spesifikt for seg en per linje, så det er enkelt å se hvor alle kildene kommer fra. Som en direkte konsekvens av dette er for eksempel bilder en egen datakilde, og spesifiseres for seg selv, selv om den kan spesifiseres internt i til dømes Markdown. Det har den uheldige konsekvensen at dersom en ønsker å putte et bilde i en tekstbolk må teksten splittes i to filer. En før og en etter teksten. Det finnes dog måter å komme rundt dette irritasjonsmomentet:
+(NEW-PARAGRAPH)
+(UNORDERED-LIST
+(LINE-ITEM En kan utvide inndatafilen til å kunne ta i mot tekst som sitater, uten å referere til eksterne filer der teksten er enkel og relativt kort. Dette vil minimere bryet med å peke til filer. En siterer tekst, avslutter tekstbolken, setter inn et bilde, og fortsetter på en ny tekstbolk.)
+(LINE-ITEM En kan også skrive verktøy som genererer AuRa filen automatisk mens du skriver for deg. Et slikt verktøy vil kunne splitte opp filer uten at du som produsent av rapporten må bry deg om de eksakte detaljene. En kan tenke seg standardiserte filnavn og undermapper som kan genereres maskinelt for å holde orden på teksten.))
+(NEW-PARAGRAPH)
+Slike irritasjonsmomenter er uheldige, men de er et valg som er tatt for å gjøre det enklere å senere gå igjennom en rapport for å plukke ut filer og oppdatere dem manuelt. Dersom for eksempel bilder ble spesifisert i et dokument blir det med ett mer komplisert å søke gjennom dem for å finne bildene og hvor de spesifiseres. Dette gjelder selvsagt også dersom en spesifiserer tabeller i et tekstformat for senere å finne dem.
+(NEW-PARAGRAPH)
+Ved å holde slik informasjon i en sentral fil blir det enklere å søke igjennom dem, og holde orden på dem.
+(NEW-PARAGRAPH)
+(HEADLINE :LEVEL "2" Kompilering av AuRa filen, eller evt. Frontendkompilatoren)
+(NEW-PARAGRAPH)
+Frontendkompilatoren vil kompilere kildene beskrevet i .aura-filen ned til et mellomformat som er kalt "mfo"(FOOTNOTE kort for (EMPHASISED m)ellom(EMPHASISED fo)rmat).
+(NEW-PARAGRAPH)
+Dette mellomformatet er inspirert av Lisp og LaTeX-kommandoer. I all hovedsak blir tekst behandlet slik:
+(NEW-PARAGRAPH)
+(UNORDERED-LIST
+(LINE-ITEM Backendkompilatoren behandler enten vanlig tekst eller en kommando.)
+(LINE-ITEM Kommandoer blir behandlet for seg uten å vite om konteksten til resten av dokumentet.)
+(LINE-ITEM Kommandoer blir begynt med en åpen parentes, og avsluttet med en lukket parentes.)
+(LINE-ITEM Frontendparseren vil "escape" vanlige parenteser som ikke signaliserer en kommando med et '\\' tegn.)
+(LINE-ITEM Kommandoene kan ta i mot opsjonsgrupper som er grammatisk like AuRa, men etterfølges av tegn.))
+(NEW-PARAGRAPH)
+Merk at indentering ikke er meningsbærende i dette språket, og selv om det er ment til å være relativt lettlest for mennesker er det først og fremst et språk som er enkelt å parse ut og behandle maskinelt. Dette gjør det lettere å støtte nye utdataformater ved å lage nye plug-ins for backendkompilatoren. Siden det er bare et språk en må kunne parse, uavhengig av hvilke inndataformater som støttes, blir arbeidsbyrden mindre. En introduserer en ekstra byrde når en vil utvide mellomformatet, men denne byrden ville vært like stor uansett om en hadde et slikt format eller ikke.
+(NEW-PARAGRAPH)
+Slik frontendkompilatoren er skrevet i dag vil den ta for seg AuRa-filen sekvensielt. Det vil si at den tar en og en datakilde, kompilerer den til mfo, og skriver til disk, før den går videre til neste. Dette er relativt raskt på små rapporter som denne, men dersom det viser seg å være ineffektivt, er dette et sted en kan tenke seg paralellisering for å øke hastigheten. En kan også optimalisere hastigheten ved å ikke skrive til disk, men lagre mellomformatet i minnet, da diskaksess er tregere enn minneaksess. Eksekusjonshastighet har dog ikke vært et fokus i dette prosjektet, ren kode, testdekning og kompletthet har vært større og viktigere fokus enn hastighet.
+(NEW-PARAGRAPH)
+Slik det står i dag er mellomformatet skrevet til disk for å kunne lettere feilrette evt. feil som måtte dukke opp, og for å gjøre det så enkelt som mulig for enhetstesting. Ved en senere iterasjon kan en gå over til andre måter å ha enhetstesting på, men slik det er i dag fungerer korrekt.
+(NEW-PARAGRAPH)
+(HEADLINE :LEVEL "2" Mellomformatet)
+(NEW-PARAGRAPH)
+For eksempel kan en ta denne teksten \(basert på kompileringen av oppgaven, forkortet\):
+(CODE 
+\(NEW-PARAGRAPH\)
+\(UNORDERED-LIST
+\(LINE-ITEM Språket er med vilje holdt enkelt. \(...\) \)
+\(LINE-ITEM Språket velger alltid \(...\) \)
+\(LINE-ITEM Språket er valgt til å \(...\) \)
+\(LINE-ITEM Språket vil beskrive hver \(...\) \)
+\(LINE-ITEM Rammeverket vil også legge opp til å \(...\) \)
+\(LINE-ITEM Rammeverket legger opp til \(...\) \)\)
+\(NEW-PARAGRAPH\)
+Et annen type problem er utdataformater.
+))
+(NEW-PARAGRAPH)
+Mer formelt kan en beskrive formatet slik \(EBNF\):
+(NEW-PARAGRAPH)
+(CODE 
+tekst = {\(:char: - "\(" - "\)"\) | \("\\\\", :char:\)} ;
+strengliteral = "\\"", {\(:char: - "\\""\) | \("\\\\", :char:\)}, "\\"" ;
+(NEW-PARAGRAPH)
+kommando = nullær kommando | tekst kommando | opsjonskommando | topprekursiv kommando ;
+nullær kommando = ny paragraf | horisontal linje ;
+ny paragraf = "\\n\(NEW-PARAGRAPH\)\\n" ;
+horisontal linje = "\\n\(HORISONTAL-LINE\)\\n" ;
+(NEW-PARAGRAPH)
+tekstkommando = understreket | emph | kursiv | sitat | sitering ;
+understreket = "\(UNDERLINE ", tekst, "\)" ;
+kursiv = "\(CURSIVE ", tekst "\)" ;
+emph = "\(EMPHASISED ", tekst "\)" ;
+sitat = "\(QUOTE ", tekst "\)" ;
+sitering = "\(CITE ", tekst, "\)" ;
+(NEW-PARAGRAPH)
+opsjonskommando = bilde | url kommando | overskrift ;
+bilde = "\(IMAGE :FILE ", streng, "\)" ;
+overskrift = "\(HEADLINE ", nivå, tekst, "\)" ;
+nivå = ":LEVEL ", strengliteral heltall ;
+strengliteral heltall = "\\"" :integer: "\\"" ;
+(NEW-PARAGRAPH)
+url kommando = "\(URL", navn, altnavn, url, "\)" | 
+    	       "\(URL", navn, url, altnavn, "\)" |
+	       "\(URL", altnavn, navn, url, "\)" | 
+	       "\(URL", altnavn, url, navn, "\)" |
+	       "\(URL", url, altnavn, navn, "\)" |
+	       "\(URL", url, navn, altnavn, "\)" ;
+navn = " :NAME ", strengliteral ;
+altnavn = " :ALT-NAME ", strengliteral ;
+url = " :URL ", strengliteral ;
+(NEW-PARAGRAPH)
+topprekursiv kommando = liste | tabell ; 
+liste = uliste | oliste
+uliste = "\(UNORDERED-LIST", {listeelement}, "\)" ;
+oliste = "\(ORDERED-LIST", {llisteelement}, "\)" ;
+listeelement = "\\n\(LINE-ITEM ", tekst, "\)" ;
+(NEW-PARAGRAPH)
+tabell = tabell uten header | tabell med header ;
+tabell uten header = "\(TABLE", size, "\\n", {datarad}, "\)" ;
+tabell med header = "\(TABLE", størrelse, ":HEADERS \\"yes\\"\\n", overskriftsrad, {datarad}, "\)" |
+       	   	    "\(TABLE", ":HEADERS \\"yes\\"", størrelse, "\\n", overskriftsrad, {datarad}, "\)" ;
+rad = datarad | overskriftsrad ;
+datarad = "\(ROW", {data}, "\)\\n" ;
+data = "\(DATA ", tekst, "\)" ;
+overskriftsrad = "\(ROW ", {overskrift}, "\)" ;
+overskrift = " \(HEADER ", tekst, "\)" ;)
+(HEADLINE :LEVEL "3" Utfordringer)
+(NEW-PARAGRAPH)
 
+(HEADLINE :LEVEL "1" Diskusjon)
+(NEW-PARAGRAPH)
+(HEADLINE :LEVEL "2" Hvilket forslag har vi endt opp med?)
+(NEW-PARAGRAPH)
+Prosjektet som det eksisterer nå er ikke en fullverdig løsning som det ble ønsket i innledningen. Til det mangler det for mange deler og biter.
+Men det er nok til å kunne foreslå at dette designet er et godt utgangspunkt for et felles standardisert rapportgenereringsverktøy. Hovedgrunnene til dette er:
+(NEW-PARAGRAPH)
+(UNORDERED-LIST
+(LINE-ITEM Det tar ikke over arbeidet med å samle sammen eller bearbeide informasjon, men spiller på lag med verktøy som allerede finnes. Det er dermed ingen grunn til å ikke støtte dette verktøyet.)
+(LINE-ITEM Den enkle syntaksen gjør det lett for tredjepartsverktøy å støtte verktøyet. Det er enkelt å generere filene, og det er enkelt å parse dem.)
+(LINE-ITEM Støtte for utformater er enkel å lage, og vil i praksis ikke kreve mye arbeid.)
+(LINE-ITEM Inndata kan også utvides, så lenge inndata kan parses ned til dataformater som mellomformatet kjenner kan en legge til nye datakilder uten å måtte endre backend-kompilatorene. Legger man ved en måte å hente ut data fra Microsoft® Excel™, må en definere det en gang, og en får dem gratis til alle utdatakildene.)
+(LINE-ITEM Systemet støtter flere arbeidsmetoder, både store alt-i-ett pakker men også skripting og den klassiske sammenkoblingen av små verktøy som er kjent fra UNIX-verdenen.))
+(NEW-PARAGRAPH)
+Til sammen utgjør dette en måte å ikke bare integrere mot tunge industrielle programvarepakker, men også en måte å integrere mot mindre sammenhackede pakker, og gi dem en bedre kvalitet enn det som ellers ville vært mulig. Muligheten til å bruke et slikt system til å generere rapporter med data som er generert i eldre legacy-systemer lar en øke kvaliteten på rapportering som allerede blir gjort. Det gjør det også mulig å automatisere rapportering der dette tidligere ble gjort for hånd, til dømes ved klipping og liming. Denne automatiseringen kan spare mennesker for mye tid da de ikke lenger trenger å lage ting for hånd, men må nå enkelt sett opp en mal istedenfor. I tillegg til dette er det også en mulighet for tidsbesparelse for utviklere, da de ikke lenger trenger å generere rapporter programmatisk fra bar bakke, men kan bruke verktøy som AuRa til å la dem generere rapporter programmatisk som ser bra ut, og som passer til deres formål, uten å måtte gjøre alt selv. 
+(NEW-PARAGRAPH)
+(HEADLINE :LEVEL "2" Ting som forslaget ikke dekker)
+(NEW-PARAGRAPH)
+Forslaget dekker en programvarepakke og hva den kan brukes til. Det forslaget ikke dekker i noen stor grad er hvordan det burde brukes.
+Det er noen føringer på bruk, i form av markdown som ikke støttes, som for eksempel bildetaggen.
+Dette er ikke noe som er gjort på måfå eller utelatt på grunn av tid, men en unnlatelse som er gjort med vitende og vilje. Selv om markdown(CITE Markdown) ikke er standardisert med en formell grammatikk er det dokumentert hvordan en kan lenke bilder. Dette er selvsagt nyttig når en vil bruke markdown til å generere html-kode med. Grunnen til at det ikke er støttet i AuRa er fordi bilder er informasjonskilder i seg selv, og det ønskes at alle kilder listes i AuRa-filen som kompilatoren jobber mot, for å gi best mulig oversikt til brukeren. Denne oversiktligheten er et bevisst valg mellom å gjøre et språk raskt å skrive mot å være raskt å feilrette. For eksempel er det raskere å legge en peker til en bildefil inn i et markdowndokument enn det er å legge det til som en egen kildelinje i AuRa dokumentet. På den annen side, i et tenkt system i framtiden der en kunne hatt støtte for ODT-dokumenter, markdown og HTML samtidig kan det fort bli vanskelig å finne igjen et bilde i kildekoden. Hvis den er i HTML-filen må du søke etter <img>-tagger, mens dersom det er i markdown må du søke etter \\!\\[\\*\\?\\+\\]\\\(\\*\\?\\+\\\) for å finne bildet. Mens ODT er et binærformat du måtte åpnet manuelt. Flere formater også mulig med sine egne syntakser. (FOOTNOTE (URL :NAME "Se doocbooks for et eksempel" :URL "(http://www.docbook.org/tdg/en/html/imagedata.html" :ALT-NAME "docbooks\\"))
+Derfor ble valget tatt med å begrense syntaksen til å støtte tekstuelle elementer, og ikke bilder og/eller tabeller.
+(NEW-PARAGRAPH)
+Men det er andre ting som forslaget ikke dekker: For eksempel, hvordan skal en organisere kall til eksterne programmer? Dersom de produserer kilder, burde en først kalle programmet, så bruke kilden, og så slette filen? Eller burde en først produsere alle kildene, så bruke dem, og så slette dem etterpå? Eller burde en ikke slette i det hele tatt. Dette er spørsmål som ikke er besvart. Det er gode argumenter fra flere sider, og det er heller ikke gitt at folk ønsker å bruke AuRaskript til å kalle eksterne programmer til å begynne med. En kan tenke seg noen som ønsker å bruke GNU eller BSDs Make programmer. En kan tenke seg at noen bruke shellskript, eller andre verktøy igjen. Dersom AuRa skal støtte flere bruksområder og dermed bruksmønstre, og disse forder ulik bruk av AuRa i seg selv \(En kan tenke seg et automatiseringsverktøy som integrerer AuRa ikke ønsker å kalle programmer det kan kalle selv, med bedre finesse og flere muligheter. En kan også tenke seg at noen som bruker Unix ønsker å bruke Make-filer til å generere rapporter med, eller at andre bruker shellskript.\) blir det derfor ikke betimelig å legge føringer på bruk. Et annet moment er at verktøy som AuRa er relativt nye, og det dermed ikke er tradisjoner å hente fra, slik som det ville vært dersom en lagde tekstverktøy for UNIX-maskiner eller grafiske programmer for OSX.
+(NEW-PARAGRAPH)
+Derfor er dette et forslag på en type system som er nyttig i flere sammenhenger, med en solid kjerne som er åpen for utvidelser både foran og bak, så den kan håndtere både nye datakilder og nye utformater, men samtidig hjelpe folk på vei med å gi bedre rapporteringsmuligheter raskere og enklere.
+(NEW-PARAGRAPH)
+(HEADLINE :LEVEL "2" Igjen å gjøre)
+(NEW-PARAGRAPH)
+(HEADLINE :LEVEL "3" Feilrette)
+Programmet har noen småfeil igjen per dags dato i programmet. Kildekode i mellomformatet får escapede spesialtegn, som ikke blir håndtert korrekt i pdflatex-backendkompilatoren.
+(NEW-PARAGRAPH)
+(HEADLINE :LEVEL "3" Refaktorering)
+(NEW-PARAGRAPH)
+Systemet per i dag bruker ikke navnerom, men bruker Emacs-Lisp idiomet med å prefikse funksjonsnavn med et pakkenavn(FOOTNOTE Til dømes fec-compile for "frontend"-compile)
+(NEW-PARAGRAPH)
+(HEADLINE :LEVEL "3" Egenskaper, utvidelser, med mer)
+(NEW-PARAGRAPH)
+Systemet inneholder per i dag en backend kompilator og støtte for 3 dataformater. I tillegg kan det være ønskelig å utvide mellomformatet til å håndtere skriftfonter, skriftstørrelse, med mer. Dette vil la en designe dokumenter med mer forseggjort tegnsetting. Videre er det liten mulighet til å sette standardfonter eller lignende. Dette er ting som med hell kan legges til i senere utvidelser.
+For å utdype inndatakilder, kunne det vært ønskelig med løsninger som lot en ta i mot data i flere formater, som RTF, ODS, XLSX og lignende.
+Hva angår backend er det lite med en mulig kompilator, det hadde vært ønskelig med flere formater som docbook, HTML eller evt. ODT. HTML hadde vært særs interessant med tanke på integrasjon mot Apache via mod-lisp. Da kunne Apache tatt seg av sikkerhetsaspectet, og servert rapporter direkte via html i en nettleser.
+(NEW-PARAGRAPH)
+Det er altså flere direkte utvidelser en kunne tenke seg å gjøre på prosjektet, samt feilretting og noe refaktorering for å heve kvaliteten på koden enda høyere, men det er ingenting som endrer på det grunnleggende designet på prosjektet.
