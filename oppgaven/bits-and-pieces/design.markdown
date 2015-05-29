@@ -180,10 +180,4 @@ Det er selvsagt noen negative sider ved et slikt design som er holdt så enkelt 
 
 Dette designet ble ikke ferdig implementert, selv om dette var tanken bak. Det ville vært relativt enkelt å lage et verktøy som kunne satt opp den ovennevnte filen. Tilgjengelige utformater kunne blitt oppdaget ved å sende spørringer til systemet. Programmer som skal kjøres kunne blitt satt inn relativt enkelt gitt at brukerene visste hvilke filer en var interessert i. Det eneste som hadde vært igjen ville være å la brukere skrive tekst som skulle brukes, velge hvor filer skulle settes inn, og la dem redigere til de var fornøyd.
 
-Flere mulige funksjoner ble overveid men til slutt forkastet:
-
- - Automatisk generering, til dømes hver dag, eller annenhver time ble forkastet til fordel for å bruke innebygde systemer for akkurat dette.
- - Flere datatyper som JPG, RTF eller lignende ble forkastet for å kunne fokusere på muligheter, og spare tid. Støtte kan evt. utvides senere.
- - Flere utdatatyper var en mulighet, men ville tatt for lang tid å fullføre.
-
-[Blant flere muligheter. Dette er en trist liste.]
+Flere mulige funksjoner ble overveid men til slutt forkastet, som blir diskutert senere.

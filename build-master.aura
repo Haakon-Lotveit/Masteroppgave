@@ -1,6 +1,8 @@
 ; Pretty barebones so far, text only, final destination
 
 (markdown :fil "~/git/Masteroppgave/oppgaven/bakgrunn.markdown")
-(markdown :fil "~/git/Masteroppgave/oppgaven/materialer-og-metoder.markdown")
-(markdown :fil "~/git/Masteroppgave/oppgaven/resultat.markdown")
+(markdown :fil "~/git/Masteroppgave/oppgaven/materialer-og-metoder-01.md")
+(markdown :fil "~/git/Masteroppgave/oppgaven/resultat.01.md")
+(bilde :fil "~/git/Masteroppgave/oppgaven/resultat-01.png")
+(markdown :fil "~/git/Masteroppgave/oppgaven/resultat.02.md")
 (markdown :fil "~/git/Masteroppgave/oppgaven/diskusjon.markdown")

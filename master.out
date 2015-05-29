@@ -1,0 +1,45 @@
+\BOOKMARK [1][-]{section.1}{Bakgrunn}{}% 1
+\BOOKMARK [2][-]{subsection.1.1}{Hvorfor lage AuRa?}{section.1}% 2
+\BOOKMARK [2][-]{subsection.1.2}{Hva finnes fra f\370r?}{section.1}% 3
+\BOOKMARK [3][-]{subsubsection.1.2.1}{Automate}{subsection.1.2}% 4
+\BOOKMARK [3][-]{subsubsection.1.2.2}{Pandoc}{subsection.1.2}% 5
+\BOOKMARK [2][-]{subsection.1.3}{Historisk perspektiv}{section.1}% 6
+\BOOKMARK [2][-]{subsection.1.4}{Inspirasjoner}{section.1}% 7
+\BOOKMARK [2][-]{subsection.1.5}{Hva er nytt?}{section.1}% 8
+\BOOKMARK [2][-]{subsection.1.6}{Hva er ikke nytt?}{section.1}% 9
+\BOOKMARK [2][-]{subsection.1.7}{Hva er m\345let med oppgaven?}{section.1}% 10
+\BOOKMARK [2][-]{subsection.1.8}{Materialer}{section.1}% 11
+\BOOKMARK [3][-]{subsubsection.1.8.1}{Steel Banks Common Lisp}{subsection.1.8}% 12
+\BOOKMARK [3][-]{subsubsection.1.8.2}{Quicklisp}{subsection.1.8}% 13
+\BOOKMARK [3][-]{subsubsection.1.8.3}{CL-PPCRE - Portable Perl-compatible revular expressions for Common Lisp}{subsection.1.8}% 14
+\BOOKMARK [3][-]{subsubsection.1.8.4}{Split-Sequence}{subsection.1.8}% 15
+\BOOKMARK [3][-]{subsubsection.1.8.5}{GNU Emacs}{subsection.1.8}% 16
+\BOOKMARK [3][-]{subsubsection.1.8.6}{SLIME}{subsection.1.8}% 17
+\BOOKMARK [3][-]{subsubsection.1.8.7}{Ubuntu 14.10}{subsection.1.8}% 18
+\BOOKMARK [3][-]{subsubsection.1.8.8}{Git DVCS}{subsection.1.8}% 19
+\BOOKMARK [3][-]{subsubsection.1.8.9}{Data brukt til testing av systemet}{subsection.1.8}% 20
+\BOOKMARK [2][-]{subsection.1.9}{Metoder}{section.1}% 21
+\BOOKMARK [3][-]{subsubsection.1.9.1}{Rational Unified Process}{subsection.1.9}% 22
+\BOOKMARK [3][-]{subsubsection.1.9.2}{Objektorientert programmering}{subsection.1.9}% 23
+\BOOKMARK [3][-]{subsubsection.1.9.3}{Design av systemet}{subsection.1.9}% 24
+\BOOKMARK [1][-]{section.2}{Resultater}{}% 25
+\BOOKMARK [2][-]{subsection.2.1}{AuRa i fire deler}{section.2}% 26
+\BOOKMARK [2][-]{subsection.2.2}{Hoveddesign}{section.2}% 27
+\BOOKMARK [2][-]{subsection.2.3}{Valg av st\370ttede formater}{section.2}% 28
+\BOOKMARK [3][-]{subsubsection.2.3.1}{Markdown}{subsection.2.3}% 29
+\BOOKMARK [3][-]{subsubsection.2.3.2}{CSV}{subsection.2.3}% 30
+\BOOKMARK [3][-]{subsubsection.2.3.3}{Bilder}{subsection.2.3}% 31
+\BOOKMARK [2][-]{subsection.2.4}{Prosjektfilen \(.AuRa\)}{section.2}% 32
+\BOOKMARK [2][-]{subsection.2.5}{Kompilering av AuRa filen, eller evt. Frontendkompilatoren}{section.2}% 33
+\BOOKMARK [2][-]{subsection.2.6}{Mellomformatet}{section.2}% 34
+\BOOKMARK [2][-]{subsection.2.7}{St\370tte for utvidelser av AuRa-systemet med nye utdataformater}{section.2}% 35
+\BOOKMARK [2][-]{subsection.2.8}{Ting som ble utelatt}{section.2}% 36
+\BOOKMARK [3][-]{subsubsection.2.8.1}{MVP - Minimal Valuable Product og valg av features som kunne v\346re med}{subsection.2.8}% 37
+\BOOKMARK [3][-]{subsubsection.2.8.2}{Kj\370ring av eksterne kommandoer}{subsection.2.8}% 38
+\BOOKMARK [3][-]{subsubsection.2.8.3}{Andre kilder til tekst enn filer}{subsection.2.8}% 39
+\BOOKMARK [3][-]{subsubsection.2.8.4}{Begrensede spr\345kkonstruksjoner}{subsection.2.8}% 40
+\BOOKMARK [3][-]{subsubsection.2.8.5}{Definisjoner av egne makroer}{subsection.2.8}% 41
+\BOOKMARK [3][-]{subsubsection.2.8.6}{Teksttyper annet enn Markdown}{subsection.2.8}% 42
+\BOOKMARK [2][-]{subsection.2.9}{Utfordringer}{section.2}% 43
+\BOOKMARK [3][-]{subsubsection.2.9.1}{Markdown}{subsection.2.9}% 44
+\BOOKMARK [3][-]{subsubsection.2.9.2}{Definisjon av AuRa som spr\345k}{subsection.2.9}% 45

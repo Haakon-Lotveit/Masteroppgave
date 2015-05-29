@@ -1,0 +1,25 @@
+\begin{thebibliography}{1}
+
+\bibitem{SGML-ROOTS}
+Charles~F. Goldfarb.
+\newblock The roots of sgml -- a personal recollection.
+\newblock http://www.sgmlsource.com/history/roots.htm, 1996.
+\newblock [Online, Accessed 2015-05-28].
+
+\bibitem{TEX-HISTORY}
+TeX~Users Group.
+\newblock History of tex.
+\newblock http://tug.org/whatis.html, 2015.
+\newblock [Online, Accessed 2015-05-28].
+
+\bibitem{Huskey:1963:SDB:366663.366664}
+H.~D. Huskey, Ralph Love, and Niklaus Wirth.
+\newblock A syntactic description of bc neliac.
+\newblock {\em Commun. ACM}, 6(7):367--375, July 1963.
+
+\bibitem{Wilkes:1968:COM:321439.321440}
+Maurice~V. Wilkes.
+\newblock Computers then and now.
+\newblock {\em J. ACM}, 15(1):1--7, January 1968.
+
+\end{thebibliography}

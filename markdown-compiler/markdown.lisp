@@ -401,23 +401,6 @@ And that's about all for now. I should add in some extras, such as:
   "(?<!\\\\)\\[.+?\\]\\\\\\(.+?\\\\\\)")
 ;;en '[' så få ting som mulig før vi får en ']', før en '(' noen ting men så få som mulig, så en ')'
 
-(defun parse-link-literal-url (stream string)
-  (let ((url-name (subseq string 
-			  2 (scan "\\s+\"" string)))) ;; The two skips the \( sequence, which is hacky af.
-    (format stream " :URL \"~A\"" url-name)
-    (subseq string (1+ (length url-name)))))
-
-(defun parse-link-literal-display-name (stream string)
-  (let ((name (ppcre:scan-to-strings *regex-brackets-pair* string)))
-    (format stream " :NAME \"~A\"" 
-	    (subseq name 1 (1- (length name))))
-    (subseq string (length name))))
-
-(defun parse-link-literal-alternate-name (stream string)
-  (let ((alt-name (ppcre:scan-to-strings *regex-string-literal* string)))
-    (format stream " :ALT-NAME ~A" alt-name))
-  "")
-
 (defun interpret-link-literal (link-literal)
   "This function does not check if everything is okay or not. It utterly assumes that you know what you're doing and only pass in correct things.
 interpret-link-literal will translate a link literal of the type: [link-name](url name) into (URL :ALT-NAME name :NAME link-name :URL url)
@@ -427,7 +410,7 @@ The order of operators is *not* guaranteed, only the existence of all three. The
     (with-output-to-string (stream output-string)
       (format stream "(URL")
       (let* ((navn-bit (remove-first-char (remove-last-char (scan-to-strings "\\[.*?\\]" literal))))
-	     (url-og-alt (remove-last-char (remove-n-chars-from-string (+ (length navn-bit) 3) literal)))
+	     (url-og-alt (remove-last-char (remove-n-chars-from-string (+ (length navn-bit) 4) literal)))
 	     (url-og-rest (split-sequence:SPLIT-SEQUENCE #\Space url-og-alt)))
 	(format stream " :NAME ~A" (prin1-to-string navn-bit))
 	(format stream " :URL ~A" (prin1-to-string (car url-og-rest)))
@@ -448,7 +431,8 @@ The order of operators is *not* guaranteed, only the existence of all three. The
 	   (format stream "~a" (interpret-link-literal (subseq string (first match-vals) (second match-vals))))
 	 ;; setf the line to the rest of the string
 	   (setf string (subseq string (second match-vals)))
-	   (setf match-vals (multiple-value-list (scan *regex-match-url* string))))
+;	   (setf match-vals (multiple-value-list (scan *regex-match-url* string)))
+	   )
       ;;finally write the rest of the string
       (format stream "~a" string))
     output-string))

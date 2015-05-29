@@ -1,0 +1,669 @@
+% Standard preamble for AuRa's pdflatex backend compiler
+% Version 0.1, for questions please e-mail haakon_lotveit@live.no
+\documentclass[11pt]{article}
+
+\usepackage{cite}
+\usepackage{hyperref}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{graphicx} % deals with imagery
+\usepackage{listings} % listings is used for source-code
+\usepackage[normalem]{ulem} % ulem is used for better underlining of text.
+
+% Command used to draw horizontal lines
+\newcommand{\horizontalline}{
+\begin{center}
+\line(1,0){250}
+\end{center}}
+
+\lstset{
+  literate=%
+  {æ}{{\ae}}1
+  {å}{{\aa}}1
+  {ø}{{\o}}1
+  {Æ}{{\AE}}1
+  {Å}{{\AA}}1
+  {Ø}{{\O}}1
+}
+
+\begin{document}
+% End of preamble
+
+
+\title{Masteroppgave}
+\author{Haakon Løtveit}
+\date{31. mai 2015}
+\maketitle
+
+\section{Litteraturgjennomgang}
+I medisinen trenger man stadig oppdaterte medisinske data, og det inkluderer rapporter om trender og statistisk analyse av disse.
+Genereringen av disse rapportene tar per i dag lang tid og er et møysommelig arbeid, som gjør at rapporter blir utgitt sjeldnere grunnet kostnadene.
+For eksempel gir kreftregisteret ut en rapport hvert år med data om kreftsykdom i norge, med interessante data. Men disse dataene er per år, og oppdateres kun en gang i året.
+En vil også vegre seg for å gi ut data av personvernshensyn, og dermed sitter en med et snevert datagrunnlag.
+
+Hva om en kunne redusere kostnadene med å produsere disse rapportene, slik at en kunne lage flere? Hva om en kunne "trykke på knappen" og få en oppdatert rapport med nye data i seg?
+En kan opplagt nok ikke slavebinde tusenvis av statistikere og skribenter, men hva om istedenfor å lage rapporter, så lagde en rapportfabrikker som lagde en rapport basert på en mal?
+En slik mal må ha støtte for:
+\begin{itemize}
+\item Lesing av data fra heterogene kilder, med en uniform forståelse av alle dataene.
+  Dette kan løses td. med en ontologi for medisinske data.
+  Selv om alt hadde vært homogent per i dag, er det ikke gitt at det vil forbli slik i framtiden.
+  Som et eksempel på dette har en "Big Data" og NoSQL-databaser, som har stormet fram, samt den semantiske vevens intogsmarsj. Samtidig har en SQL-databaser, Excel-dokumenter, samt tekstuelle åpne formater som CSV, XML og så videre.
+   
+\item Samarbeid med eksterne verktøy som statistikere bruker, slik at de kan benytte systemet uten å måtte lære alt på nytt.
+  Dvs. R, SPSS, Matlab, Julia, SciPy etc. må alle støttes. Vi trenger et minste felles multiplum som alle kan lære. (CSV\cite{csv} er en god kandidat for laveste multiplum.)
+  
+\item Støtte for rapportgenerering i relevante formater. PDF er et minstekrav, men andre formater kan tenkes. Derfor må rapportformatet enten kunne stilles inn, eller være en type som kan kompileres om til andre formater.
+  En mulighet her er DocBook XML eller et annet internt XML-format. Da har en en dokumentstruktur som kan manipuleres og omformes til andre former.
+
+\item Det hadde også vært ønskelig om rapporten om ikke kunne generere korrekt godt norsk, i alle fall kom i gang med et forslag som kunne redigeres. For å få dette til må en ha en viss semantisk forståelse av teksten, som en har td. i den semantiske veven, med RDF\cite{rdf11primer} + ontologier\cite{damloil}\cite{owlref}. Det finnes systemer fra før av som kan generere tekst og denne typen systemer hadde kunne passet godt inn her.
+
+\item Innstillinger for hvilke grafer, mm. som skulle lages, og hvordan.
+  For eksempel, hvilket datagrunnlag en vil bruke (fra 2008-2012? Hva med 2004-2008?), rekkefølge på ting i rapporten, med mer.
+  
+\item Innstillinger for presentasjonen, på en lignende måte som CSS lar en pynte på nettsider, eller LaTeX-stylesheets lar deg gjøre med .tex dokumenter.
+  Da skiller en informasjonen fra presentasjonen, som gjør det billigere i termer av tid og krefter å eksperimentere med presentasjon mm. av disse rapportene.
+\end{itemize} 
+På denne måten kunne vi laget et system som ikke bare generte rapporter, men genererte nyttige rapporter, når en ville det over det en ville.
+Istedenfor å stipulere over data i et helt år før en gir ut en ny rapport kunne en generert rapporten på nytt med oppdaterte verdier. Hvis nye data ble gjort tilgjengelige kan en oppdatere rapporten med et tastetrykk.
+
+Et slikt system vil kunne gjøre rapporter og statistikker lettere å generere, og dermed gjøre prosessen rundt dette raskere og billigere.
+I tillegg kan en bruke datagrunnlaget som legges til grunn for slike rapporter til å generere forskjellige beslutnigsstøttesystemer. Dersom en vil gå den veien, trenger en muligens mindre generering av tekst, men en kan også la slike systemer generere data til rapportene som sådann. En kan tenke seg flere typer rapportgenerering, alt etter hva som er hensiktsmessig for et gitt tilfelle.
+
+\section{Innsamling av data}
+Antagelsen er at data som skal brukes er lagret i heterogene systemer.
+Det vil si at dataene ligger i forskjellige steder, lagret i forskjellige formater, fra flat-struktur (CSV, XLS, ODT osv.) til relasjonelle data, dokumentdatabaser, RDF-tripler, med mer.
+For at systemer enkelt skal kunne bruke mange forskjellige datakilder må en enten la hver enkelt reasoner selv snakke til alle kildene, konvertere data til egnede formater, osv. eller legge et system i mellom reasonerene og datakildene som tar seg av snakkingen for dem. Et slikt system må selv snakke med de forskjellige kildene og holde et mellomformat klart, og så deretter tilby et spørringspunkt som for eksempel SPARQL\footnote{SPARQL Protocol and RDF Query Language} som kan returnere data i egnede formater\footnote{Blant annet XML, JSON og CSV. For detaljer, se: \url{http://jena.apache.org/documentation/}}
+
+\subsection{Kanonisering av data som RDF-tripler (Løfting)}
+Etter at en har skaffet til veie data, må disse gjøres om til et felles format. Å tilegne data semantisk innhold kalles for \emph{løfting}, og vil la oss bruke semantiske teknologier til å gjøre ting som å generere en begynnelse på tekst.\cite{repgenmiakt} Videre finnes det allerede medisinske ontologier\cite{medont} til bruk for å beskrive medisinske tilstander som kan brukes.
+Løftere har blitt skrevet til flere formater, som for eksempel csv\cite{tarql}, og kan dermed gjøre programmatisk, gitt at en kan beskrive formatet på filen.
+
+Selv om den mekaniske biten kan gjøres automatisk av datamaskiner i dag, må en fortsatt manuelt sette opp hva de forskjellige dataene betyr semantisk i en ontologi. Måten dette gjøres på er ofte forskjellig fra verktøy til verktøy, men felles er at en må gi en mapping fra et datum til et sett RDF-tripler.
+
+\subsection{Nedkonvertering av data til flate journaler (Senking)}
+Siden ikke alle programmeringsspråk per i dag har gode biblioteker tilgjengelig for bruk av rdf, blir det vanskelig å bruke datagrunnlaget uten hjelp.
+I den sammenheng blir det nødvendig å kunne senke dataene fra RDF til andre formater, som XML, JSON eller CSV, avhengig av hva som blir støttet av verktøyene. Fuseki støtter heldigvis direkte disse med fler formater.
+
+\section{Reasonere, hva menes?}
+Det finnes mange typer reasonere som arbeider over medisinske data, som for eksempel case-based reasonere\cite{hybrid-case-based}, fuzzy reasonere \cite{fuzzy-approach} \cite{fuzzycogmap} mm.
+Disse går gjennom medisinske data for å hjelpe leger med beslutningsstøtte. Det vil si at de hjelper leger og annet medisinsk personnell med å ta beslutninger. Denne type reasonere kan benytte systemet som en kilde til data, men kan også benytte seg av rapportsystemet til å rapportere tilbake til brukerene med funnene sine.
+Det finnes reasonere per i dag som er laget for å bruke semantiske data\cite{ application-ontological-reasoning} som kan dra nytte av at data i andre systemer blir tilgjengeliggjort for bruk som semantiske lenkede data.
+
+Det finnes også en annen klasse rapporter som må nevnes, som er hintet til tidligere i oversikten.
+Kreftregistret gir hvert år ut en rapport om kreft i Norge\cite{kreftregistret2011}, og som blir kompilert ned hvert år til en ny rapport.\footnote{Du finner publikasjonene deres her: \url{http://kreftregisteret.no/no/Generelt/Publikasjoner/Cancer-in-Norway/}}
+En slik rapport er et resultat av innsamling av data, bearbeiding av dem vha. statistiske verktøy, generering av grafer og tabeller før en setter seg ned for å skrive.
+Automatisering av deler av dette arbeidet kunne gjort arbeidet deres enklere og raskere.
+En automatisering av rapportskriving på denne måten ville som tidligere nevnt også gjort denne type arbeid billigere, og en kunne dermed hatt bedre rapportert på samme budsjett.
+
+Automatisk generering av rapporter blir også gjort utenfor medisinen for eksempel for å rapportere testing av vevstjenester\cite{ webrepgen}, og hos NASA\cite{modbasedrepgen} sin rakettavdeling til å bruke systemer som DocBook\footnote{\url{http://www.docbook.org/}} til å automatisk generere dokumenter basert på data som produseres av diverse systemer har de satt opp automatisk generering av høykvalitets dokumentasjon.
+
+Denne typen generatorer kan bruke resultater som blir generert og publisert av andre reasonere til å produsere rapporterer til generelt konsum, og vil automatisk kunne oppdateres ved feilretting og lignende.
+
+\section{Rapport-generering}
+Så hvordan genererer en slike rapporter?
+NASA har som tidligere nevnt et slikt system i produksjon per i dag\cite{modbasedrepgen}, og en kan utvide denne typen generering med semantiske teknologier som MIAKT\cite{repgenmiakt} til å produsere mer utførlige rapporter.
+En kan også publisere produserte data vha. Dublin Core\footnote{\url{http://dublincore.org/}} til bruk i rapporter senere, slik at en kan bruke produserte rapporter av reasonere på et senere tidspunkt.
+
+I tillegg til DocBook kan en også bruke andre systemer som \LaTeX, HTML ressurser til publisering på web-servere, eller annet ved en senere anledning.
+
+En kan se for seg ikke bare en rekke forskjellige reasonere som produserer materiale til rapporter, men også en rekke forskjellige rapportgeneratorer som bruker de forskjellige produserte dataene til forskjellig bruk, avhengig av hva brukerene har behov for på et gitt tidspunkt.
+
+Et betimelig spørsmål da blir hvordan en skal generere disse forskjellige formatene.
+En mulighet er å stjele en ide fra GNUs kompilatorsamling: Siden GNUs kompilatorsamling skal kompileres til mange forskjelige arkitekturer\footnote{SPARC, Power/PowerPC, x86/AMD64, ARM etc.} genrerer ikke GCC maskinkode direkte. Istedenfor å gjøre C om til ASM som deretter blir kompilert, er GCC delt inn i 2 biter:
+Front-ends, som kompilerer kode ned til et mellomformat, og back-ends som kompilerer mellomformatet ned til maskinkode.
+På den måten kan en enkelt utvide GCC til nye arkitekturer: En skriver en back-end som kompilerer ned mellomformatet til maskinkode, og så kan du kompilere alle språkene GCC støtter med en gang.
+Og skal du støtte et nytt språk, skriver du en front-end som kompilerer ned språket til mellomformatet, og alle arkitekturene blir da automatisk støttet.
+En lignende løsning virker forlokkende på et slikt system.\footnote{For mer om hvordan GCC kompilerer ned, se dokumentasjonen for GCC interne virkemåter: \url{http://gcc.gnu.org/onlinedocs/gccint/index.html}}
+\section{Brukergrensesnittet}
+Hvem blir da brukeren av slike systemer?
+Systemet er ikke ment til å brukes av sluttbrukere direkte, da det er meningen at reasonere skal produsere matematiske resultater eller typografisk gode rapporter. Disse krever kompetanse av brukerene: Vekting av data til statistisk bruk krever en bakgrunnskunnskap i statistikk, og en kommer ikke utenom dette.
+
+Problemstillingen for brukergrensesnittet blir da å lage et system som er enkelt og fornuftig for alle fra de som produserer statistiske resultater is Matlab, SPSS, R og lignende til de som produserer større fuzzy-logic baserte reasonere i store rammeverk. I tillegg må det altså være greit for de som skal produsere rapportene etterpå å få fatt i dataene og produsere gode rapporter med dem basert på verktøyene de selv bruker, det være seg LaTeX, Adobe Publisher, DocBook eller noe helt annet.
+
+En legger opp til en spesifikk arbeidsfly der en kan skrive programmer som produserer dataene en trenger, og programmer som tar data og produserer ting utav dem. Disse kan en skrive paralellt, og en kan oppdatere data ved å kjøre prosessen på nytt, og få nye data ut.
+
+\section{Problemstilling}
+Så hva er problemstillingen til slutt?
+Målet blir, ambisiøst nok, å produsere et system som støtter forskjellige reasonere som kan hente ut data og deretter publisere sine funn vha. semantisk teknologi. Deretter skal systemet støtte forskjellige rapportgeneratorer som henter ut slike funn og produserer rapporter i forskjellige formater basert på hva de finner.
+Dette stiller flere krav:
+\begin{itemize}
+\item For det første må et slikt system ta hånd om mange forskjellige dataformater, fra RDBMSer til eksporterte Excel-dokumenter til RDF-tripler.
+  Robust håndtering av disse formatene betyr ikke bare at en kan snakke med forskjellige kilder, men at en kan løfte dem opp til et semantisk nivå slik at de kan benyttes på nye måter av reasonere. Denne løftingen baseres på publiserte ontologier, og må mappes manuelt. Å gjøre den manuelle biten så enkel og smertefri som mulig blir dermed viktig.
+\item For det andre må dette systemet støtte reasonere skrevet i mange forskjellige språk med forskjellige egenskaper og forskjellige muligheter for å lese datatyper. Noen kan kanskje konsumere XML, mens andre klarer kun CSV, og noen må kanskje ha andre formater. Noen kan kanskje bruke HTTP POST/GET Request kall, mens andre kan kalle på systemressurser indirekte, og andre igjen må kanskje kjøres i hjelpeprogrammer som mater dem med informasjonen de trenger. Denne variansen gjør at en må støtte alt fra det enkleste shellscript som kaller på hjelpeprogrammer til store Java EE systemer.
+\item Når en da har et system som lar reasonere hente ned informasjon, ressonnere over dataene og produsere nye data, må disse da kunne publiseres. Denne publiseringen bruker da Dublin Core og andre evt. passende ontologier\footnote{For eksempel en ontologi for å håndtere matematikk, eller bildemateriale}, til å tilegne sine funn mening, så de større rapportsystemene kan finne igjen resultatene senere. En kan også ha andre behov til arbeidsflyt, og det er her viktig at vi er påpasselige med å gjøre ting korrekt.
+\item Videre må rapportene ha klare APIer og lignende de kan bruke slik at de kan gjøre jobben sin så enkelt som mulig. Jo enklere det er å produsere gode rapporter, jo bedre. Disse programmene må ha tilgang til produserte data via SPARQL, så de kan hente ut relevante data. Jo mer rapportgeneratorene kan benytte seg av semantikk til å finne data de trenger jo bedre.
+\item I tillegg til å ha muligheter til å gjøre alt dette trenger en også eksempler på bruk av systemet, både på reasonersiden og rapportgenereringssiden, for å vise hvordan systemet er ment til å fungere. En trenger også eksempler på løfting av data slik at en har eksempler på hvordan dette bør gjøres.
+\end{itemize}
+
+Et annet spørsmål blir hvordan et slikt system bør designes, og hvilke teknologier som bør brukes. En kan se på flere bøker om hvordan en designer større systemer, som The Art Of Unix Programming\cite{taoup}, og andre bøker om bruk av UML\cite{umlpatterns},sikker koding\cite{certguide}, og mange fler for hvordan en bør gå fram her. Et poeng her blir likevel at programmet må være modulært og laget slik at en enkelt kan plugge inn nye biter, det være seg datakilder, reasonere eller rapportgeneratorer. Merk at jeg ikke har nevnt noe om sluttbrukerene og deres grensesnitt, det er rett og slett ikke ment som et system for sluttbrukere, men som et system for andre til å lage noe til sluttbrukerene med. Derfor er ikke de nevnt som en av de store utfordringene, men ting som API-design og lignende er en utfordring, \emph{fordi folk som utvider systemet er brukerene som systemet er ment for.} Det er derfor fortsatt viktig med god design og hensyn til brukeren, men hensynene må tas på en annen måte med et annet utgangspunkt.
+
+Mer formelt kan en beskrive formatet slik (EBNF):
+
+
+
+
+\begin{lstlisting}
+
+tekst = \{(:char: - "(" - ")") | ("\textbackslash \textbackslash ", :char:)\} ;
+strengliteral = "\textbackslash "", \{(:char: - "\textbackslash "") | ("\textbackslash \textbackslash ", :char:)\}, "\textbackslash "" ;
+
+
+
+kommando = nullær kommando | tekst kommando | opsjonskommando | topprekursiv kommando ;
+nullær kommando = ny paragraf | horisontal linje ;
+ny paragraf = "\textbackslash n(NEW-PARAGRAPH)\textbackslash n" ;
+horisontal linje = "\textbackslash n(HORISONTAL-LINE)\textbackslash n" ;
+
+
+
+tekstkommando = understreket | emph | kursiv | sitat | sitering ;
+understreket = "(UNDERLINE ", tekst, ")" ;
+kursiv = "(CURSIVE ", tekst ")" ;
+emph = "(EMPHASISED ", tekst ")" ;
+sitat = "(QUOTE ", tekst ")" ;
+sitering = "(CITE ", tekst, ")" ;
+
+
+
+opsjonskommando = bilde | url kommando | overskrift ;
+bilde = "(IMAGE :FILE ", streng, ")" ;
+overskrift = "(HEADLINE ", nivå, tekst, ")" ;
+nivå = ":LEVEL ", strengliteral heltall ;
+strengliteral heltall = "\textbackslash "" :integer: "\textbackslash "" ;
+
+
+
+url kommando = "(URL", navn, altnavn, url, ")" | 
+    	       "(URL", navn, url, altnavn, ")" |
+	           "(URL", altnavn, navn, url, ")" | 
+	           "(URL", altnavn, url, navn, ")" |
+	           "(URL", url, altnavn, navn, ")" |
+	           "(URL", url, navn, altnavn, ")" ;
+navn = " :NAME ", strengliteral ;
+altnavn = " :ALT-NAME ", strengliteral ;
+url = " :URL ", strengliteral ;
+
+
+
+topprekursiv kommando = liste | tabell ; 
+liste = uliste | oliste
+uliste = "(UNORDERED-LIST", \{listeelement\}, ")" ;
+oliste = "(ORDERED-LIST", \{llisteelement\}, ")" ;
+listeelement = "\textbackslash n(LINE-ITEM ", tekst, ")" ;
+
+
+
+tabell = tabell uten header | tabell med header ;
+tabell uten header = "(TABLE", size, "\textbackslash n", \{datarad\}, ")" ;
+tabell med header = "(TABLE", størrelse, ":HEADERS \textbackslash "yes\textbackslash "\textbackslash n", overskriftsrad, \{datarad\}, ")" |
+       	   	    "(TABLE", ":HEADERS \textbackslash "yes\textbackslash "", størrelse, "\textbackslash n", overskriftsrad, \{datarad\}, ")" ;
+rad = datarad | overskriftsrad ;
+datarad = "(ROW", \{data\}, ")\textbackslash n" ;
+data = "(DATA ", tekst, ")" ;
+overskriftsrad = "(ROW ", \{overskrift\}, ")" ;
+overskrift = " (HEADER ", tekst, ")" ;
+\end{lstlisting}
+
+
+
+
+\subsection{Ting som ble utelatt}
+
+
+
+\subsubsection{MVP - Minimal Valuable Product og valg av features som kunne være med}
+
+
+
+MVP, eller Minimal Valuable Product (Det minste levedyktige produktet) er det minste produktet du kan lage og få tilbakemelding på i markedsplassen, i følge Eric Ries.
+
+
+
+I denne oppgaven er ikke målet å selge et produkt, men å vise at det er en mulighet for å forbedre livene våre ved å kunne lage rapporter automatisk. Derfor er det minste levedyktige produktet ikke et produkt som kan selges på en markedsplass,
+men et produkt som kan overbevise om at et system som lar en spesifisere automatiske rapporter vil kunne gjøre livene bedre til de som lager rapporter. Dette prinsippet ble konsekvent anvendt for å avgjøre hvilke egenskaper produktet måtte ha, og hvilke ville være gode å ha, men ikke være essensielle.
+Derfor ble en mengde planlagte funksjoner kuttet vekk av forskjellige årsaker for å få på plass en kjerne av systemet som ville kunne gjøre jobben så bra som mulig. For å prioritere ble det tenkt over om andre verktøy kunne ta over noe av jobben (som i tilfellet med eksterne kommandoer og Make), og om de er faktisk essensielle. Til slutt, ble arbeidsmengden vurdert ut ifra hvor mye arbeid det ble antatt å kreve. Å utvide kjøretidsmiljøet til å takle makroer eller funksjoner som argumenter ble vurdert til å ta for mye tid, uten å være tvingende essensielle.
+
+
+
+\subsubsection{Kjøring av eksterne kommandoer}
+
+
+
+En tidlig feature som var planlagt å implementere var spesifisering av kommandoer som skulle kjøres, i en egen kommando:
+
+
+
+
+\begin{lstlisting}
+
+(Kommando :UNIX "pwd" :Windows "CD")
+\end{lstlisting}
+
+
+
+
+Dette ville la en spesifisere kommandoer som en kunne kjøre\footnote{Eksempelet ville returnert mappen programmet brukte for øyeblikket}, basert på operativsystem.\footnote{Kommandoen i eksempelet ville virket på Windows, GNU/Linux distribusjoner og OSX}
+Grunnen til at kommandoen ble skrinlagt er tidsmangel: For at den skulle vært nyttig måtte den ikke bare kunne kjørt kommandoer for å lagre filer, som en kan spesifisere i andre automatiseringsprogrammer som GNU Make.
+Det ville ikke gitt så veldig mye. Det den derimot var planlagt til var å hjelpe med definisjoner av makroer, som ble skrinlagt relativt tidlig når arbeidet ble planlagt. Disse makroene har sitt eget avsnitt.
+Selvsagt ville evnen til å kjøre egne kommandoer la en slippe å bruke GNU Make i enkle tilfeller, og dermed være et positivt tillegg på egne premisser, men det ville ikke være en essensiell del av programmet ihht. MVP prinsippet som ble gitt tidligere.
+I tillegg kan en få funksjonaliteten via andre programmer som GNU Make. Derfor ble den skrinlagt og ideen puttet på vent til kjernen av programmet ble ferdig.
+
+
+
+Den ville likevel blitt implementert før muligheten til å definere makroer, da muligheten til å definere makroer ville fått mye større muligheter ut av denne kommandoen enn noen andre.
+
+
+
+\subsubsection{Andre kilder til tekst enn filer}
+
+
+
+Opprinnelig var det planlagt å tillate tre forskjellige datakilder til en kilde. Til dømes ville alle disse være lovlige:
+
+
+
+
+\begin{lstlisting}
+
+(Markdown :fil "\textasciitilde /Dokumenter/markdown.md")
+down :sitat "\# Overskrift \#")
+(Markdown :kommando "\textasciitilde /skript/lag-markdown.sh")
+\end{lstlisting}
+
+
+
+
+Dette ble skrinlagt grunnet tidsbegrensinger. Det var også vurdert som mindre viktig enn andre muligheter:
+
+
+
+For kommando er følgende problemer:
+
+\begin{itemize}
+\item :kommando er ikke et trygt predikat, da noe som virker på et UNIX-system ikke nødvendigvis ville virket på et Windows-system.
+\end{itemize}
+
+
+
+
+
+\begin{itemize}
+\item Faktisk ville det vært tryggere å bruke (Kommando) direktivet, bruke utfilen, og slettet den manuelt etterpå.
+\end{itemize}
+
+   Å tillate predikater som er raskere å skrive er i utgangspunktet bra, men ikke når det gjør resultatet utrygt. Det er bedre å bruke ti sekunder mer på å skrive enn ti minutter på å debugge.
+
+
+
+
+\begin{itemize}
+\item Selv om (Kommando) ikke ble implementert kan en bruke GNU Make eller lignende til å få samme effekten. Dermed faller det direkte behovet for å ha muligheten i første utgave bort.
+\end{itemize}
+
+
+
+
+
+\begin{itemize}
+\item Til sist, direktivet (Kommando) og predikatet :kommando vil ha samme funksjonalitet. Det gjør språket mindre forutsigbart.
+\end{itemize}
+
+
+
+
+For sitat er det relativt enklere: Det var der for å gjøre enkelte brukstilfeller som oppstod under bruk/utvikling raskere å behandle. Det det kokte ned til da var et det var relativt greit å lage en funksjon i editoren (GNU Emacs) som lagde en fil med sitatet og satte inn et direktiv med et :fil-predikat istedenfor.
+Det er ikke alle editorer som tillater utvidelse på den måten, men det viste seg altså ikke å være et essensielt valg.
+
+
+
+\subsubsection{Begrensede språkkonstruksjoner}
+
+
+
+Dersom en skal kunne utvide språket selv med egne konstruksjoner og funksjoner, kommer en før eller senere til å ønske å kunne gjøre ting som ikke er en direkte kommando.
+For å støtte opp om makrosystemet var det derfor opprinnelig tiltenkt ekstra hjelpefunksjoner som for eksempel  Operativsystem) som henter ut operativsystemet (UNIX, Windows, eller evt. annet), eller (Formatter) som lar en formattere en tekststreng.
+Dette ville nødvendiggjøre utvidelser til språket som å la en gi andre argumenter en strengliteraler til et direktiv.
+En kan tenke seg for eksempel noe ala:
+
+
+
+
+\begin{lstlisting}
+
+(Kommando :UNIX (Formatter "\textasciitilde A\textasciitilde A" (AuRa-Mappe) "/skript/nix/shellscript.sh") :Windows (Formatter "\textasciitilde A\textasciitilde A (AuRa-Mappe) "/skript/windows/batchfil.bat"))
+\end{lstlisting}
+
+
+
+
+Som ville latt en ha relative stier til forskjellige kommandoer. Videre har en funksjoner som (Slett-Fil), (Finnes-Fil) og lignende. Dessuten har en også (Kondisjonal) som ville latt en gjøre ting ala:
+
+
+
+
+\begin{lstlisting}
+
+(kondisjonal
+Finnes-Fil (Formatter "\textasciitilde A\textasciitilde A" (AuRa-Mappe) "tmp/del1.md"))
+lett-Fil  (Formatter "\textasciitilde A\textasciitilde A" (AuRa-Mappe) "tmp/del1.md")))
+
+    %    ERROR!
+    %    Unknown Command: \(FINNES-FIL
+    %    Text left as is
+(Formatter "\textasciitilde A\textasciitilde A" (AuRa-Mappe) "tmp/del2.md"))
+lett-Fil  (Formatter "\textasciitilde A\textasciitilde A" (AuRa-Mappe) "tmp/del2.md"))))
+
+
+
+Som ville slettet filer om de eksisterte. Videre ville konstruksjoner som lister og løkker på et tidspunkt begynne å dukke opp. Dette ville igjen tatt mye tid, uten å være av kritisk nødvendighet. Derfor ble det utstatt ihht. MVP-idiomet.
+
+
+
+\subsubsection{Definisjoner av egne makroer}
+
+
+
+AuRa var alltid ment til å være et fleksibelt og utvidbart språk. I tillegg til å tilrettelegge for å legge til nye inn og utdataformat, var det også meningen å la brukere legge til egne kommandoer om de trengte det, og å la dem dele dem med hverandre.
+På denne måten kunne behov som ikke var dekket av utviklere bli dekket av brukere. På denne måten kan en tilrettelegge for problemløsning som ikke var forutsett av hovedutviklerene. Opprinnelig var ideen å inkludere definisjoner av makroer slik:
+
+
+
+
+\begin{lstlisting}
+
+(Makro :fil "\textasciitilde /.aura/makroer/sql.aud")
+\end{lstlisting}
+
+
+
+
+Der "aud" var det tiltenkte etternavnet på makrofilene (kort for AuRa Definisjoner).
+
+
+
+Videre var makroer tiltenkt å kunne defineres noe ala dette:
+
+
+
+
+\begin{lstlisting}
+
+(Definer-Makro :Navn "Slett"
+ilnavn fil)
+mmando :UNIX (formatter "rm \textasciitilde A" fil)
+      :Windows (formatter "del \textasciitilde A" fil))) 
+\end{lstlisting}
+
+
+
+
+
+\begin{lstlisting}
+
+(Definer-Makro :Navn "Kjør-Og-Slett-CSV"
+indows wkommando :UNIX ukommando :filnavn filnavn)
+mmando :Windows wkommando :UNIX ukommando)
+V :fil filnavn)
+ett filnavn))
+\end{lstlisting}
+
+
+
+
+Merk at dette ikke nødvendigvis er gode eller trygge makroer. Syntaks og lignende kom aldri lengre enn tegnebrettet, da arbeidsmengden som skulle til for å lage korrekte og leselige makroer fort ble ansett til å være relativt høy.
+For eksempel ville en måtte kunne utvide AuRa til å utvide makroene, slik at til dømes\footnote{(Markdown) er her for å gi litt kontekst til et tenkt enkelt dokument}:
+
+
+
+
+\begin{lstlisting}
+
+;; Dette programmet vil kun kjøre korrekt på \emph{NIX-systemer, vil ikke kjøre på Windows-systemer.
+down :fil "/tmp/generert-forord")
+(Kjør-Og-Slett-CSV :UNIX "/opt/sqldumper/query-to-csv --query=\textbackslash "Select 'something' from 'table' where param < 4 order by foo limit 10\textbackslash " --outfile=/tmp/table.csv" :filnavn "/tmp/table.csv")
+down :fil "/tmp/generert-ettermæle")}
+
+
+
+Vil måtte utvides til følgende:
+
+
+
+
+\begin{lstlisting}
+
+;; Dette programmet vil kun kjøre korrekt på 
+\end{lstlisting}
+NIX-systemer, vil ikke kjøre på Windows-systemer.
+down :fil "/tmp/generert-forord")
+ando :UNIX "/opt/sqldumper/query-to-csv --query=\textbackslash "Select 'something' from 'table' where param < 4 order by foo limit 10\textbackslash " --outfile=/tmp/table.csv" :filnavn "/tmp/table.csv")
+:fil "/tmp/table.csv")
+ando :UNIX "rm /tmp/table.csv" :Windows "del /tmp/table.csv")
+down :fil "/tmp/generert-ettermæle")
+\end{lstlisting}
+
+
+
+
+Arbeidsmengden ble vurdert til å være for stor til å gjøre og å bli ferdig. Arbeidet ville ikke bare inkludert å preprosessere AuRa-filene, men også å itererere over syntaksen til den ble så bra som mulig.
+I tillegg er nytteverdien sterkt synergisk med andre språkkonstruksjoner, som muligheten til å kjøre kommandoer, kondisjonaler og lignende. Siden disse også er en stor arbeidsmengde ble beslutningen tidlig tatt om å legge makroer til siden, og heller konsentrere seg om andre ting i systemet.
+
+
+
+\subsubsection{Teksttyper annet enn Markdown}
+
+
+
+Selv om andre større og mer kompliserte teksttyper ikke var tiltenkt fra begynnelsen var det likevel andre datakilder som var tiltenkt.
+Noen av disse har allerede kode påbegynt med enhetstester, men ble ikke inkludert i det ferdige produktet av forskjellige årsaker.
+
+
+
+\paragraph{Direkte innsatt tekst}
+Direkte innsatt tekst ville vært tekst som ble satt inn nøyaktig slik den var og ikke oversatt på noen måter. Det var opprinnelig tiltenkt som en måte å legge til ting som ikke var støttet i mellomformatet inn i et spesifikt sluttformat. Et eksempel ville være matematiske formler i LaTeX.
+Sammen med :sitat predikatet ville det la brukere gjøre ting som:
+
+
+
+
+\begin{lstlisting}
+
+;; Forutsetter pdflatex-kompilatoren
+as DPS for (Q) Snipe, gitt at du går for Ambush Snipe
+down :fil "\textasciitilde /rapporter/Nova/Snipe-Damage-Ambush-Snipe-1.md")
+kte-Innsatt :sitat " \textbackslash \textbackslash  \$f(F\uline{\{Ambush-Snipe\}(N}\{Level\}) = \textbackslash frac\{(146 + (31 \textbackslash cdot N\uline{\{Level\})) \textbackslash cdot 1,20\}\{10\}\$ \textbackslash \textbackslash "
+down :fil "\textasciitilde /rapporter/Nova/Snipe-Damage-Ambush-Snipe-2.md")
+as DPS for (Q) Snipe, gitt at du går for Psi-Op Rangefinder
+down :fil "\textasciitilde /rapporter/Nova/Snipe-Damage-PsiOp-Rangefinder.md")
+kte-Innsatt :sitat " \textbackslash \textbackslash  \$f(F}\{PsiOp-Range\}(N\uline{\{Level\}) = \textbackslash frac\{(146 + (31 \textbackslash cdot N}\{Level\}))\}\{8\}\$ \textbackslash \textbackslash "
+(Markdown :fil "\textasciitilde /rapporter/Nova/Snipe-Damage-PsiOp-Rangefinder.md")
+summering til slutt, konkluderer med at lvl-1 talentene ikke bør velges med hensyn til dps på (Q) Snipe (diff på lvl 30 er \textasciitilde 5(!)).
+down :fil "\textasciitilde /rapporter/Nova/Snipe-Damage-konklusjon-1.md")
+e :fil "\textasciitilde /rapporter/Nova/diff-dps.png")
+down :fil "\textasciitilde /rapporter/Nova/Snipe-Damage-konklusjon-2.md")
+\end{lstlisting}
+
+
+
+
+For å få matte inn i et dokument som ellers ikke ville støttet det.
+Av tidsmessige grunner ble dette ikke tatt med i prosjektet.
+
+
+
+\paragraph{Ren tekst}
+
+
+
+En annen ting som kunne vært greit å hatt med hadde vært ren tekst (txt). Det finnes kode og slikt for å parse den ut, og det ville være lite arbeid å legge det til som et støttet format.
+Årsaken til at det ikke ble gjort direkte var MVP-prinsippet om å bare ha med essensielle ting i begynnelsen, og for å unngå å ha mer ting i kodebasen som må vedlikeholdes og feilrettes.
+
+
+
+\subsection{Utfordringer}
+
+
+
+\subsubsection{Markdown}
+En av de største utfordringene var en korrekt parsing av markdown uten formelle definisjoner av språket. Markdown er et språk som er lett å tyde, og enkelt i bruk, men implementasjonsdetaljene varierer mellom de forskjellige implementasjonene med forskjellige tillegg, endret oppførsel og mer.
+Som et eksempel har en GitHubs endring, der et filnavn ala: "langt\textbackslash \_filnavn\textbackslash \_her.txt" vil bli stående som det er. I originalt markdown ville det blitt til "langt\uline{filnavn}her.txt". Siden det er flere dialekter av språket, og ingen offisiell styring er det heller ikke noe som heter offisielt markdown. Dialekten som ble implementert er i all hovedsak som den original, med noen tillegg og særegenheter:
+
+
+
+
+\begin{itemize}
+\item En URL \emph{må} ha tre elementer, både navn, URL og alternativt navn.
+\item En kan gjøre siteringer vha to paragraftegn, slik: \textbackslash §SiterBok\textbackslash §.
+\item En kan be om fotnoter vha pengetegnet, slik: \textbackslash ¤Dette blir en fotnote\textbackslash ¤
+\end{itemize}
+
+
+
+
+URL-biten var gjort for å bli ferdig fortere, da Markdown tok særdeles lang tid sett under ett med feilretting, utvidelse, testing og refaktorering over tid. Den var til slutt tatt ut i en egen fil bare for å holde det overkommelig å lese.
+
+
+
+\subsubsection{Definisjon av AuRa som språk}
+
+
+
+Språket i seg selv tok flere iterasjoner for å få til korrekt.
+Det gikk gjennom flere former fra en YAML-inspirert notasjon via noe som lignet mer på XML, til dagens Lisp-inspirerte syntaks.
+Den første syntaksen var ment til å være så enkel som mulig: En åpnet et dokument ved å be om et dokument, så spesifiserte man det man ville ha i dokumentet, og så avsluttet man dokumentet. Et eksempel på den første syntaksen så slik ut:
+
+
+
+
+\begin{lstlisting}
+
+Dokument:
+  Tekst: type="markdown" fil="\textasciitilde /master/oppgave/del1.md" .
+  Bilde: type="png" fil="\textasciitilde /master/oppgave/fig1.png" .
+  Tabell: type="csv" fil="\textasciitilde /master/oppgave/tab1.csv" .
+  .
+\end{lstlisting}
+
+
+
+
+I forhold til formatet som er nå, hadde det sine negative sider:
+
+
+
+
+\begin{itemize}
+\item Det var nødvendig å begynne en rapport med ordet "Dokument:" selv om det alltid ville være der.
+\item Brukere måtte huske på å avslutte alle elementene selv, vha. et punktum ('.'), inkludert dokumentet.
+\item En måtte også bruke mellomrom mellom alle elementene, inkludert punktumet.
+\item Formatet lå opp til en trestruktur, uten å tilby noen rekursive elementer.
+\end{itemize}
+
+
+
+
+Tilsvarende i det ferdige formatet ville vært
+
+
+
+
+\begin{lstlisting}
+
+(Markdown :FIL "\textasciitilde /master/oppgave/del1.md")
+(Bilde :FIL "\textasciitilde /master/oppgave/fig1.png")
+(Tabell :FIL "\textasciitilde /master/oppgave/tab1.csv")
+\end{lstlisting}
+
+
+
+
+Som har sine fordeler. Først å fremst er det mer konsist, og det er umiddelbart klart ved et øyenkast hvor et uttrykk begynner og slutter.
+Det enkle metaforiske grepet med å putte uttrykk i parenteser kan argumenteres for og i mot. På den ene siden er det egentlig unødvendig: Alle uttrykk har sin egen linje per dags dato. Dermed blir det mer å skrive uten at det er nødvendig. På den annen side kan en tenke seg utvidelser der en bruker flere linjer på å uttrykke et direktiv. En kan tenke seg en framtidig utvidelse der en kan kjøre spørringer mot en SQL-database slik:
+
+
+
+
+\begin{lstlisting}
+
+(SQL-tabell :SPØRRING "SELECT \emph{ FROM TABLE"
+      :DATABASENAVN "DB"
+TABASETYPE "ORACLE-SQL"
+RVER "LOCALHOST"
+UKERNAVN "TESTBRUKER"
+SSORD "TESTPASSORD")}
+
+
+
+En slik utvidelse ville vært mye enklere å lese når den kan fordeles ut over flere linjer:
+
+
+
+
+\begin{lstlisting}
+
+(SQL-tabell :SPØRRING "SELECT 
+\end{lstlisting}
+ FROM TABLE" :DATABASENAVN "DB" :DATABASETYPE "ORACLE-SQL" :SERVER "LOCALHOST" :BRUKERNAVN "TESTBRUKER" :PASSORD "TESTPASSORD")
+\end{lstlisting}
+
+
+
+
+Den får ikke engang plass på siden, men det er allerede unødvendig tungvint å se hva som skjer. Derfor ble det valgt å bruke et taggingsystem for å avgrense uttrykk, eller direktivene i AuRa.
+Valget av avgrensing falt til slutt på Lispnotasjon istedenfor XML, som i sin tid så slik ut:
+
+
+
+
+\begin{lstlisting}
+
+<SQL-TABELL>
+    <SPØRRING>SELECT \emph{ FROM TABLE</SPØRRING>
+    <DATABASENAVN>DB</DATABASENAVN>
+    <DATABASETYPE>ORACLE-SQL</DATABASETYPE>
+    <SERVER>LOCALHOST</SERVER>
+    <BRUKERNAVN>TESTBRUKER</BRUKERNAVN>
+    <PASSORD>TESTPASSORD </PASSORD>
+QL-TABELL>}
+
+
+
+Det er likevel to objektive hovedgrunner til at valget falt på lispinspirert notasjon:
+
+
+
+
+\begin{enumerate}
+\item Lispnotasjon er raskere å skrive, da det kreves færre tegn enn XML.
+\item Lispnotasjon er enklere å parse, da det er færre regler og spesialtilfeller \footnote{Sammenlign med grammatikken for AuRas språk lenger oppe}
+\end{enumerate}
+
+
+
+
+XML-notasjon har den fordelen at det er enorme mengder verktøy tilgjengelig for å lette byrden med parsing. På den annen side tok det en kveld å skrive parseren for AuRa slik den er nå, så i dette tilfellet er det ikke et stort tap.
+Selv om XML tilbyr støtte for rekursive definisjoner og trestrukturer, er ikke dette noe AuRa bruker per dags dato, og dagens enkle grammatikk kan utvides til å takle rekursive strukturer om det blir behov for det.
+En kan argumentere for at dersom AuRa-rapporter blir spesifisert for hånd, så vil det blir gjort av verktøy, og dermed faller mye, om ikke all forskjellen mellom AuRas format og et XML-format bort. Men selv om det hadde eksistert verktøy som skrev AuRa-filer ville disse verktøyene ha nødvendigvis blitt skrevet av mennesker som måtte lest og forstått formatet de behandlet. Derfor blir det likevel aktuelt å gjøre det så lett som mulig for disse programmererene å gjøre jobben sin så godt som mulig.
+Det er derfor ingen unnskyldning for å ha et dårlig format fordi verktøy tar hånd om det. 
+
+
+
+\subsubsection{Definisjon av mellomformatet}
+
+
+
+Mellomformatet var sett som en nødvendighet siden dag en. Ønsket var et format som kunne leses for hånd, og være så tydelig at dersom en bare hadde tilgang på en tekstbehandler som til dømes Microsoft Word og en fil fra mellomformatet, skulle det være mulig å gjenskape dokumentet for hånd, om en hadde tålmodighet nok.
+Her tok det også flere iterasjoner før dagens løsning ble skapt, men i motsetning til AuRa-formatet var det ingen store endringer, bare små, mindre endringer helt til nåværende iterasjon ble valgt. Den første iterasjonen så ut som HTML med parenteser, og var inspirert av CL-WHO skrevet av Edi Weitz, men ble sakte men sikkert morfet inn i dagens utgave.
+\end{lstlisting}
+
+\end{lstlisting}
+\end{document}
+% postamble for AuRa's pdflatex backend generator.
+% for questions send e-mails to haakon_lotveit@live.no
+
+\bibliography{bibliography}{} % You probably want to edit this to actually point at your bibliography.
+\bibliographystyle{plain}
+
+% END OF POSTAMBLE
