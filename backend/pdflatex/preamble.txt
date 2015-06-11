@@ -10,6 +10,19 @@
 \usepackage{graphicx} % deals with imagery
 \usepackage{listings} % listings is used for source-code
 \usepackage[normalem]{ulem} % ulem is used for better underlining of text.
+\usepackage{float}
+
+% Hacky solution to get images in approximate order
+\renewcommand{\topfraction}{.85}
+\renewcommand{\bottomfraction}{.7}
+\renewcommand{\textfraction}{.15}
+\renewcommand{\floatpagefraction}{.66}
+\renewcommand{\dbltopfraction}{.66}
+\renewcommand{\dblfloatpagefraction}{.66}
+\setcounter{topnumber}{9}
+\setcounter{bottomnumber}{9}
+\setcounter{totalnumber}{20}
+\setcounter{dbltopnumber}{9}
 
 % Command used to draw horizontal lines
 \newcommand{\horizontalline}{
@@ -30,111 +43,3 @@
 \begin{document}
 % End of preamble
 
-
-\title{Masteroppgave}
-\author{Haakon Løtveit}
-\date{31. mai 2015}
-\maketitle
-
-\section{Litteraturgjennomgang}
-I medisinen trenger man stadig oppdaterte medisinske data, og det inkluderer rapporter om trender og statistisk analyse av disse.
-Genereringen av disse rapportene tar per i dag lang tid og er et møysommelig arbeid, som gjør at rapporter blir utgitt sjeldnere grunnet kostnadene.
-For eksempel gir kreftregisteret ut en rapport hvert år med data om kreftsykdom i norge, med interessante data. Men disse dataene er per år, og oppdateres kun en gang i året.
-En vil også vegre seg for å gi ut data av personvernshensyn, og dermed sitter en med et snevert datagrunnlag.
-
-Hva om en kunne redusere kostnadene med å produsere disse rapportene, slik at en kunne lage flere? Hva om en kunne "trykke på knappen" og få en oppdatert rapport med nye data i seg?
-En kan opplagt nok ikke slavebinde tusenvis av statistikere og skribenter, men hva om istedenfor å lage rapporter, så lagde en rapportfabrikker som lagde en rapport basert på en mal?
-En slik mal må ha støtte for:
-\begin{itemize}
-\item Lesing av data fra heterogene kilder, med en uniform forståelse av alle dataene.
-  Dette kan løses td. med en ontologi for medisinske data.
-  Selv om alt hadde vært homogent per i dag, er det ikke gitt at det vil forbli slik i framtiden.
-  Som et eksempel på dette har en "Big Data" og NoSQL-databaser, som har stormet fram, samt den semantiske vevens intogsmarsj. Samtidig har en SQL-databaser, Excel-dokumenter, samt tekstuelle åpne formater som CSV, XML og så videre.
-   
-\item Samarbeid med eksterne verktøy som statistikere bruker, slik at de kan benytte systemet uten å måtte lære alt på nytt.
-  Dvs. R, SPSS, Matlab, Julia, SciPy etc. må alle støttes. Vi trenger et minste felles multiplum som alle kan lære. (CSV\cite{csv} er en god kandidat for laveste multiplum.)
-  
-\item Støtte for rapportgenerering i relevante formater. PDF er et minstekrav, men andre formater kan tenkes. Derfor må rapportformatet enten kunne stilles inn, eller være en type som kan kompileres om til andre formater.
-  En mulighet her er DocBook XML eller et annet internt XML-format. Da har en en dokumentstruktur som kan manipuleres og omformes til andre former.
-
-\item Det hadde også vært ønskelig om rapporten om ikke kunne generere korrekt godt norsk, i alle fall kom i gang med et forslag som kunne redigeres. For å få dette til må en ha en viss semantisk forståelse av teksten, som en har td. i den semantiske veven, med RDF\cite{rdf11primer} + ontologier\cite{damloil}\cite{owlref}. Det finnes systemer fra før av som kan generere tekst og denne typen systemer hadde kunne passet godt inn her.
-
-\item Innstillinger for hvilke grafer, mm. som skulle lages, og hvordan.
-  For eksempel, hvilket datagrunnlag en vil bruke (fra 2008-2012? Hva med 2004-2008?), rekkefølge på ting i rapporten, med mer.
-  
-\item Innstillinger for presentasjonen, på en lignende måte som CSS lar en pynte på nettsider, eller LaTeX-stylesheets lar deg gjøre med .tex dokumenter.
-  Da skiller en informasjonen fra presentasjonen, som gjør det billigere i termer av tid og krefter å eksperimentere med presentasjon mm. av disse rapportene.
-\end{itemize} 
-På denne måten kunne vi laget et system som ikke bare generte rapporter, men genererte nyttige rapporter, når en ville det over det en ville.
-Istedenfor å stipulere over data i et helt år før en gir ut en ny rapport kunne en generert rapporten på nytt med oppdaterte verdier. Hvis nye data ble gjort tilgjengelige kan en oppdatere rapporten med et tastetrykk.
-
-Et slikt system vil kunne gjøre rapporter og statistikker lettere å generere, og dermed gjøre prosessen rundt dette raskere og billigere.
-I tillegg kan en bruke datagrunnlaget som legges til grunn for slike rapporter til å generere forskjellige beslutnigsstøttesystemer. Dersom en vil gå den veien, trenger en muligens mindre generering av tekst, men en kan også la slike systemer generere data til rapportene som sådann. En kan tenke seg flere typer rapportgenerering, alt etter hva som er hensiktsmessig for et gitt tilfelle.
-
-\section{Innsamling av data}
-Antagelsen er at data som skal brukes er lagret i heterogene systemer.
-Det vil si at dataene ligger i forskjellige steder, lagret i forskjellige formater, fra flat-struktur (CSV, XLS, ODT osv.) til relasjonelle data, dokumentdatabaser, RDF-tripler, med mer.
-For at systemer enkelt skal kunne bruke mange forskjellige datakilder må en enten la hver enkelt reasoner selv snakke til alle kildene, konvertere data til egnede formater, osv. eller legge et system i mellom reasonerene og datakildene som tar seg av snakkingen for dem. Et slikt system må selv snakke med de forskjellige kildene og holde et mellomformat klart, og så deretter tilby et spørringspunkt som for eksempel SPARQL\footnote{SPARQL Protocol and RDF Query Language} som kan returnere data i egnede formater\footnote{Blant annet XML, JSON og CSV. For detaljer, se: \url{http://jena.apache.org/documentation/}}
-
-\subsection{Kanonisering av data som RDF-tripler (Løfting)}
-Etter at en har skaffet til veie data, må disse gjøres om til et felles format. Å tilegne data semantisk innhold kalles for \emph{løfting}, og vil la oss bruke semantiske teknologier til å gjøre ting som å generere en begynnelse på tekst.\cite{repgenmiakt} Videre finnes det allerede medisinske ontologier\cite{medont} til bruk for å beskrive medisinske tilstander som kan brukes.
-Løftere har blitt skrevet til flere formater, som for eksempel csv\cite{tarql}, og kan dermed gjøre programmatisk, gitt at en kan beskrive formatet på filen.
-
-Selv om den mekaniske biten kan gjøres automatisk av datamaskiner i dag, må en fortsatt manuelt sette opp hva de forskjellige dataene betyr semantisk i en ontologi. Måten dette gjøres på er ofte forskjellig fra verktøy til verktøy, men felles er at en må gi en mapping fra et datum til et sett RDF-tripler.
-
-\subsection{Nedkonvertering av data til flate journaler (Senking)}
-Siden ikke alle programmeringsspråk per i dag har gode biblioteker tilgjengelig for bruk av rdf, blir det vanskelig å bruke datagrunnlaget uten hjelp.
-I den sammenheng blir det nødvendig å kunne senke dataene fra RDF til andre formater, som XML, JSON eller CSV, avhengig av hva som blir støttet av verktøyene. Fuseki støtter heldigvis direkte disse med fler formater.
-
-\section{Reasonere, hva menes?}
-Det finnes mange typer reasonere som arbeider over medisinske data, som for eksempel case-based reasonere\cite{hybrid-case-based}, fuzzy reasonere \cite{fuzzy-approach} \cite{fuzzycogmap} mm.
-Disse går gjennom medisinske data for å hjelpe leger med beslutningsstøtte. Det vil si at de hjelper leger og annet medisinsk personnell med å ta beslutninger. Denne type reasonere kan benytte systemet som en kilde til data, men kan også benytte seg av rapportsystemet til å rapportere tilbake til brukerene med funnene sine.
-Det finnes reasonere per i dag som er laget for å bruke semantiske data\cite{ application-ontological-reasoning} som kan dra nytte av at data i andre systemer blir tilgjengeliggjort for bruk som semantiske lenkede data.
-
-Det finnes også en annen klasse rapporter som må nevnes, som er hintet til tidligere i oversikten.
-Kreftregistret gir hvert år ut en rapport om kreft i Norge\cite{kreftregistret2011}, og som blir kompilert ned hvert år til en ny rapport.\footnote{Du finner publikasjonene deres her: \url{http://kreftregisteret.no/no/Generelt/Publikasjoner/Cancer-in-Norway/}}
-En slik rapport er et resultat av innsamling av data, bearbeiding av dem vha. statistiske verktøy, generering av grafer og tabeller før en setter seg ned for å skrive.
-Automatisering av deler av dette arbeidet kunne gjort arbeidet deres enklere og raskere.
-En automatisering av rapportskriving på denne måten ville som tidligere nevnt også gjort denne type arbeid billigere, og en kunne dermed hatt bedre rapportert på samme budsjett.
-
-Automatisk generering av rapporter blir også gjort utenfor medisinen for eksempel for å rapportere testing av vevstjenester\cite{ webrepgen}, og hos NASA\cite{modbasedrepgen} sin rakettavdeling til å bruke systemer som DocBook\footnote{\url{http://www.docbook.org/}} til å automatisk generere dokumenter basert på data som produseres av diverse systemer har de satt opp automatisk generering av høykvalitets dokumentasjon.
-
-Denne typen generatorer kan bruke resultater som blir generert og publisert av andre reasonere til å produsere rapporterer til generelt konsum, og vil automatisk kunne oppdateres ved feilretting og lignende.
-
-\section{Rapport-generering}
-Så hvordan genererer en slike rapporter?
-NASA har som tidligere nevnt et slikt system i produksjon per i dag\cite{modbasedrepgen}, og en kan utvide denne typen generering med semantiske teknologier som MIAKT\cite{repgenmiakt} til å produsere mer utførlige rapporter.
-En kan også publisere produserte data vha. Dublin Core\footnote{\url{http://dublincore.org/}} til bruk i rapporter senere, slik at en kan bruke produserte rapporter av reasonere på et senere tidspunkt.
-
-I tillegg til DocBook kan en også bruke andre systemer som \LaTeX, HTML ressurser til publisering på web-servere, eller annet ved en senere anledning.
-
-En kan se for seg ikke bare en rekke forskjellige reasonere som produserer materiale til rapporter, men også en rekke forskjellige rapportgeneratorer som bruker de forskjellige produserte dataene til forskjellig bruk, avhengig av hva brukerene har behov for på et gitt tidspunkt.
-
-Et betimelig spørsmål da blir hvordan en skal generere disse forskjellige formatene.
-En mulighet er å stjele en ide fra GNUs kompilatorsamling: Siden GNUs kompilatorsamling skal kompileres til mange forskjelige arkitekturer\footnote{SPARC, Power/PowerPC, x86/AMD64, ARM etc.} genrerer ikke GCC maskinkode direkte. Istedenfor å gjøre C om til ASM som deretter blir kompilert, er GCC delt inn i 2 biter:
-Front-ends, som kompilerer kode ned til et mellomformat, og back-ends som kompilerer mellomformatet ned til maskinkode.
-På den måten kan en enkelt utvide GCC til nye arkitekturer: En skriver en back-end som kompilerer ned mellomformatet til maskinkode, og så kan du kompilere alle språkene GCC støtter med en gang.
-Og skal du støtte et nytt språk, skriver du en front-end som kompilerer ned språket til mellomformatet, og alle arkitekturene blir da automatisk støttet.
-En lignende løsning virker forlokkende på et slikt system.\footnote{For mer om hvordan GCC kompilerer ned, se dokumentasjonen for GCC interne virkemåter: \url{http://gcc.gnu.org/onlinedocs/gccint/index.html}}
-\section{Brukergrensesnittet}
-Hvem blir da brukeren av slike systemer?
-Systemet er ikke ment til å brukes av sluttbrukere direkte, da det er meningen at reasonere skal produsere matematiske resultater eller typografisk gode rapporter. Disse krever kompetanse av brukerene: Vekting av data til statistisk bruk krever en bakgrunnskunnskap i statistikk, og en kommer ikke utenom dette.
-
-Problemstillingen for brukergrensesnittet blir da å lage et system som er enkelt og fornuftig for alle fra de som produserer statistiske resultater is Matlab, SPSS, R og lignende til de som produserer større fuzzy-logic baserte reasonere i store rammeverk. I tillegg må det altså være greit for de som skal produsere rapportene etterpå å få fatt i dataene og produsere gode rapporter med dem basert på verktøyene de selv bruker, det være seg LaTeX, Adobe Publisher, DocBook eller noe helt annet.
-
-En legger opp til en spesifikk arbeidsfly der en kan skrive programmer som produserer dataene en trenger, og programmer som tar data og produserer ting utav dem. Disse kan en skrive paralellt, og en kan oppdatere data ved å kjøre prosessen på nytt, og få nye data ut.
-
-\section{Problemstilling}
-Så hva er problemstillingen til slutt?
-Målet blir, ambisiøst nok, å produsere et system som støtter forskjellige reasonere som kan hente ut data og deretter publisere sine funn vha. semantisk teknologi. Deretter skal systemet støtte forskjellige rapportgeneratorer som henter ut slike funn og produserer rapporter i forskjellige formater basert på hva de finner.
-Dette stiller flere krav:
-\begin{itemize}
-\item For det første må et slikt system ta hånd om mange forskjellige dataformater, fra RDBMSer til eksporterte Excel-dokumenter til RDF-tripler.
-  Robust håndtering av disse formatene betyr ikke bare at en kan snakke med forskjellige kilder, men at en kan løfte dem opp til et semantisk nivå slik at de kan benyttes på nye måter av reasonere. Denne løftingen baseres på publiserte ontologier, og må mappes manuelt. Å gjøre den manuelle biten så enkel og smertefri som mulig blir dermed viktig.
-\item For det andre må dette systemet støtte reasonere skrevet i mange forskjellige språk med forskjellige egenskaper og forskjellige muligheter for å lese datatyper. Noen kan kanskje konsumere XML, mens andre klarer kun CSV, og noen må kanskje ha andre formater. Noen kan kanskje bruke HTTP POST/GET Request kall, mens andre kan kalle på systemressurser indirekte, og andre igjen må kanskje kjøres i hjelpeprogrammer som mater dem med informasjonen de trenger. Denne variansen gjør at en må støtte alt fra det enkleste shellscript som kaller på hjelpeprogrammer til store Java EE systemer.
-\item Når en da har et system som lar reasonere hente ned informasjon, ressonnere over dataene og produsere nye data, må disse da kunne publiseres. Denne publiseringen bruker da Dublin Core og andre evt. passende ontologier\footnote{For eksempel en ontologi for å håndtere matematikk, eller bildemateriale}, til å tilegne sine funn mening, så de større rapportsystemene kan finne igjen resultatene senere. En kan også ha andre behov til arbeidsflyt, og det er her viktig at vi er påpasselige med å gjøre ting korrekt.
-\item Videre må rapportene ha klare APIer og lignende de kan bruke slik at de kan gjøre jobben sin så enkelt som mulig. Jo enklere det er å produsere gode rapporter, jo bedre. Disse programmene må ha tilgang til produserte data via SPARQL, så de kan hente ut relevante data. Jo mer rapportgeneratorene kan benytte seg av semantikk til å finne data de trenger jo bedre.
-\item I tillegg til å ha muligheter til å gjøre alt dette trenger en også eksempler på bruk av systemet, både på reasonersiden og rapportgenereringssiden, for å vise hvordan systemet er ment til å fungere. En trenger også eksempler på løfting av data slik at en har eksempler på hvordan dette bør gjøres.
-\end{itemize}
-
-Et annet spørsmål blir hvordan et slikt system bør designes, og hvilke teknologier som bør brukes. En kan se på flere bøker om hvordan en designer større systemer, som The Art Of Unix Programming\cite{taoup}, og andre bøker om bruk av UML\cite{umlpatterns},sikker koding\cite{certguide}, og mange fler for hvordan en bør gå fram her. Et poeng her blir likevel at programmet må være modulært og laget slik at en enkelt kan plugge inn nye biter, det være seg datakilder, reasonere eller rapportgeneratorer. Merk at jeg ikke har nevnt noe om sluttbrukerene og deres grensesnitt, det er rett og slett ikke ment som et system for sluttbrukere, men som et system for andre til å lage noe til sluttbrukerene med. Derfor er ikke de nevnt som en av de store utfordringene, men ting som API-design og lignende er en utfordring, \emph{fordi folk som utvider systemet er brukerene som systemet er ment for.} Det er derfor fortsatt viktig med god design og hensyn til brukeren, men hensynene må tas på en annen måte med et annet utgangspunkt.

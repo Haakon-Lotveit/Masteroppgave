@@ -2,7 +2,7 @@
 % postamble for AuRa's pdflatex backend generator.
 % for questions send e-mails to haakon_lotveit@live.no
 
-\bibliography{bibliography}{} % You probably want to edit this to actually point at your bibliography.
-\bibliographystyle{plain}
+%\bibliography{bibliography}{} % You probably want to edit this to actually point at your bibliography, and to uncomment these lines
+%\bibliographystyle{plain}
 
 % END OF POSTAMBLE

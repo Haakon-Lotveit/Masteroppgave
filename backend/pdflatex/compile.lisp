@@ -118,7 +118,7 @@
 		 collect (coerce line 'list))))))
 
 (defvar *MARKDOWN-TEST-FILE-AS-LIST*
-  (file-to-list "/home/hkl/git/Masteroppgave/backend/testdata/large-markdown-teststring.mfo")
+  (file-to-list "/home/haakon/git/Masteroppgave/backend/testdata/large-markdown-teststring.mfo")
   "The output of the markdown-compiler's large testing string")
 
 (defvar *LOG-STREAM* (make-broadcast-stream))
@@ -179,7 +179,7 @@
   (let* ((hash-table (make-hash-table :test 'equal))
 	 (rest-text (parse-tag-val-pair (trim-textlist textlist) hash-table)))
     
-    (format stream "\\includegraphics{~A}~%" (gethash ":FILE" hash-table))
+    (format stream "\\begin{figure}[!htbp]~%  \\centering~%  \\includegraphics{~A}~%\\end{figure}~%" (gethash ":FILE" hash-table))
     (latex-recursively-handle-text (trim-textlist rest-text) stream)))
 
 (defun latex-handle-table-data (textlist stream)

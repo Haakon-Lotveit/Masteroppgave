@@ -1,289 +1,41 @@
 
-Mer formelt kan en beskrive formatet slik \(EBNF\):
 (NEW-PARAGRAPH)
-(CODE 
-tekst = {\(:char: - "\(" - "\)"\) | \("\\\\", :char:\)} ;
-strengliteral = "\\"", {\(:char: - "\\""\) | \("\\\\", :char:\)}, "\\"" ;
+(HEADLINE :LEVEL "1" Et enkelt testdokument)
 (NEW-PARAGRAPH)
-kommando = nullær kommando | tekst kommando | opsjonskommando | topprekursiv kommando ;
-nullær kommando = ny paragraf | horisontal linje ;
-ny paragraf = "\\n\(NEW-PARAGRAPH\)\\n" ;
-horisontal linje = "\\n\(HORISONTAL-LINE\)\\n" ;
-(NEW-PARAGRAPH)
-tekstkommando = understreket | emph | kursiv | sitat | sitering ;
-understreket = "\(UNDERLINE ", tekst, "\)" ;
-kursiv = "\(CURSIVE ", tekst "\)" ;
-emph = "\(EMPHASISED ", tekst "\)" ;
-sitat = "\(QUOTE ", tekst "\)" ;
-sitering = "\(CITE ", tekst, "\)" ;
-(NEW-PARAGRAPH)
-opsjonskommando = bilde | url kommando | overskrift ;
-bilde = "\(IMAGE :FILE ", streng, "\)" ;
-overskrift = "\(HEADLINE ", nivå, tekst, "\)" ;
-nivå = ":LEVEL ", strengliteral heltall ;
-strengliteral heltall = "\\"" :integer: "\\"" ;
-(NEW-PARAGRAPH)
-url kommando = "\(URL", navn, altnavn, url, "\)" | 
-    	       "\(URL", navn, url, altnavn, "\)" |
-	           "\(URL", altnavn, navn, url, "\)" | 
-	           "\(URL", altnavn, url, navn, "\)" |
-	           "\(URL", url, altnavn, navn, "\)" |
-	           "\(URL", url, navn, altnavn, "\)" ;
-navn = " :NAME ", strengliteral ;
-altnavn = " :ALT-NAME ", strengliteral ;
-url = " :URL ", strengliteral ;
-(NEW-PARAGRAPH)
-topprekursiv kommando = liste | tabell ; 
-liste = uliste | oliste
-uliste = "\(UNORDERED-LIST", {listeelement}, "\)" ;
-oliste = "\(ORDERED-LIST", {llisteelement}, "\)" ;
-listeelement = "\\n\(LINE-ITEM ", tekst, "\)" ;
-(NEW-PARAGRAPH)
-tabell = tabell uten header | tabell med header ;
-tabell uten header = "\(TABLE", size, "\\n", {datarad}, "\)" ;
-tabell med header = "\(TABLE", størrelse, ":HEADERS \\"yes\\"\\n", overskriftsrad, {datarad}, "\)" |
-       	   	    "\(TABLE", ":HEADERS \\"yes\\"", størrelse, "\\n", overskriftsrad, {datarad}, "\)" ;
-rad = datarad | overskriftsrad ;
-datarad = "\(ROW", {data}, "\)\\n" ;
-data = "\(DATA ", tekst, "\)" ;
-overskriftsrad = "\(ROW ", {overskrift}, "\)" ;
-overskrift = " \(HEADER ", tekst, "\)" ;)
-(NEW-PARAGRAPH)
-(HEADLINE :LEVEL "2" Ting som ble utelatt)
-(NEW-PARAGRAPH)
-(HEADLINE :LEVEL "3" MVP - Minimal Valuable Product og valg av features som kunne være med)
-(NEW-PARAGRAPH)
-MVP, eller Minimal Valuable Product \(Det minste levedyktige produktet\) er det minste produktet du kan lage og få tilbakemelding på i markedsplassen, i følge Eric Ries.
-(NEW-PARAGRAPH)
-I denne oppgaven er ikke målet å selge et produkt, men å vise at det er en mulighet for å forbedre livene våre ved å kunne lage rapporter automatisk. Derfor er det minste levedyktige produktet ikke et produkt som kan selges på en markedsplass,
-men et produkt som kan overbevise om at et system som lar en spesifisere automatiske rapporter vil kunne gjøre livene bedre til de som lager rapporter. Dette prinsippet ble konsekvent anvendt for å avgjøre hvilke egenskaper produktet måtte ha, og hvilke ville være gode å ha, men ikke være essensielle.
-Derfor ble en mengde planlagte funksjoner kuttet vekk av forskjellige årsaker for å få på plass en kjerne av systemet som ville kunne gjøre jobben så bra som mulig. For å prioritere ble det tenkt over om andre verktøy kunne ta over noe av jobben \(som i tilfellet med eksterne kommandoer og Make\), og om de er faktisk essensielle. Til slutt, ble arbeidsmengden vurdert ut ifra hvor mye arbeid det ble antatt å kreve. Å utvide kjøretidsmiljøet til å takle makroer eller funksjoner som argumenter ble vurdert til å ta for mye tid, uten å være tvingende essensielle.
-(NEW-PARAGRAPH)
-(HEADLINE :LEVEL "3" Kjøring av eksterne kommandoer)
-(NEW-PARAGRAPH)
-En tidlig feature som var planlagt å implementere var spesifisering av kommandoer som skulle kjøres, i en egen kommando:
-(NEW-PARAGRAPH)
-(CODE 
-\(Kommando :UNIX "pwd" :Windows "CD"\))
-(NEW-PARAGRAPH)
-Dette ville la en spesifisere kommandoer som en kunne kjøre(FOOTNOTE Eksempelet ville returnert mappen programmet brukte for øyeblikket), basert på operativsystem.(FOOTNOTE Kommandoen i eksempelet ville virket på Windows, GNU/Linux distribusjoner og OSX)
-Grunnen til at kommandoen ble skrinlagt er tidsmangel: For at den skulle vært nyttig måtte den ikke bare kunne kjørt kommandoer for å lagre filer, som en kan spesifisere i andre automatiseringsprogrammer som GNU Make.
-Det ville ikke gitt så veldig mye. Det den derimot var planlagt til var å hjelpe med definisjoner av makroer, som ble skrinlagt relativt tidlig når arbeidet ble planlagt. Disse makroene har sitt eget avsnitt.
-Selvsagt ville evnen til å kjøre egne kommandoer la en slippe å bruke GNU Make i enkle tilfeller, og dermed være et positivt tillegg på egne premisser, men det ville ikke være en essensiell del av programmet ihht. MVP prinsippet som ble gitt tidligere.
-I tillegg kan en få funksjonaliteten via andre programmer som GNU Make. Derfor ble den skrinlagt og ideen puttet på vent til kjernen av programmet ble ferdig.
-(NEW-PARAGRAPH)
-Den ville likevel blitt implementert før muligheten til å definere makroer, da muligheten til å definere makroer ville fått mye større muligheter ut av denne kommandoen enn noen andre.
-(NEW-PARAGRAPH)
-(HEADLINE :LEVEL "3" Andre kilder til tekst enn filer)
-(NEW-PARAGRAPH)
-Opprinnelig var det planlagt å tillate tre forskjellige datakilder til en kilde. Til dømes ville alle disse være lovlige:
-(NEW-PARAGRAPH)
-(CODE 
-\(Markdown :fil "~/Dokumenter/markdown.md"\)
-down :sitat "# Overskrift #"\)
-\(Markdown :kommando "~/skript/lag-markdown.sh"\))
-(NEW-PARAGRAPH)
-Dette ble skrinlagt grunnet tidsbegrensinger. Det var også vurdert som mindre viktig enn andre muligheter:
-(NEW-PARAGRAPH)
-For kommando er følgende problemer:
-(UNORDERED-LIST
-(LINE-ITEM :kommando er ikke et trygt predikat, da noe som virker på et UNIX-system ikke nødvendigvis ville virket på et Windows-system.))
+(HEADLINE :LEVEL "2" Faktisk innhold)
+Dette er et enkelt testdokument for å vise hvordan ting fungerer.
 (NEW-PARAGRAPH)
 (UNORDERED-LIST
-(LINE-ITEM Faktisk ville det vært tryggere å bruke \(Kommando\) direktivet, bruke utfilen, og slettet den manuelt etterpå.))
-   Å tillate predikater som er raskere å skrive er i utgangspunktet bra, men ikke når det gjør resultatet utrygt. Det er bedre å bruke ti sekunder mer på å skrive enn ti minutter på å debugge.
-(NEW-PARAGRAPH)
-(UNORDERED-LIST
-(LINE-ITEM Selv om \(Kommando\) ikke ble implementert kan en bruke GNU Make eller lignende til å få samme effekten. Dermed faller det direkte behovet for å ha muligheten i første utgave bort.))
-(NEW-PARAGRAPH)
-(UNORDERED-LIST
-(LINE-ITEM Til sist, direktivet \(Kommando\) og predikatet :kommando vil ha samme funksjonalitet. Det gjør språket mindre forutsigbart.))
-(NEW-PARAGRAPH)
-For sitat er det relativt enklere: Det var der for å gjøre enkelte brukstilfeller som oppstod under bruk/utvikling raskere å behandle. Det det kokte ned til da var et det var relativt greit å lage en funksjon i editoren \(GNU Emacs\) som lagde en fil med sitatet og satte inn et direktiv med et :fil-predikat istedenfor.
-Det er ikke alle editorer som tillater utvidelse på den måten, men det viste seg altså ikke å være et essensielt valg.
-(NEW-PARAGRAPH)
-(HEADLINE :LEVEL "3" Begrensede språkkonstruksjoner)
-(NEW-PARAGRAPH)
-Dersom en skal kunne utvide språket selv med egne konstruksjoner og funksjoner, kommer en før eller senere til å ønske å kunne gjøre ting som ikke er en direkte kommando.
-For å støtte opp om makrosystemet var det derfor opprinnelig tiltenkt ekstra hjelpefunksjoner som for eksempel  Operativsystem\) som henter ut operativsystemet \(UNIX, Windows, eller evt. annet\), eller \(Formatter\) som lar en formattere en tekststreng.
-Dette ville nødvendiggjøre utvidelser til språket som å la en gi andre argumenter en strengliteraler til et direktiv.
-En kan tenke seg for eksempel noe ala:
-(NEW-PARAGRAPH)
-(CODE 
-\(Kommando :UNIX \(Formatter "~A~A" \(AuRa-Mappe\) "/skript/nix/shellscript.sh"\) :Windows \(Formatter "~A~A \(AuRa-Mappe\) "/skript/windows/batchfil.bat"\)\))
-(NEW-PARAGRAPH)
-Som ville latt en ha relative stier til forskjellige kommandoer. Videre har en funksjoner som \(Slett-Fil\), \(Finnes-Fil\) og lignende. Dessuten har en også \(Kondisjonal\) som ville latt en gjøre ting ala:
-(NEW-PARAGRAPH)
-(CODE 
-\(kondisjonal
-Finnes-Fil \(Formatter "~A~A" \(AuRa-Mappe\) "tmp/del1.md"\)\)
-lett-Fil  \(Formatter "~A~A" \(AuRa-Mappe\) "tmp/del1.md"\)\)\)
-(\(Finnes-Fil \(Formatter "~A~A" \(AuRa-Mappe\) "tmp/del2.md"\)\)
-lett-Fil  \(Formatter "~A~A" \(AuRa-Mappe\) "tmp/del2.md"\)\)\)\))
-(NEW-PARAGRAPH)
-Som ville slettet filer om de eksisterte. Videre ville konstruksjoner som lister og løkker på et tidspunkt begynne å dukke opp. Dette ville igjen tatt mye tid, uten å være av kritisk nødvendighet. Derfor ble det utstatt ihht. MVP-idiomet.
-(NEW-PARAGRAPH)
-(HEADLINE :LEVEL "3" Definisjoner av egne makroer)
-(NEW-PARAGRAPH)
-AuRa var alltid ment til å være et fleksibelt og utvidbart språk. I tillegg til å tilrettelegge for å legge til nye inn og utdataformat, var det også meningen å la brukere legge til egne kommandoer om de trengte det, og å la dem dele dem med hverandre.
-På denne måten kunne behov som ikke var dekket av utviklere bli dekket av brukere. På denne måten kan en tilrettelegge for problemløsning som ikke var forutsett av hovedutviklerene. Opprinnelig var ideen å inkludere definisjoner av makroer slik:
-(NEW-PARAGRAPH)
-(CODE 
-\(Makro :fil "~/.aura/makroer/sql.aud"\))
-(NEW-PARAGRAPH)
-Der "aud" var det tiltenkte etternavnet på makrofilene \(kort for AuRa Definisjoner\).
-(NEW-PARAGRAPH)
-Videre var makroer tiltenkt å kunne defineres noe ala dette:
-(NEW-PARAGRAPH)
-(CODE 
-\(Definer-Makro :Navn "Slett"
-ilnavn fil\)
-mmando :UNIX \(formatter "rm ~A" fil\)
-      :Windows \(formatter "del ~A" fil\)\)\) )
-(NEW-PARAGRAPH)
-(CODE 
-\(Definer-Makro :Navn "Kjør-Og-Slett-CSV"
-indows wkommando :UNIX ukommando :filnavn filnavn\)
-mmando :Windows wkommando :UNIX ukommando\)
-V :fil filnavn\)
-ett filnavn\)\))
-(NEW-PARAGRAPH)
-Merk at dette ikke nødvendigvis er gode eller trygge makroer. Syntaks og lignende kom aldri lengre enn tegnebrettet, da arbeidsmengden som skulle til for å lage korrekte og leselige makroer fort ble ansett til å være relativt høy.
-For eksempel ville en måtte kunne utvide AuRa til å utvide makroene, slik at til dømes(FOOTNOTE \(Markdown\) er her for å gi litt kontekst til et tenkt enkelt dokument):
-(NEW-PARAGRAPH)
-(CODE 
-;; Dette programmet vil kun kjøre korrekt på (EMPHASISED NIX-systemer, vil ikke kjøre på Windows-systemer.
-down :fil "/tmp/generert-forord"\)
-\(Kjør-Og-Slett-CSV :UNIX "/opt/sqldumper/query-to-csv --query=\\"Select 'something' from 'table' where param < 4 order by foo limit 10\\" --outfile=/tmp/table.csv" :filnavn "/tmp/table.csv"\)
-down :fil "/tmp/generert-ettermæle"\))
-(NEW-PARAGRAPH)
-Vil måtte utvides til følgende:
-(NEW-PARAGRAPH)
-(CODE 
-;; Dette programmet vil kun kjøre korrekt på )NIX-systemer, vil ikke kjøre på Windows-systemer.
-down :fil "/tmp/generert-forord"\)
-ando :UNIX "/opt/sqldumper/query-to-csv --query=\\"Select 'something' from 'table' where param < 4 order by foo limit 10\\" --outfile=/tmp/table.csv" :filnavn "/tmp/table.csv"\)
-:fil "/tmp/table.csv"\)
-ando :UNIX "rm /tmp/table.csv" :Windows "del /tmp/table.csv"\)
-down :fil "/tmp/generert-ettermæle"\))
-(NEW-PARAGRAPH)
-Arbeidsmengden ble vurdert til å være for stor til å gjøre og å bli ferdig. Arbeidet ville ikke bare inkludert å preprosessere AuRa-filene, men også å itererere over syntaksen til den ble så bra som mulig.
-I tillegg er nytteverdien sterkt synergisk med andre språkkonstruksjoner, som muligheten til å kjøre kommandoer, kondisjonaler og lignende. Siden disse også er en stor arbeidsmengde ble beslutningen tidlig tatt om å legge makroer til siden, og heller konsentrere seg om andre ting i systemet.
-(NEW-PARAGRAPH)
-(HEADLINE :LEVEL "3" Teksttyper annet enn Markdown)
-(NEW-PARAGRAPH)
-Selv om andre større og mer kompliserte teksttyper ikke var tiltenkt fra begynnelsen var det likevel andre datakilder som var tiltenkt.
-Noen av disse har allerede kode påbegynt med enhetstester, men ble ikke inkludert i det ferdige produktet av forskjellige årsaker.
-(NEW-PARAGRAPH)
-(HEADLINE :LEVEL "4" Direkte innsatt tekst)
-Direkte innsatt tekst ville vært tekst som ble satt inn nøyaktig slik den var og ikke oversatt på noen måter. Det var opprinnelig tiltenkt som en måte å legge til ting som ikke var støttet i mellomformatet inn i et spesifikt sluttformat. Et eksempel ville være matematiske formler i LaTeX.
-Sammen med :sitat predikatet ville det la brukere gjøre ting som:
-(NEW-PARAGRAPH)
-(CODE 
-;; Forutsetter pdflatex-kompilatoren
-as DPS for \(Q\) Snipe, gitt at du går for Ambush Snipe
-down :fil "~/rapporter/Nova/Snipe-Damage-Ambush-Snipe-1.md"\)
-kte-Innsatt :sitat " \\\\ $f\(F(UNDERLINE {Ambush-Snipe}\(N){Level}\) = \\frac{\(146 + \(31 \\cdot N(UNDERLINE {Level}\)\) \\cdot 1,20}{10}$ \\\\"
-down :fil "~/rapporter/Nova/Snipe-Damage-Ambush-Snipe-2.md"\)
-as DPS for \(Q\) Snipe, gitt at du går for Psi-Op Rangefinder
-down :fil "~/rapporter/Nova/Snipe-Damage-PsiOp-Rangefinder.md"\)
-kte-Innsatt :sitat " \\\\ $f\(F){PsiOp-Range}\(N(UNDERLINE {Level}\) = \\frac{\(146 + \(31 \\cdot N){Level}\)\)}{8}$ \\\\"
-\(Markdown :fil "~/rapporter/Nova/Snipe-Damage-PsiOp-Rangefinder.md"\)
-summering til slutt, konkluderer med at lvl-1 talentene ikke bør velges med hensyn til dps på \(Q\) Snipe \(diff på lvl 30 er ~5\(!\)\).
-down :fil "~/rapporter/Nova/Snipe-Damage-konklusjon-1.md"\)
-e :fil "~/rapporter/Nova/diff-dps.png"\)
-down :fil "~/rapporter/Nova/Snipe-Damage-konklusjon-2.md"\))
-(NEW-PARAGRAPH)
-For å få matte inn i et dokument som ellers ikke ville støttet det.
-Av tidsmessige grunner ble dette ikke tatt med i prosjektet.
-(NEW-PARAGRAPH)
-(HEADLINE :LEVEL "4" Ren tekst)
-(NEW-PARAGRAPH)
-En annen ting som kunne vært greit å hatt med hadde vært ren tekst \(txt\). Det finnes kode og slikt for å parse den ut, og det ville være lite arbeid å legge det til som et støttet format.
-Årsaken til at det ikke ble gjort direkte var MVP-prinsippet om å bare ha med essensielle ting i begynnelsen, og for å unngå å ha mer ting i kodebasen som må vedlikeholdes og feilrettes.
-(NEW-PARAGRAPH)
-(HEADLINE :LEVEL "2" Utfordringer)
-(NEW-PARAGRAPH)
-(HEADLINE :LEVEL "3" Markdown)
-En av de største utfordringene var en korrekt parsing av markdown uten formelle definisjoner av språket. Markdown er et språk som er lett å tyde, og enkelt i bruk, men implementasjonsdetaljene varierer mellom de forskjellige implementasjonene med forskjellige tillegg, endret oppførsel og mer.
-Som et eksempel har en GitHubs endring, der et filnavn ala: "langt\\_filnavn\\_her.txt" vil bli stående som det er. I originalt markdown ville det blitt til "langt(UNDERLINE filnavn)her.txt". Siden det er flere dialekter av språket, og ingen offisiell styring er det heller ikke noe som heter offisielt markdown. Dialekten som ble implementert er i all hovedsak som den original, med noen tillegg og særegenheter:
-(NEW-PARAGRAPH)
-(UNORDERED-LIST
-(LINE-ITEM En URL (EMPHASISED må) ha tre elementer, både navn, URL og alternativt navn.)
-(LINE-ITEM En kan gjøre siteringer vha to paragraftegn, slik: \\§SiterBok\\§.)
-(LINE-ITEM En kan be om fotnoter vha pengetegnet, slik: \\¤Dette blir en fotnote\\¤))
-(NEW-PARAGRAPH)
-URL-biten var gjort for å bli ferdig fortere, da Markdown tok særdeles lang tid sett under ett med feilretting, utvidelse, testing og refaktorering over tid. Den var til slutt tatt ut i en egen fil bare for å holde det overkommelig å lese.
-(NEW-PARAGRAPH)
-(HEADLINE :LEVEL "3" Definisjon av AuRa som språk)
-(NEW-PARAGRAPH)
-Språket i seg selv tok flere iterasjoner for å få til korrekt.
-Det gikk gjennom flere former fra en YAML-inspirert notasjon via noe som lignet mer på XML, til dagens Lisp-inspirerte syntaks.
-Den første syntaksen var ment til å være så enkel som mulig: En åpnet et dokument ved å be om et dokument, så spesifiserte man det man ville ha i dokumentet, og så avsluttet man dokumentet. Et eksempel på den første syntaksen så slik ut:
-(NEW-PARAGRAPH)
-(CODE 
-Dokument:
-  Tekst: type="markdown" fil="~/master/oppgave/del1.md" .
-  Bilde: type="png" fil="~/master/oppgave/fig1.png" .
-  Tabell: type="csv" fil="~/master/oppgave/tab1.csv" .
-  .)
-(NEW-PARAGRAPH)
-I forhold til formatet som er nå, hadde det sine negative sider:
-(NEW-PARAGRAPH)
-(UNORDERED-LIST
-(LINE-ITEM Det var nødvendig å begynne en rapport med ordet "Dokument:" selv om det alltid ville være der.)
-(LINE-ITEM Brukere måtte huske på å avslutte alle elementene selv, vha. et punktum \('.'\), inkludert dokumentet.)
-(LINE-ITEM En måtte også bruke mellomrom mellom alle elementene, inkludert punktumet.)
-(LINE-ITEM Formatet lå opp til en trestruktur, uten å tilby noen rekursive elementer.))
-(NEW-PARAGRAPH)
-Tilsvarende i det ferdige formatet ville vært
-(NEW-PARAGRAPH)
-(CODE 
-\(Markdown :FIL "~/master/oppgave/del1.md"\)
-\(Bilde :FIL "~/master/oppgave/fig1.png"\)
-\(Tabell :FIL "~/master/oppgave/tab1.csv"\))
-(NEW-PARAGRAPH)
-Som har sine fordeler. Først å fremst er det mer konsist, og det er umiddelbart klart ved et øyenkast hvor et uttrykk begynner og slutter.
-Det enkle metaforiske grepet med å putte uttrykk i parenteser kan argumenteres for og i mot. På den ene siden er det egentlig unødvendig: Alle uttrykk har sin egen linje per dags dato. Dermed blir det mer å skrive uten at det er nødvendig. På den annen side kan en tenke seg utvidelser der en bruker flere linjer på å uttrykke et direktiv. En kan tenke seg en framtidig utvidelse der en kan kjøre spørringer mot en SQL-database slik:
-(NEW-PARAGRAPH)
-(CODE 
-\(SQL-tabell :SPØRRING "SELECT (EMPHASISED  FROM TABLE"
-      :DATABASENAVN "DB"
-TABASETYPE "ORACLE-SQL"
-RVER "LOCALHOST"
-UKERNAVN "TESTBRUKER"
-SSORD "TESTPASSORD"\))
-(NEW-PARAGRAPH)
-En slik utvidelse ville vært mye enklere å lese når den kan fordeles ut over flere linjer:
-(NEW-PARAGRAPH)
-(CODE 
-\(SQL-tabell :SPØRRING "SELECT ) FROM TABLE" :DATABASENAVN "DB" :DATABASETYPE "ORACLE-SQL" :SERVER "LOCALHOST" :BRUKERNAVN "TESTBRUKER" :PASSORD "TESTPASSORD"\))
-(NEW-PARAGRAPH)
-Den får ikke engang plass på siden, men det er allerede unødvendig tungvint å se hva som skjer. Derfor ble det valgt å bruke et taggingsystem for å avgrense uttrykk, eller direktivene i AuRa.
-Valget av avgrensing falt til slutt på Lispnotasjon istedenfor XML, som i sin tid så slik ut:
-(NEW-PARAGRAPH)
-(CODE 
-<SQL-TABELL>
-    <SPØRRING>SELECT (EMPHASISED  FROM TABLE</SPØRRING>
-    <DATABASENAVN>DB</DATABASENAVN>
-    <DATABASETYPE>ORACLE-SQL</DATABASETYPE>
-    <SERVER>LOCALHOST</SERVER>
-    <BRUKERNAVN>TESTBRUKER</BRUKERNAVN>
-    <PASSORD>TESTPASSORD </PASSORD>
-QL-TABELL>)
-(NEW-PARAGRAPH)
-Det er likevel to objektive hovedgrunner til at valget falt på lispinspirert notasjon:
+(LINE-ITEM Lister kompileres korrekt)
+(LINE-ITEM Slik en kan se her))
 (NEW-PARAGRAPH)
 (ORDERED-LIST
-(LINE-ITEM Lispnotasjon er raskere å skrive, da det kreves færre tegn enn XML.)
-(LINE-ITEM Lispnotasjon er enklere å parse, da det er færre regler og spesialtilfeller (FOOTNOTE Sammenlign med grammatikken for AuRas språk lenger oppe)))
+(LINE-ITEM Det er også numererte lister)
+(LINE-ITEM De lages på en annen måte))
 (NEW-PARAGRAPH)
-XML-notasjon har den fordelen at det er enorme mengder verktøy tilgjengelig for å lette byrden med parsing. På den annen side tok det en kveld å skrive parseren for AuRa slik den er nå, så i dette tilfellet er det ikke et stort tap.
-Selv om XML tilbyr støtte for rekursive definisjoner og trestrukturer, er ikke dette noe AuRa bruker per dags dato, og dagens enkle grammatikk kan utvides til å takle rekursive strukturer om det blir behov for det.
-En kan argumentere for at dersom AuRa-rapporter blir spesifisert for hånd, så vil det blir gjort av verktøy, og dermed faller mye, om ikke all forskjellen mellom AuRas format og et XML-format bort. Men selv om det hadde eksistert verktøy som skrev AuRa-filer ville disse verktøyene ha nødvendigvis blitt skrevet av mennesker som måtte lest og forstått formatet de behandlet. Derfor blir det likevel aktuelt å gjøre det så lett som mulig for disse programmererene å gjøre jobben sin så godt som mulig.
-Det er derfor ingen unnskyldning for å ha et dårlig format fordi verktøy tar hånd om det. 
+Det er også enkelt å legge til andre ting til teksten, slik som (EMPHASISED trykk) eller (UNDERLINE understreking).
+Merk at dialekten av Markdown som AuRa forstår er noe annerledes enn original Markdown.
+Merk også at det ikke finnes noen formell definisjon av Markdown, og at dette er vanlig praksis.(FOOTNOTE Se for eksempel på Stackoverflow, GitHub eller Atlassian JIRA for eksempler på dette)
 (NEW-PARAGRAPH)
-(HEADLINE :LEVEL "3" Definisjon av mellomformatet)
+(HEADLINE :LEVEL "2" Digresjon for å vise bilder)
+Når det er sagt er det ting som ikke støttes direkte i markdown-filer, som bildelenker.
+Bildelenker må defineres separat.
+(IMAGE :FILE "/home/haakon/test/test.png" )
+(HEADLINE :LEVEL "1" Om tabellstøtten)
 (NEW-PARAGRAPH)
-Mellomformatet var sett som en nødvendighet siden dag en. Ønsket var et format som kunne leses for hånd, og være så tydelig at dersom en bare hadde tilgang på en tekstbehandler som til dømes Microsoft Word og en fil fra mellomformatet, skulle det være mulig å gjenskape dokumentet for hånd, om en hadde tålmodighet nok.
-Her tok det også flere iterasjoner før dagens løsning ble skapt, men i motsetning til AuRa-formatet var det ingen store endringer, bare små, mindre endringer helt til nåværende iterasjon ble valgt. Den første iterasjonen så ut som HTML med parenteser, og var inspirert av CL-WHO skrevet av Edi Weitz, men ble sakte men sikkert morfet inn i dagens utgave.
+AuRa støtter tabulære data per i dag. Men bare data i CSV-format. Dette var fordi det var enklere å få til. Dette er fordi CSV-støtte er innebygd i Common Lisp, mens støtte for regneark ikke er det. En mulighet ville være å shelle ut til LibreOffice for å be den om å gjøre det.
+(NEW-PARAGRAPH)
+
+(TABLE :SIZE "5" :HEADERS "yes"
+    (ROW (HEADER Navn) (HEADER På) (HEADER Kolonner) (HEADER Øverst) (HEADER Så verdier))
+    (ROW (DATA 12) (DATA 12) (DATA 12) (DATA 12) (DATA 12))
+    (ROW (DATA 12) (DATA 12) (DATA 12) (DATA 12) (DATA 12))
+    (ROW (DATA 12) (DATA 12) (DATA 12) (DATA 12) (DATA 12))
+    (ROW (DATA 12) (DATA 12) (DATA 12) (DATA 12) (DATA 12))
+    (ROW (DATA 12) (DATA 12) (DATA 12) (DATA 12) (DATA 12))
+    (ROW (DATA 12) (DATA 12) (DATA 12) (DATA 12) (DATA 12))
+    (ROW (DATA 12) (DATA 12) (DATA 12) (DATA 12) (DATA 12)))
+(HEADLINE :LEVEL "1" Oppsummering)
+(NEW-PARAGRAPH)
+Som vi kan se støtter AuRa flere forskjellige dataformat. \(Jeg har lyst til å si dataformater men det er ukorrekt norsk av en eller annen grunn.\)
+Dette gjør det lett å legge til kommentarer til tabeller eller bilder. Bildekilder som var påtenkte var blant annet LaTeX-matteformler som ble kompilert til bilder, grafer fra statistikkprogrammer som R, eller andre kilder til informasjon.
