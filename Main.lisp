@@ -5,7 +5,7 @@
   (load (merge-pathnames file *default-pathname-defaults*)))
 
 (let ((*standard-output* (make-broadcast-stream)))
-  (fload "aux/auxilliary-functions.lisp")
+  (fload "auxilliary/auxilliary-functions.lisp")
   (fload "Compiler.lisp")
   (fload "markdown-compiler/list-status.lisp")
   (fload "markdown-compiler/markdown.lisp")
